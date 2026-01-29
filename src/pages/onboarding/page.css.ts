@@ -1,6 +1,6 @@
-import { vars } from '@/ui/theme.css';
-
 import { style } from '@vanilla-extract/css';
+
+import { vars } from '@/ui/theme.css';
 
 export const onboarding = style({
   background: vars.color.grey100,
@@ -32,6 +32,7 @@ export const cardBox = style({
   flexDirection: 'column',
   alignItems: 'center',
   marginTop: 35,
+  gap: 16,
 });
 
 export const card = style({
@@ -51,10 +52,18 @@ export const cardIcon = style({
 export const cardTitle = style({
   color: vars.color.grey900,
   fontWeight: vars.fontWeight.bold,
-  fontSize: vars.fontSize.l,
+  fontSize: vars.fontSize.m,
 });
 
 export const cardDesc = style({
   color: vars.color.grey500,
   fontSize: vars.fontSize.s,
+});
+
+export const buttonContainer = style({
+  marginTop: 30,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: 16,
 });

@@ -1,10 +1,15 @@
+import { useNavigate } from 'react-router-dom';
+
 import { OnboardingLogo } from '@/assets';
+import { Button } from '@/ui/button/button';
 import { PageLayout } from '@/ui/layout/page-layout';
 import { Spacer } from '@/ui/spacer/spacer';
 
 import * as styles from './page.css';
 
 export const OnBoardingPage = () => {
+  const navigate = useNavigate();
+
   return (
     <PageLayout className={styles.onboarding}>
       <Spacer size={120} />
@@ -28,6 +33,30 @@ export const OnBoardingPage = () => {
             카톡 단톡방에서 날짜 맞추느라 고생하지 마세요
           </span>
         </div>
+        <div className={styles.card}>
+          <span className={styles.cardIcon}>📍</span>
+          <span className={styles.cardTitle}>"어디서 만날까요?" 고민은 이제 그만</span>
+          <span className={styles.cardDesc}>
+            모두의 위치를 고려한 AI 추천 장소 <br />
+            중간 지점 자동 계산, 투표로 쉽게 결정하세요
+          </span>
+        </div>
+        <div className={styles.card}>
+          <span className={styles.cardIcon}>💰</span>
+          <span className={styles.cardTitle}>정산도 간편하게</span>
+          <span className={styles.cardDesc}>
+            모임 후 누가 얼마 냈는지 기록하고 <br />
+            송금 링크로 바로 정산하세요
+          </span>
+        </div>
+      </div>
+      <div className={styles.buttonContainer}>
+        <Button size="l" color="blue" onClick={() => navigate('/onboarding/start')}>
+          위밋톡 시작하기
+        </Button>
+        <Button size="l" color="white" onClick={() => navigate('/register')}>
+          위밋톡 가입하기
+        </Button>
       </div>
     </PageLayout>
   );
