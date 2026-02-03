@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { OnboardingLogo } from '@/assets';
 import { Button } from '@/ui/button/button';
 import { PageLayout } from '@/ui/layout/page-layout';
-import { Spacer } from '@/ui/spacer/spacer';
 
 import * as styles from './page.css';
 
@@ -12,15 +11,14 @@ export const OnBoardingPage = () => {
 
   return (
     <PageLayout className={styles.onboarding}>
-      <Spacer size={120} />
       <div className={styles.logo}>
         <OnboardingLogo />
       </div>
-      <Spacer size={36} />
+
       <div className={styles.title}>
         모임 약속, <br /> 이제 한번에 끝내요
       </div>
-      <Spacer size={15} />
+
       <div className={styles.subtitle}>
         일정 조율부터 장소 투표, 정산까지 <br /> 복잡했던 모임 준비를 위밋톡 하나로 쉽고 간편하게
       </div>

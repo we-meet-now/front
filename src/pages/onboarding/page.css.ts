@@ -6,6 +6,7 @@ export const onboarding = style({
   background: vars.color.grey100,
   display: 'flex',
   flexDirection: 'column',
+  padding: '40px 20px 20px 20px',
 });
 
 export const logo = style({
