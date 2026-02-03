@@ -4,6 +4,7 @@ import { HomePage } from './pages/home';
 import { LoginPage } from './pages/login';
 import { NotificationPage } from './pages/notification';
 import { OnBoardingPage } from './pages/onboarding';
+import { CompletePage } from './pages/onboarding/complete';
 import { FlowPage } from './pages/onboarding/flow';
 import { MeetingPage } from './pages/onboarding/meeting';
 import { StartPage } from './pages/onboarding/start';
@@ -17,6 +18,7 @@ export const Router = () => {
           <Route index element={<OnBoardingPage />} />
           <Route path="start" element={<StartPage />} />
           <Route path="meeting" element={<MeetingPage />} />
+          <Route path="complete" element={<CompletePage />} />
           <Route path="flow" element={<FlowPage />} />
         </Route>
         <Route path="login" element={<LoginPage />} />
