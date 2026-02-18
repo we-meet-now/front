@@ -40,7 +40,7 @@ export const LoginPage = () => {
         </div>
 
         <Spacer size={25} />
-        <Button>로그인</Button>
+        <Button onClick={() => navigate('/create-meeting')}>로그인</Button>
 
         {/* Signup */}
         <div className={styles.signupText}>

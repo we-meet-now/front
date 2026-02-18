@@ -1,5 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+import { CreateMeetingPage } from './pages/create-meeting';
 import { HomePage } from './pages/home';
 import { LoginPage } from './pages/login';
 import { NotificationPage } from './pages/notification';
@@ -26,6 +27,7 @@ export const Router = () => {
         <Route path="register" element={<RegisterPage />} />
         <Route path="home" element={<HomePage />} />
         <Route path="notification" element={<NotificationPage />} />
+        <Route path="create-meeting" element={<CreateMeetingPage />} />
       </Routes>
     </BrowserRouter>
   );
