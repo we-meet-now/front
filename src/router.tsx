@@ -14,6 +14,7 @@ export const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<OnBoardingPage />} />
         <Route path="onboarding">
           <Route index element={<OnBoardingPage />} />
           <Route path="start" element={<StartPage />} />
