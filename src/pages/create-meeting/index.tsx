@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { PageLayout } from '@/ui/layout/page-layout';
 
+import { PlaceStep } from './steps/Place-Step';
 import { TimeStep } from './steps/TimeStep';
 import { TypeStep } from './steps/TypeStep';
-import { PlaceStep } from './steps/placestep';
 import type { CreateMeetingForm, FunnelStep } from './types';
 import { useFunnel } from './useFunnel';
 

@@ -1,4 +1,3 @@
-// src/pages/create-meeting/steps/PlaceStep.tsx
 import { Button } from '@/ui/button/button';
 import { cx } from '@/ui/utils';
 
