@@ -156,7 +156,10 @@ export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
               className={cx(styles.resultCard, value.place === place && styles.selectedResult)}
               onClick={() => onChange({ place })}
             >
-              <span className={styles.resultCardTitle}>{place}</span>
+              <span className={styles.resultCardTitle}>
+                {value.placeMode === 'ai' && <span className={styles.aiBadge}>다양한 선택지</span>}
+                {place}
+              </span>
               <span className={styles.resultCardAddress}>서울특별시 강남구 예시로 123</span>
             </div>
           ))}
