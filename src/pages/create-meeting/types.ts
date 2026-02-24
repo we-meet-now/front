@@ -9,7 +9,8 @@ export type CreateMeetingForm = {
   meetingType?: string;
 
   // Step3
-  placeMode?: 'now' | 'vote' | 'search' | 'ai'; // ⭐ 추가
+  placeMode?: 'vote' | 'search' | 'ai';
+  place?: string; // ⭐ 추가 (search/ai 결과 저장용)
 };
 
 export type FunnelStep = 'time' | 'type' | 'place';

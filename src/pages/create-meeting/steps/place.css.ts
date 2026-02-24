@@ -134,3 +134,61 @@ export const footer = style({
   display: 'flex',
   gap: 12,
 });
+
+export const searchBox = style({
+  width: '80%',
+  display: 'flex',
+  gap: 8,
+});
+
+export const searchInput = style({
+  flex: 1,
+  height: 40,
+  padding: '0 12px',
+  borderRadius: 8,
+  border: `1px solid ${vars.color.grey400}`,
+});
+
+export const searchButton = style({
+  height: 40,
+});
+
+export const resultList = style({
+  width: '80%',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 10,
+});
+
+export const resultCard = style({
+  padding: '12px',
+  borderRadius: 12,
+  border: `1px solid ${vars.color.grey300}`,
+  cursor: 'pointer',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+});
+
+export const aiBadge = style({
+  padding: '2px 6px',
+  borderRadius: 4,
+  backgroundColor: vars.color.green100,
+  color: vars.color.green900,
+  fontSize: vars.fontSize.xxs,
+  marginRight: 6,
+});
+
+export const resultCardTitle = style({
+  fontSize: vars.fontSize.s,
+  fontWeight: vars.fontWeight.bold,
+});
+export const resultCardAddress = style({
+  fontSize: vars.fontSize.xs,
+  color: vars.color.grey500,
+});
+
+export const selectedResult = style({
+  borderColor: vars.color.blue500,
+  backgroundColor: vars.color.blue50,
+});
