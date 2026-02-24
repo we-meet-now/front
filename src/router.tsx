@@ -19,6 +19,7 @@ export const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<OnBoardingPage />} />
         {/* 공통 페이지 */}
         <Route path="onboarding">
           <Route index element={<OnBoardingPage />} />{' '}
