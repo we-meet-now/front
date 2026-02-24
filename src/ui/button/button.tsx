@@ -7,7 +7,7 @@ import { cx } from '../utils';
 import { vars } from '../theme.css';
 import * as styles from './button.css';
 
-type ButtonSize = 's' | 'm' | 'l';
+type ButtonSize = 'xs' | 's' | 'm' | 'l';
 
 type ButtonColor = 'blue' | 'green' | 'grey' | 'black' | 'white';
 
@@ -20,6 +20,7 @@ const sizeMap: Record<
   ButtonSize,
   { height: number; paddingX: number; minWidth: number; fontSize: string }
 > = {
+  xs: { height: 30, paddingX: 10, minWidth: 70, fontSize: vars.fontSize.xs },
   s: { height: 32, paddingX: 12, minWidth: 120, fontSize: vars.fontSize.s },
   m: { height: 44, paddingX: 16, minWidth: 231, fontSize: vars.fontSize.m },
   l: { height: 48, paddingX: 20, minWidth: 327, fontSize: vars.fontSize.m },
