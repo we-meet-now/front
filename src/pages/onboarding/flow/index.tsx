@@ -44,14 +44,14 @@ export const FlowPage = () => {
 
   const goNext = () => {
     if (isLast) {
-      navigate('/home');
+      navigate('/create-meeting');
     } else {
       setStep(step + 1);
     }
   };
 
   const skip = () => {
-    navigate('/home');
+    navigate('/create-meeting');
   };
 
   return (
