@@ -53,6 +53,31 @@ export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
   const handleSearch = async () => {
     if (!searchKeyword) return;
 
+    setIsLoading(true);
+    // api 연동 시 아래 코드 참고
+    // try {
+    //   const res = await fetch('/api/place/search', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       keyword: searchKeyword,
+    //       date: value.date,
+    //       time: value.time,
+    //       meetingType: value.meetingType,
+    //     }),
+    //   });
+
+    //   const data = await res.json();
+
+    //   setPlaces(data.places);
+    // } catch (err) {
+    //   console.error(err);
+    // } finally {
+    //   setIsLoading(false);
+    // }
+
     if (value.placeMode === 'search') {
       // 일반 검색 (즉시)
       setPlaces([`${searchKeyword} 카페`, `${searchKeyword} 음식점`, `${searchKeyword} 문화센터`]);

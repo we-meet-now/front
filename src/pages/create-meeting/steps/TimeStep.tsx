@@ -41,7 +41,13 @@ export const TimeStep = ({ value, onChange, onNext }: Props) => {
         </button>
         <button
           className={cx(styles.tab, timeType === 'custom' && styles.activeTab)}
-          onClick={() => onChange({ timeType: 'custom' })}
+          onClick={() =>
+            onChange({
+              timeType: 'custom',
+              date: undefined,
+              time: undefined,
+            })
+          }
         >
           날짜를 정할래요
         </button>

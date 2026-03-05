@@ -1,5 +1,5 @@
 // src/pages/create-meeting/steps/TypeStep.tsx
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/ui/button/button';
 import { cx } from '@/ui/utils';
@@ -15,25 +15,68 @@ type Props = {
   onPrev: () => void;
 };
 
-const MEETING_TYPES = [
-  { label: '와인 파티', desc: '우아한 테이스팅', emoji: '🍷' },
-  { label: '노래방 모임', desc: '신나게 노래 불러요', emoji: '🎤' },
-  { label: '볼링 한판', desc: '스트라이크의 쾌감', emoji: '🎳' },
-  { label: '독서 모임', desc: '책과 함께', emoji: '📚' },
-  { label: '등산 모임', desc: '건강한 하루', emoji: '⛰️' },
-  { label: '보드게임', desc: '두뇌 풀가동', emoji: '🎲' },
-];
+type MeetingType = {
+  label: string;
+  desc: string;
+  emoji: string;
+};
+
+const AI_PICK: MeetingType = {
+  label: '아무거나 다 좋아요',
+  desc: 'AI에게 맡길게요',
+  emoji: '🤖',
+};
 
 export const TypeStep = ({ value, onChange, onNext }: Props) => {
+  const [recommendedTypes, setRecommendedTypes] = useState<MeetingType[]>([]);
+
+  const [isLoading, setIsLoading] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
-  const visibleTypes = showAll ? MEETING_TYPES : MEETING_TYPES.slice(0, 3);
-
+  const visibleRecommendedTypes = showAll ? recommendedTypes : recommendedTypes.slice(0, 3);
   const isNextDisabled = !value.meetingType;
+  const isPresetSelected = (label: string) => value.meetingType === label;
 
-  const isPresetSelected = (label: string) =>
-    value.meetingTypeMode === 'preset' && value.meetingType === label;
+  useEffect(() => {
+    const fetchRecommendation = async () => {
+      setIsLoading(true);
 
+      // api 연동 시 아래 코드 참고
+      try {
+        // api 연동 시 아래 코드 참고
+        // const res = await fetch('/api/meeting/recommend', {
+        //   method: 'POST',
+        //   headers: {
+        //     'Content-Type': 'application/json',
+        //   },
+        //   body: JSON.stringify({
+        //     date: value.date ?? null,
+        //     time: value.time ?? null,
+        //   }),
+        // });
+
+        // const data = await res.json();
+
+        // setRecommendedTypes([AI_PICK,...data.recommendations]);
+
+        setRecommendedTypes([
+          AI_PICK,
+          { label: '와인 파티', desc: '우아한 테이스팅', emoji: '🍷' },
+          { label: '노래방 모임', desc: '신나게 노래 불러요', emoji: '🎤' },
+          { label: '볼링 한판', desc: '스트라이크의 쾌감', emoji: '🎳' },
+          { label: '독서 모임', desc: '책과 함께', emoji: '📚' },
+          { label: '등산 모임', desc: '건강한 하루', emoji: '⛰️' },
+          { label: '보드게임', desc: '두뇌 풀가동', emoji: '🎲' },
+        ]);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchRecommendation();
+  }, [value.date, value.time]);
   return (
     <div className={styles.container}>
       {/* Stepper */}
@@ -58,29 +101,31 @@ export const TypeStep = ({ value, onChange, onNext }: Props) => {
       </div>
 
       {/* 카드 리스트 */}
-      <div className={styles.cardList}>
-        {visibleTypes.map((item) => (
-          <div
-            key={item.label}
-            className={cx(styles.card, isPresetSelected(item.label) && styles.selectedCard)}
-            onClick={() =>
-              onChange({
-                meetingTypeMode: 'preset',
-                meetingType: item.label,
-              })
-            }
-          >
-            <div className={styles.cardIcon}>{item.emoji}</div>
-            <div>
-              <div className={styles.cardTitle}>{item.label}</div>
-              <div className={styles.cardDesc}>{item.desc}</div>
+      {isLoading && <div>AI 추천 생성중...</div>}
+      {recommendedTypes.length > 0 && (
+        <div className={styles.cardList}>
+          {visibleRecommendedTypes.map((item) => (
+            <div
+              key={item.label}
+              className={cx(styles.card, isPresetSelected(item.label) && styles.selectedCard)}
+              onClick={() =>
+                onChange({
+                  meetingType: item.label,
+                })
+              }
+            >
+              <div className={styles.cardIcon}>{item.emoji}</div>
+              <div>
+                <div className={styles.cardTitle}>{item.label}</div>
+                <div className={styles.cardDesc}>{item.desc}</div>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* 더 보기 / 접기 */}
-      {!showAll && MEETING_TYPES.length > 3 && (
+      {!showAll && recommendedTypes.length > 3 && (
         <div className={styles.moreButton} onClick={() => setShowAll(true)}>
           더 많은 모임 보기 ⌄
         </div>
