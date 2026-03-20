@@ -1,26 +1,30 @@
-type Message =
-  | {
-      id: number;
-      type: 'system';
-      text: string;
-    }
-  | {
-      id: number;
-      type: 'date';
-      text: string;
-    }
-  | {
-      id: number;
-      type: 'other' | 'mine' | 'ai';
-      sender: string;
-      avatarColor: string;
-      avatarText: string;
-      text: string;
-      time: string;
-      unread?: number;
-      showAvatar?: boolean;
-      showName?: boolean;
-    };
+type SystemMessage = {
+  id: number;
+  type: 'system';
+  text: string;
+};
+
+type DateMessage = {
+  id: number;
+  type: 'date';
+  text: string;
+};
+
+type ChatMessage = {
+  id: number;
+  type: 'other' | 'mine' | 'ai';
+  sender: string;
+  avatarColor: string;
+  avatarText: string;
+  text: string;
+  time: string;
+  unread?: number;
+  showAvatar?: boolean;
+  showName?: boolean;
+};
+
+type Message = SystemMessage | DateMessage | ChatMessage;
+type NewMessage = Omit<SystemMessage, 'id'> | Omit<DateMessage, 'id'> | Omit<ChatMessage, 'id'>;
 
 export type { Message };
 
@@ -36,8 +40,8 @@ export const chatStore = {
     listeners.forEach((fn) => fn());
   },
 
-  addMessage: (msg: Omit<Message, 'id'>) => {
-    const newMsg = { ...msg, id: nextId++ } as Message;
+  addMessage: (msg: NewMessage) => {
+    const newMsg: Message = { ...msg, id: nextId++ };
     messages = [...messages, newMsg];
     listeners.forEach((fn) => fn());
     return newMsg;
