@@ -33,8 +33,18 @@ export const activeItem = style({
   fontWeight: vars.fontWeight.medium,
 });
 
+export const activeBar = style({
+  width: 20,
+  height: 3,
+  borderRadius: 2,
+  backgroundColor: vars.color.blue500,
+  marginTop: 2,
+});
+
 export const icon = style({
-  fontSize: 20,
+  width: 24,
+  height: 24,
+  color: 'inherit',
 });
 
 export const label = style({
