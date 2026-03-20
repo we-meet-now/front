@@ -7,18 +7,14 @@ export type RecommendRequest = {
   date?: string | null;
   time?: string | null;
 };
-export type RecommendResponse = {
-  recommendations: MeetingType[];
-};
+export type RecommendResponse = MeetingType[];
 
-const mock = {
-  recommendations: [
-    { label: '와인 파티', desc: '우아한 테이스팅', emoji: '🍷' },
-    { label: '노래방 모임', desc: '신나게 노래 불러요', emoji: '🎤' },
-    { label: '볼링 한판', desc: '스트라이크의 쾌감', emoji: '🎳' },
-    { label: '독서 모임', desc: '책과 함께', emoji: '📚' },
-  ],
-};
+const mock: RecommendResponse = [
+  { label: '와인 파티', desc: '우아한 테이스팅', emoji: '🍷' },
+  { label: '노래방 모임', desc: '신나게 노래 불러요', emoji: '🎤' },
+  { label: '볼링 한판', desc: '스트라이크의 쾌감', emoji: '🎳' },
+  { label: '독서 모임', desc: '책과 함께', emoji: '📚' },
+];
 
 export const fetchRecommendTypes = async (body: RecommendRequest): Promise<RecommendResponse> => {
   if (API_MODE === 'local') {
@@ -26,7 +22,7 @@ export const fetchRecommendTypes = async (body: RecommendRequest): Promise<Recom
     return mock;
   }
 
-  return apiClient('/meeting/recommend-types', {
+  return apiClient('/recommend/meeting-types', {
     method: 'POST',
     body,
   });

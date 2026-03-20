@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { usePlaceSearch } from '@/api/query/create-meeting';
 import { Button } from '@/ui/button/button';
 import { cx } from '@/ui/utils';
 
@@ -39,64 +40,36 @@ type PlaceMode = (typeof PLACE_OPTIONS)[number]['key'];
 
 export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [places, setPlaces] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [submittedKeyword, setSubmittedKeyword] = useState('');
+
+  const { data, isLoading } = usePlaceSearch(
+    value.date,
+    value.time,
+    value.meetingType,
+    submittedKeyword,
+  );
+
+  const places = data ?? [];
 
   const isNextDisabled = value.placeMode === 'vote' ? false : !value.place;
 
   const handleOptionClick = (key: PlaceMode) => {
     onChange({ placeMode: key, place: undefined });
-    setPlaces([]);
     setSearchKeyword('');
+    setSubmittedKeyword('');
   };
 
-  const handleSearch = async () => {
-    if (!searchKeyword) return;
-
-    setIsLoading(true);
-    // api 연동 시 아래 코드 참고
-    // try {
-    //   const res = await fetch('/api/place/search', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       keyword: searchKeyword,
-    //       date: value.date,
-    //       time: value.time,
-    //       meetingType: value.meetingType,
-    //     }),
-    //   });
-
-    //   const data = await res.json();
-
-    //   setPlaces(data.places);
-    // } catch (err) {
-    //   console.error(err);
-    // } finally {
-    //   setIsLoading(false);
-    // }
-
+  const handleSearch = () => {
+    if (!searchKeyword.trim()) return;
+    // ai 모드만 api 호출, search 모드는 검색어 기반으로 장소 리스트 필터링 (추후 구현)
     if (value.placeMode === 'search') {
-      // 일반 검색 (즉시)
-      setPlaces([`${searchKeyword} 카페`, `${searchKeyword} 음식점`, `${searchKeyword} 문화센터`]);
+      // search 모드의 장소 리스트 필터링 로직 구현
+      alert('검색 모드는 아직 구현되지 않았습니다. AI 추천 모드를 이용해주세요.');
+      return;
     }
 
-    if (value.placeMode === 'ai') {
-      // AI는 async 처리
-      setIsLoading(true);
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setPlaces([
-        `${searchKeyword} 인기 맛집`,
-        `${searchKeyword} 평점 높은 장소`,
-        `${searchKeyword} 추천 스팟`,
-      ]);
-
-      setIsLoading(false);
-    }
+    onChange({ place: undefined });
+    setSubmittedKeyword(searchKeyword.trim());
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -107,7 +80,6 @@ export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
 
   return (
     <div className={styles.container}>
-      {/* Stepper */}
       <div className={styles.numbers}>
         <div className={cx(styles.step, styles.completedStep)}>✓</div>
         <div className={cx(styles.line, styles.completedLine)} />
@@ -116,13 +88,11 @@ export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
         <div className={cx(styles.step, styles.activeStep)}>3</div>
       </div>
 
-      {/* Title */}
       <div className={styles.titleBox}>
         <div className={styles.title}>어디에서 만나나요? 📍</div>
         <div className={styles.description}>모임 장소를 선택해주세요</div>
       </div>
 
-      {/* 옵션 카드 */}
       <div className={styles.cardList}>
         {PLACE_OPTIONS.map((item) => (
           <div
@@ -143,7 +113,6 @@ export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
         ))}
       </div>
 
-      {/* Search + AI 공통 UI */}
       {(value.placeMode === 'search' || value.placeMode === 'ai') && (
         <div className={styles.searchBox}>
           <input
@@ -160,38 +129,36 @@ export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
             size="xs"
             className={styles.searchButton}
             onClick={handleSearch}
-            disabled={isLoading}
+            disabled={isLoading || !searchKeyword.trim()}
           >
             {isLoading ? '검색중...' : '검색'}
           </Button>
         </div>
       )}
 
-      {/* 로딩 표시 (AI 전용) */}
       {isLoading && value.placeMode === 'ai' && (
         <div style={{ marginTop: 12 }}>🤖 AI가 추천 장소를 찾고 있어요...</div>
       )}
 
-      {/* 결과 카드 */}
       {places.length > 0 && (
         <div className={styles.resultList}>
           {places.map((place) => (
             <div
-              key={place}
-              className={cx(styles.resultCard, value.place === place && styles.selectedResult)}
-              onClick={() => onChange({ place })}
+              key={place.id}
+              className={cx(styles.resultCard, value.place === place.name && styles.selectedResult)}
+              onClick={() => onChange({ place: place.name })}
             >
               <span className={styles.resultCardTitle}>
                 {value.placeMode === 'ai' && <span className={styles.aiBadge}>다양한 선택지</span>}
-                {place}
+                {place.name}
               </span>
-              <span className={styles.resultCardAddress}>서울특별시 강남구 예시로 123</span>
+              <span className={styles.resultCardAddress}>{place.address}</span>
+              <div>{place.comment}</div>
             </div>
           ))}
         </div>
       )}
 
-      {/* Footer */}
       <div className={styles.footer}>
         <Button size="l" onClick={onSubmit} disabled={isNextDisabled}>
           모임 생성

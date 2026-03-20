@@ -33,7 +33,7 @@ export const TypeStep = ({ value, onChange, onNext }: Props) => {
   console.log(data);
 
   const [showAll, setShowAll] = useState(false);
-  const recommendedTypes = data ? [AI_PICK, ...data.recommendations] : [AI_PICK];
+  const recommendedTypes = data ? [AI_PICK, ...data] : [AI_PICK];
 
   const visibleRecommendedTypes = showAll ? recommendedTypes : recommendedTypes.slice(0, 3);
   const canShowMore = recommendedTypes.length > 4;
