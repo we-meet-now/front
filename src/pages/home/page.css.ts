@@ -124,7 +124,7 @@ export const memberList = style({
   marginBottom: 20,
   overflowX: 'auto',
   scrollbarWidth: 'none',
-  '::-webkit-scrollbar': { display: 'none' } as any,
+  '::-webkit-scrollbar': { display: 'none' },
 });
 
 export const memberItem = style({

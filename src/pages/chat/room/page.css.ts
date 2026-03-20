@@ -11,7 +11,7 @@ export const tabBar = style({
   borderBottom: `1px solid ${vars.color.grey100}`,
   overflowX: 'auto',
   scrollbarWidth: 'none',
-  '::-webkit-scrollbar': { display: 'none' } as any,
+  '::-webkit-scrollbar': { display: 'none' },
 });
 
 export const tab = style({
