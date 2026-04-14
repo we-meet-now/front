@@ -187,6 +187,10 @@ export const resultCardAddress = style({
   fontSize: vars.fontSize.xs,
   color: vars.color.grey500,
 });
+export const resultCardComment = style({
+  fontSize: vars.fontSize.xs,
+  color: vars.color.grey700,
+});
 
 export const selectedResult = style({
   borderColor: vars.color.blue500,

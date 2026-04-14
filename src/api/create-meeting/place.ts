@@ -38,7 +38,7 @@ export const fetchSearchPlaces = async (body: PlaceSearchRequest): Promise<Place
     return mock;
   }
 
-  return apiClient('/recommend/search', {
+  return apiClient('/recommend/meeting-places', {
     method: 'POST',
     body,
   });

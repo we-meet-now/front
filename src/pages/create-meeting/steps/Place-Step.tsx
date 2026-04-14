@@ -153,7 +153,7 @@ export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
                 {place.name}
               </span>
               <span className={styles.resultCardAddress}>{place.address}</span>
-              <div>{place.comment}</div>
+              <div className={styles.resultCardComment}>{place.comment}</div>
             </div>
           ))}
         </div>
