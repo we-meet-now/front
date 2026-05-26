@@ -15,7 +15,11 @@ import { LoginPage } from './pages/login';
 import { MeetingCompletePage } from './pages/meeting-complete';
 import { MeetingLayout } from './pages/meeting-layout';
 import { MyPage } from './pages/mypage';
+import { CalendarSettingPage } from './pages/mypage/calendar-setting';
 import { MyPageDetail } from './pages/mypage/detail';
+import { FriendSettingPage } from './pages/mypage/friend-setting';
+import { MapSettingPage } from './pages/mypage/map';
+import { NotificationSettingPage } from './pages/mypage/notification-setting';
 import { NotificationPage } from './pages/notification';
 import { OnBoardingPage } from './pages/onboarding';
 import { CompletePage } from './pages/onboarding/complete';
@@ -66,6 +70,10 @@ export const Router = () => {
         {/* 마이페이지 */}
         <Route path="mypage" element={<MyPage />} />
         <Route path="mypage/detail" element={<MyPageDetail />} />
+        <Route path="mypage/map" element={<MapSettingPage />} />
+        <Route path="mypage/friend" element={<FriendSettingPage />} />
+        <Route path="mypage/notification-setting" element={<NotificationSettingPage />} />
+        <Route path="mypage/calendar-setting" element={<CalendarSettingPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -8,10 +8,10 @@ import * as styles from './page.css';
 
 const MENU_ITEMS = [
   { label: '회원정보', path: '/mypage/detail' },
-  { label: '지도 설정', path: '/mypage/detail' },
-  { label: '친구/채팅방 설정', path: '/mypage/detail' },
-  { label: '알림/푸시 설정', path: '/mypage/detail' },
-  { label: '캘린더 설정', path: '/mypage/detail' },
+  { label: '지도 설정', path: '/mypage/map' },
+  { label: '친구/채팅방 설정', path: '/mypage/friend' },
+  { label: '알림/푸시 설정', path: '/mypage/notification-setting' },
+  { label: '캘린더 설정', path: '/mypage/calendar-setting' },
 ];
 
 export const MyPage = () => {
