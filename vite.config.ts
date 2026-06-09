@@ -6,6 +6,9 @@ import svgr from 'vite-plugin-svgr';
 
 export default defineConfig({
   plugins: [react(), vanillaExtractPlugin(), svgr()],
+  define: {
+    global: 'globalThis',
+  },
   server: {
     port: 5173,
     strictPort: true,
