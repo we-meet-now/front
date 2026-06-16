@@ -24,7 +24,7 @@ export const CreateMeetingPage = () => {
     console.log('최종 제출 데이터:', form);
 
     // TODO: API 호출
-    const roomId = 'abc123';
+    const roomId = 1;
     navigate(`/meeting-complete/${roomId}`);
   };
 

@@ -292,7 +292,7 @@ export const ChatRoomPage = () => {
 
     chatStore.addMessage({
       type: 'mine',
-      sender: MY_USERNAME,
+      sender: username,
       avatarColor: getAvatarColor(MY_USERNAME),
       avatarText: MY_USERNAME[0],
       text,
