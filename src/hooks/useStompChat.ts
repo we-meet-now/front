@@ -33,7 +33,7 @@ export const useStompChat = ({ roomId, username }: UseStompChatOptions) => {
       if (!clientRef.current?.connected || !content.trim()) return;
 
       clientRef.current.publish({
-        destination: '/app/chat.sendMessage',
+        destination: '/api/chat/v1/message/app/chat.sendMessage',
         body: JSON.stringify({
           chatRoomId: roomId,
           userId: username,
@@ -50,7 +50,7 @@ export const useStompChat = ({ roomId, username }: UseStompChatOptions) => {
     if (!client?.connected) return;
 
     client.publish({
-      destination: '/app/chat.addUser',
+      destination: '/api/chat/v1/message/app/chat.addUser',
       body: JSON.stringify({
         chatRoomId: roomId,
         userId: username,
@@ -70,7 +70,7 @@ export const useStompChat = ({ roomId, username }: UseStompChatOptions) => {
         console.log('[STOMP] 연결 성공 — room:', roomId);
         setIsConnected(true);
 
-        client.subscribe(`/topic/public`, (frame) => {
+        client.subscribe(`/api/chat/v1/message/topic/public`, (frame) => {
           try {
             const msg: StompMessage = JSON.parse(frame.body);
             console.log('[STOMP] 수신:', msg);
@@ -81,7 +81,7 @@ export const useStompChat = ({ roomId, username }: UseStompChatOptions) => {
         });
 
         client.publish({
-          destination: '/app/chat.addUser',
+          destination: '/api/chat/v1/message/app/chat.addUser',
           body: JSON.stringify({
             chatRoomId: roomId,
             userId: username,
