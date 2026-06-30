@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
+import { type StompMessage, useStompChat } from '@/hooks/useStompChat';
 import { chatStore, type Message } from '@/store/chat-store';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { GNB } from '@/ui/gnb/gnb';
@@ -198,14 +199,68 @@ const DUMMY_MESSAGES: Message[] = [
   },
 ];
 
+const MY_USERNAME = '도희';
+const AVATAR_COLOR_MAP: Record<string, string> = {
+  도희: '#3B82F6',
+  민지: '#e53935',
+  수현: '#fb8c00',
+  지원: '#7c3aed',
+  예은: '#ec4899',
+};
+
+const getAvatarColor = (name: string) =>
+  AVATAR_COLOR_MAP[name] ?? `hsl(${[...name].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360},60%,50%)`;
+
+const stompMsgToMessage = (stomp: StompMessage, nextId: number, myUsername: string): Message | null => {
+  const time = new Date().toLocaleTimeString('ko-KR', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+
+  const userId = String(stomp.userId);
+
+  if (stomp.chatType === 'ENTER' || stomp.chatType === 'LEAVE') {
+    return {
+      id: nextId,
+      type: 'system',
+      text: stomp.chatType === 'ENTER' ? `${userId}님이 입장하셨습니다` : `${userId}님이 퇴장하셨습니다`,
+    };
+  }
+
+  if (stomp.chatType === 'CHAT' && stomp.message) {
+    const isMine = userId === myUsername;
+    return {
+      id: nextId,
+      type: isMine ? 'mine' : 'other',
+      sender: userId,
+      avatarColor: getAvatarColor(userId),
+      avatarText: userId[0],
+      text: stomp.message,
+      time,
+      showAvatar: !isMine,
+      showName: !isMine,
+    };
+  }
+
+  return null;
+};
+
 export const ChatRoomPage = () => {
   const navigate = useNavigate();
   const { roomId } = useParams();
+  const [searchParams] = useSearchParams();
+  const username = searchParams.get('user') ?? MY_USERNAME;
   const [activeTab, setActiveTab] = useState('chat');
   const [messages, setMessages] = useState<Message[]>(DUMMY_MESSAGES);
   const [inputValue, setInputValue] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
-  const nextIdRef = useRef(200);
+  const nextIdRef = useRef(300);
+
+  const { messages: stompMessages, isConnected, sendMessage } = useStompChat({
+    roomId: roomId ?? '',
+    username,
+  });
 
   // store 초기화 & 구독
   useEffect(() => {
@@ -218,6 +273,15 @@ export const ChatRoomPage = () => {
     });
   }, []);
 
+  // STOMP 수신 메시지 → store에 추가 (내 CHAT 메시지는 이미 로컬에 추가됐으므로 skip)
+  useEffect(() => {
+    if (stompMessages.length === 0) return;
+    const latest = stompMessages[stompMessages.length - 1];
+    if (latest.chatType === 'CHAT' && String(latest.userId) === username) return;
+    const msg = stompMsgToMessage(latest, nextIdRef.current++, username);
+    if (msg) chatStore.addMessage(msg);
+  }, [stompMessages, username]);
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -226,12 +290,11 @@ export const ChatRoomPage = () => {
     const text = inputValue.trim();
     if (!text) return;
 
-    const newMsg: Message = {
-      id: nextIdRef.current++,
+    chatStore.addMessage({
       type: 'mine',
-      sender: '도희',
-      avatarColor: '#3B82F6',
-      avatarText: '도',
+      sender: username,
+      avatarColor: getAvatarColor(MY_USERNAME),
+      avatarText: MY_USERNAME[0],
       text,
       time: new Date().toLocaleTimeString('ko-KR', {
         hour: 'numeric',
@@ -240,9 +303,12 @@ export const ChatRoomPage = () => {
       }),
       showAvatar: false,
       showName: false,
-    };
+    });
 
-    chatStore.addMessage(newMsg);
+    if (isConnected) {
+      sendMessage(text);
+    }
+
     setInputValue('');
   };
 
@@ -267,7 +333,7 @@ export const ChatRoomPage = () => {
         <>
           <AppBar
             title="대학 동기 모임"
-            subTitle="6명 참여 중"
+            subTitle={isConnected ? '6명 참여 중 · 연결됨' : '6명 참여 중 · 오프라인'}
             showBackButton
             onBackClick={() => navigate(-1)}
             rightSlot={

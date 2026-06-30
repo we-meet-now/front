@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { Button } from '@/ui/button/button';
 
@@ -6,16 +6,14 @@ import * as styles from './page.css';
 
 export const MeetingCompletePage = () => {
   const navigate = useNavigate();
-
-  // 나중에는 API 응답으로 roomId 받게 될 것
-  const roomId = 'abc123';
+  const { roomId } = useParams();
 
   const handleEnterRoom = () => {
-    navigate(`/meeting/${roomId}`);
+    navigate(`/meeting/${roomId}/chat`);
   };
 
   const handleCopyLink = async () => {
-    const link = `${window.location.origin}/meeting/${roomId}`;
+    const link = `${window.location.origin}/room/${roomId}/chat?user=321`;
     await navigator.clipboard.writeText(link);
     alert('링크가 복사되었습니다!');
   };

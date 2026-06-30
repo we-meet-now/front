@@ -49,7 +49,7 @@ export const ChatPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
 
   const handleRoomClick = (id: string) => {
-    navigate(`/room/${id}/chat`);
+    navigate(`/room/${id}/chat?user=123`);
   };
 
   return (
