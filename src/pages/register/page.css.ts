@@ -96,4 +96,55 @@ export const helperText = style({
 export const verifiedText = style({
   fontSize: vars.fontSize.s,
   color: vars.color.green600,
+  display: 'flex',
+  alignItems: 'center',
+  gap: 4,
+});
+
+export const errorText = style({
+  fontSize: vars.fontSize.xs,
+  color: '#ef4444',
+});
+
+export const verifyButtonDisabled = style({
+  padding: '0 12px',
+  height: 44,
+  borderRadius: 8,
+  border: `1px solid ${vars.color.grey300}`,
+  backgroundColor: vars.color.grey100,
+  color: vars.color.grey400,
+  fontSize: vars.fontSize.s,
+  cursor: 'not-allowed',
+  whiteSpace: 'nowrap',
+});
+
+export const verifyButtonActive = style({
+  padding: '0 12px',
+  height: 44,
+  borderRadius: 8,
+  border: `1px solid ${vars.color.green500}`,
+  backgroundColor: vars.color.white,
+  color: vars.color.green600,
+  fontSize: vars.fontSize.s,
+  cursor: 'pointer',
+  whiteSpace: 'nowrap',
+  transition: 'opacity 0.15s',
+  selectors: {
+    '&:active': {
+      opacity: 0.7,
+    },
+  },
+});
+
+export const codeSection = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 6,
+  animation: 'fadeSlideIn 0.2s ease',
+  '@keyframes': {
+    fadeSlideIn: {
+      from: { opacity: 0, transform: 'translateY(-6px)' },
+      to: { opacity: 1, transform: 'translateY(0)' },
+    },
+  },
 });

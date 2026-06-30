@@ -8,11 +8,56 @@ import { Spacer } from '@/ui/spacer/spacer';
 
 import * as styles from './page.css';
 
+type SendStatus = 'idle' | 'loading' | 'sent' | 'error';
+type VerifyStatus = 'idle' | 'loading' | 'success' | 'error';
+
+const MOCK_CODE = '123456';
+
+const mockSendEmail = (_email: string): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, 800));
+
+const mockVerifyCode = (_email: string, code: string): Promise<void> =>
+  new Promise((resolve, reject) =>
+    setTimeout(() => (code === MOCK_CODE ? resolve() : reject()), 600),
+  );
+
 export const RegisterPage = () => {
   const navigate = useNavigate();
 
-  const [emailSent, setEmailSent] = useState(false);
-  const [emailVerified, setEmailVerified] = useState(false);
+  const [email, setEmail] = useState('');
+  const [code, setCode] = useState('');
+  const [sendStatus, setSendStatus] = useState<SendStatus>('idle');
+  const [verifyStatus, setVerifyStatus] = useState<VerifyStatus>('idle');
+
+  const handleSendCode = async () => {
+    if (!email || sendStatus === 'loading') return;
+    setSendStatus('loading');
+    setVerifyStatus('idle');
+    setCode('');
+    try {
+      await mockSendEmail(email);
+      setSendStatus('sent');
+    } catch {
+      setSendStatus('error');
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (!code || verifyStatus === 'loading') return;
+    setVerifyStatus('loading');
+    try {
+      await mockVerifyCode(email, code);
+      setVerifyStatus('success');
+    } catch {
+      setVerifyStatus('error');
+    }
+  };
+
+  const isSending = sendStatus === 'loading';
+  const emailVerified = verifyStatus === 'success';
+
+  const sendButtonLabel = isSending ? '발송 중...' : sendStatus === 'sent' ? '재발송' : '인증번호 발송';
+  const sendButtonDisabled = isSending || emailVerified;
 
   return (
     <PageLayout
@@ -32,10 +77,10 @@ export const RegisterPage = () => {
 
         {/* Form */}
         <div className={styles.form}>
-          {/* 이름 */}
+          {/* 닉네임 */}
           <div className={styles.field}>
-            <label className={styles.label}>이름</label>
-            <input className={styles.input} placeholder="이름을 입력하세요" />
+            <label className={styles.label}>닉네임</label>
+            <input className={styles.input} placeholder="닉네임을 입력하세요" />
           </div>
 
           {/* 전화번호 */}
@@ -52,32 +97,66 @@ export const RegisterPage = () => {
             <span className={styles.helperText}>최소 6자 이상 입력해주세요</span>
           </div>
 
-          {/* 이메일 + 인증 */}
+          {/* 이메일 + 인증번호 발송 */}
           <div className={styles.field}>
             <label className={styles.label}>이메일</label>
             <div className={styles.inlineField}>
-              <input className={styles.input} type="email" placeholder="example@email.com" />
-              <button className={styles.verifyButton} onClick={() => setEmailSent(true)}>
-                인증하기
+              <input
+                className={styles.input}
+                type="email"
+                placeholder="example@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={emailVerified}
+              />
+              <button
+                className={sendButtonDisabled ? styles.verifyButtonDisabled : styles.verifyButtonActive}
+                onClick={handleSendCode}
+                disabled={sendButtonDisabled}
+              >
+                {sendButtonLabel}
               </button>
             </div>
+            {sendStatus === 'error' && (
+              <span className={styles.errorText}>이메일을 찾을 수 없어요. 다시 확인해 주세요.</span>
+            )}
+            {sendStatus === 'sent' && (
+              <span className={styles.helperText}>인증번호가 발송됐어요. 이메일을 확인해 주세요.</span>
+            )}
           </div>
 
-          {/* 인증번호 */}
-          {emailSent && !emailVerified && (
-            <div className={styles.field}>
+          {/* 인증번호 입력 */}
+          {sendStatus === 'sent' && !emailVerified && (
+            <div className={styles.codeSection}>
               <label className={styles.label}>인증번호</label>
               <div className={styles.inlineField}>
-                <input className={styles.input} placeholder="인증번호 입력" />
-                <button className={styles.verifyButton} onClick={() => setEmailVerified(true)}>
-                  확인
+                <input
+                  className={styles.input}
+                  placeholder="인증번호 6자리 입력"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  maxLength={6}
+                />
+                <button
+                  className={verifyStatus === 'loading' ? styles.verifyButtonDisabled : styles.verifyButtonActive}
+                  onClick={handleVerifyCode}
+                  disabled={verifyStatus === 'loading'}
+                >
+                  {verifyStatus === 'loading' ? '확인 중...' : '확인'}
                 </button>
               </div>
+              {verifyStatus === 'error' && (
+                <span className={styles.errorText}>인증번호가 올바르지 않아요. 다시 입력해 주세요.</span>
+              )}
             </div>
           )}
+
           {/* 인증 완료 */}
           {emailVerified && (
-            <div className={styles.verifiedText}>이메일 인증이 완료되었습니다 ✔</div>
+            <div className={styles.verifiedText}>
+              <span>✔</span>
+              <span>이메일 인증이 완료되었습니다</span>
+            </div>
           )}
         </div>
 
