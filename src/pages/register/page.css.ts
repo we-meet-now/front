@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css';
+import { keyframes, style } from '@vanilla-extract/css';
 
 import { vars } from '@/ui/theme.css';
 
@@ -136,15 +136,14 @@ export const verifyButtonActive = style({
   },
 });
 
+const fadeSlideIn = keyframes({
+  from: { opacity: 0, transform: 'translateY(-6px)' },
+  to: { opacity: 1, transform: 'translateY(0)' },
+});
+
 export const codeSection = style({
   display: 'flex',
   flexDirection: 'column',
   gap: 6,
-  animation: 'fadeSlideIn 0.2s ease',
-  '@keyframes': {
-    fadeSlideIn: {
-      from: { opacity: 0, transform: 'translateY(-6px)' },
-      to: { opacity: 1, transform: 'translateY(0)' },
-    },
-  },
+  animation: `${fadeSlideIn} 0.2s ease`,
 });

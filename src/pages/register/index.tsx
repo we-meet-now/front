@@ -13,6 +13,7 @@ type VerifyStatus = 'idle' | 'loading' | 'success' | 'error';
 
 const MOCK_CODE = '123456';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockSendEmail = (_email: string): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, 800));
 
@@ -56,7 +57,11 @@ export const RegisterPage = () => {
   const isSending = sendStatus === 'loading';
   const emailVerified = verifyStatus === 'success';
 
-  const sendButtonLabel = isSending ? '발송 중...' : sendStatus === 'sent' ? '재발송' : '인증번호 발송';
+  const sendButtonLabel = isSending
+    ? '발송 중...'
+    : sendStatus === 'sent'
+      ? '재발송'
+      : '인증번호 발송';
   const sendButtonDisabled = isSending || emailVerified;
 
   return (
@@ -110,7 +115,9 @@ export const RegisterPage = () => {
                 disabled={emailVerified}
               />
               <button
-                className={sendButtonDisabled ? styles.verifyButtonDisabled : styles.verifyButtonActive}
+                className={
+                  sendButtonDisabled ? styles.verifyButtonDisabled : styles.verifyButtonActive
+                }
                 onClick={handleSendCode}
                 disabled={sendButtonDisabled}
               >
@@ -121,7 +128,9 @@ export const RegisterPage = () => {
               <span className={styles.errorText}>이메일을 찾을 수 없어요. 다시 확인해 주세요.</span>
             )}
             {sendStatus === 'sent' && (
-              <span className={styles.helperText}>인증번호가 발송됐어요. 이메일을 확인해 주세요.</span>
+              <span className={styles.helperText}>
+                인증번호가 발송됐어요. 이메일을 확인해 주세요.
+              </span>
             )}
           </div>
 
@@ -138,7 +147,11 @@ export const RegisterPage = () => {
                   maxLength={6}
                 />
                 <button
-                  className={verifyStatus === 'loading' ? styles.verifyButtonDisabled : styles.verifyButtonActive}
+                  className={
+                    verifyStatus === 'loading'
+                      ? styles.verifyButtonDisabled
+                      : styles.verifyButtonActive
+                  }
                   onClick={handleVerifyCode}
                   disabled={verifyStatus === 'loading'}
                 >
@@ -146,7 +159,9 @@ export const RegisterPage = () => {
                 </button>
               </div>
               {verifyStatus === 'error' && (
-                <span className={styles.errorText}>인증번호가 올바르지 않아요. 다시 입력해 주세요.</span>
+                <span className={styles.errorText}>
+                  인증번호가 올바르지 않아요. 다시 입력해 주세요.
+                </span>
               )}
             </div>
           )}
