@@ -3,11 +3,12 @@ import { API_MODE, BASE_URL } from './config';
 type RequestOptions = {
   method?: 'GET' | 'POST';
   body?: unknown;
+  baseUrl?: string;
 };
 
 export const apiClient = async <T>(url: string, options?: RequestOptions): Promise<T> => {
   if (API_MODE === 'server') {
-    const res = await fetch(`${BASE_URL}${url}`, {
+    const res = await fetch(`${options?.baseUrl ?? BASE_URL}${url}`, {
       method: options?.method ?? 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -16,7 +17,8 @@ export const apiClient = async <T>(url: string, options?: RequestOptions): Promi
     });
 
     if (!res.ok) {
-      throw new Error('API Error');
+      const body = await res.json().catch(() => null);
+      throw new Error(body?.message || 'API Error');
     }
 
     return res.json();
