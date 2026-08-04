@@ -11,3 +11,6 @@ export const WS_URL = import.meta.env.VITE_WS_URL;
 
 // chat API
 export const CHAT_URL = import.meta.env.VITE_CHAT_URL;
+
+// AI 추천 API
+export const AI_URL = import.meta.env.VITE_AI_URL;

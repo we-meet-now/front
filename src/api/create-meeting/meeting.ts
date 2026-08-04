@@ -1,7 +1,7 @@
 import type { MeetingType } from '@/pages/create-meeting/steps/TypeStep';
 
 import { apiClient } from '../client';
-import { API_MODE } from '../config';
+import { AI_URL, API_MODE } from '../config';
 
 export type RecommendRequest = {
   date?: string | null;
@@ -25,5 +25,6 @@ export const fetchRecommendTypes = async (body: RecommendRequest): Promise<Recom
   return apiClient('/recommend/meeting-types', {
     method: 'POST',
     body,
+    baseUrl: AI_URL,
   });
 };
