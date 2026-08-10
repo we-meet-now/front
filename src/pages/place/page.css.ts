@@ -15,21 +15,84 @@ export const body = style({
   overflowY: 'auto',
 });
 
+export const entryContent = style({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+});
+
+export const featureCardBox = style({
+  display: 'flex',
+  flexDirection: 'row',
+  marginTop: 24,
+  gap: 12,
+  overflowX: 'auto',
+  paddingBottom: 8,
+  paddingLeft: 'calc(50% - 163.5px)',
+  paddingRight: 'calc(50% - 163.5px)',
+  scrollSnapType: 'x mandatory',
+  cursor: 'grab',
+  userSelect: 'none',
+  WebkitOverflowScrolling: 'touch',
+  selectors: {
+    '&::-webkit-scrollbar': { display: 'none' },
+    '&:active': { cursor: 'grabbing' },
+  },
+});
+
+export const featureCard = style({
+  background: vars.color.white,
+  width: 327,
+  flexShrink: 0,
+  padding: 16,
+  borderRadius: 12,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 10,
+  scrollSnapAlign: 'center',
+});
+
+export const featureCardTitle = style({
+  color: vars.color.grey900,
+  fontWeight: vars.fontWeight.bold,
+  fontSize: vars.fontSize.xl,
+  letterSpacing: '-0.5px',
+  textAlign: 'center',
+});
+
+export const featureCardImage = style({
+  width: '100%',
+  aspectRatio: '1 / 1',
+  borderRadius: 8,
+  overflow: 'hidden',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
+});
+
 export const footer = style({
   padding: '12px 20px 32px',
   display: 'flex',
   flexDirection: 'column',
+  alignItems: 'stretch',
   gap: '8px',
 });
 
-export const heroSection = style({
-  flex: 1,
+export const entryFooter = style({
+  padding: '12px 20px 32px',
   display: 'flex',
   flexDirection: 'column',
-  justifyContent: 'center',
+  alignItems: 'center',
+  gap: 12,
+});
+
+export const heroSection = style({
+  display: 'flex',
+  flexDirection: 'column',
   alignItems: 'center',
   textAlign: 'center',
-  padding: '0 12px',
+  padding: '28px 12px 0',
 });
 
 export const heroIcon = style({
@@ -74,17 +137,20 @@ export const guestBadge = style({
 
 export const primaryButton = style({
   width: '100%',
-  height: 50,
+  height: 48,
   borderRadius: 8,
   backgroundColor: vars.color.blue500,
   color: vars.color.white,
   fontSize: vars.fontSize.m,
-  fontWeight: vars.fontWeight.bold,
+  fontWeight: vars.fontWeight.medium,
   border: 'none',
   cursor: 'pointer',
-  letterSpacing: '-0.3px',
-  transition: 'opacity 120ms',
+  transition: 'opacity 120ms ease',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
   selectors: {
+    '&:hover': { opacity: 0.9 },
     '&:active': { opacity: 0.85 },
     '&:disabled': { opacity: 0.4, cursor: 'not-allowed' },
   },
@@ -102,6 +168,9 @@ export const secondaryButton = style({
   cursor: 'pointer',
   letterSpacing: '-0.3px',
   transition: 'opacity 120ms',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
   selectors: {
     '&:active': { opacity: 0.85 },
   },
@@ -116,7 +185,9 @@ export const textButton = style({
   fontSize: vars.fontSize.s,
   color: vars.color.grey500,
   fontWeight: vars.fontWeight.medium,
-  textAlign: 'center',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 });
 
 export const caption = style({
@@ -315,6 +386,9 @@ export const chip = style({
   color: vars.color.grey700,
   cursor: 'pointer',
   transition: '120ms',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 });
 
 export const chipActive = style({
@@ -425,6 +499,9 @@ export const smallButton = style({
   cursor: 'pointer',
   whiteSpace: 'nowrap',
   transition: '120ms',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
   selectors: {
     '&:active': { backgroundColor: vars.color.grey100 },
   },
@@ -432,16 +509,20 @@ export const smallButton = style({
 
 export const outlineButton = style({
   width: '100%',
-  height: 50,
+  height: 48,
   borderRadius: 8,
   border: `1px solid ${vars.color.grey200}`,
   backgroundColor: vars.color.white,
   fontSize: vars.fontSize.m,
-  fontWeight: vars.fontWeight.bold,
+  fontWeight: vars.fontWeight.medium,
   color: vars.color.grey700,
   cursor: 'pointer',
-  transition: '120ms',
+  transition: 'opacity 120ms ease',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
   selectors: {
+    '&:hover': { opacity: 0.9 },
     '&:active': { backgroundColor: vars.color.grey100 },
   },
 });
@@ -565,6 +646,9 @@ export const nickChip = style({
   fontWeight: vars.fontWeight.medium,
   color: vars.color.grey700,
   cursor: 'pointer',
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 });
 
 export const nickChipActive = style({
