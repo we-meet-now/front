@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useUserInfoQuery } from '@/api/query/auth';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { Button } from '@/ui/button/button';
 import { GNB } from '@/ui/gnb/gnb';
@@ -10,6 +11,7 @@ import * as styles from './page.css';
 
 export const MyPageDetail = () => {
   const navigate = useNavigate();
+  const { data: userInfo } = useUserInfoQuery();
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -52,12 +54,12 @@ export const MyPageDetail = () => {
 
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>이름</span>
-            <span className={styles.infoValue}>고도희</span>
+            <span className={styles.infoValue}>{userInfo?.data.username ?? '-'}</span>
           </div>
 
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>닉네임</span>
-            <span className={styles.infoValue}>도토리</span>
+            <span className={styles.infoValue}>{userInfo?.data.nickname ?? '-'}</span>
             <button className={styles.editButton}>수정</button>
           </div>
 
@@ -68,13 +70,13 @@ export const MyPageDetail = () => {
 
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>이메일</span>
-            <span className={styles.infoValue}>abce@gmail.com</span>
+            <span className={styles.infoValue}>{userInfo?.data.email ?? '-'}</span>
             <button className={styles.editButton}>수정</button>
           </div>
 
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>연락처</span>
-            <span className={styles.infoValue}>010-1235-6789</span>
+            <span className={styles.infoValue}>{userInfo?.data.phoneNumber ?? '-'}</span>
             <button className={styles.editButton}>수정</button>
           </div>
         </div>

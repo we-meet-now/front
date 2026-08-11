@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
+import { useUserInfoQuery } from '@/api/query/auth';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { PageLayout } from '@/ui/layout/page-layout';
 import { GNB } from '@/ui/gnb/gnb';
@@ -16,6 +17,7 @@ const MENU_ITEMS = [
 
 export const MyPage = () => {
   const navigate = useNavigate();
+  const { data: userInfo } = useUserInfoQuery();
 
   return (
     <PageLayout
@@ -27,11 +29,17 @@ export const MyPage = () => {
       {/* 프로필 영역 */}
       <div className={styles.profileSection}>
         <div className={styles.avatarWrapper}>
-          <div className={styles.avatar}>👤</div>
+          <div className={styles.avatar}>
+            {userInfo?.data.imgUrl ? (
+              <img className={styles.avatarImage} src={userInfo.data.imgUrl} alt="" />
+            ) : (
+              '👤'
+            )}
+          </div>
           <div className={styles.editBadge}>✏️</div>
         </div>
-        <div className={styles.userName}>고도희</div>
-        <div className={styles.userPhone}>010-1234-5678</div>
+        <div className={styles.userName}>{userInfo?.data.nickname ?? '-'}</div>
+        <div className={styles.userPhone}>{userInfo?.data.phoneNumber ?? '-'}</div>
         <button className={styles.logoutButton}>로그아웃</button>
       </div>
 

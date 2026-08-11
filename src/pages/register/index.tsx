@@ -19,6 +19,7 @@ export const RegisterPage = () => {
   const verifyEmailMutation = useVerifyEmailMutation();
 
   const [nickname, setNickname] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [passwordConfirmTouched, setPasswordConfirmTouched] = useState(false);
@@ -47,7 +48,7 @@ export const RegisterPage = () => {
         password,
         passwordCorrect: passwordConfirm,
         nickname,
-        username: '',
+        phoneNumber,
       },
       {
         onSuccess: () => navigate('/onboarding/complete'),
@@ -120,7 +121,12 @@ export const RegisterPage = () => {
           {/* 전화번호 */}
           <div className={styles.field}>
             <label className={styles.label}>전화번호</label>
-            <input className={styles.input} placeholder="01012345678" />
+            <input
+              className={styles.input}
+              placeholder="01012345678"
+              value={phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
             <span className={styles.helperText}>- 없이 숫자만 입력해주세요</span>
           </div>
 
