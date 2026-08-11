@@ -1,6 +1,13 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { CalendarPage } from './pages/calendar';
+import { GuestPlaceEntryPage } from './pages/place';
+import { GuestDirectPage } from './pages/place/direct';
+import { GuestMidpointPage } from './pages/place/midpoint';
+import { GuestResultPage } from './pages/place/result';
+import { GuestSharePage } from './pages/place/share';
+import { GuestShareCompletePage } from './pages/place/share-complete';
+import { GuestStatusPage } from './pages/place/status';
 import { ChatPage } from './pages/chat';
 import { AiManagerPage } from './pages/chat/ai';
 import { ChatCalendarPage } from './pages/chat/calendar';
@@ -41,6 +48,15 @@ export const Router = () => {
           <Route path="complete" element={<CompletePage />} />{' '}
           <Route path="flow" element={<FlowPage />} />{' '}
         </Route>
+
+        {/* 비로그인 모임장소 추천 */}
+        <Route path="place" element={<GuestPlaceEntryPage />} />
+        <Route path="place/share" element={<GuestSharePage />} />
+        <Route path="place/status" element={<GuestStatusPage />} />
+        <Route path="place/result" element={<GuestResultPage />} />
+        <Route path="place/share-complete" element={<GuestShareCompletePage />} />
+        <Route path="place/direct" element={<GuestDirectPage />} />
+        <Route path="place/midpoint" element={<GuestMidpointPage />} />
 
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
