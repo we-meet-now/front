@@ -19,6 +19,8 @@ export const entryContent = style({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
+  padding: '0 20px',
+  backgroundColor: vars.color.grey100,
 });
 
 export const featureCardBox = style({
@@ -50,6 +52,33 @@ export const featureCard = style({
   flexDirection: 'column',
   gap: 10,
   scrollSnapAlign: 'center',
+  transformOrigin: 'center',
+  transition: 'transform 150ms ease-out, opacity 150ms ease-out',
+  willChange: 'transform, opacity',
+});
+
+export const dotRow = style({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: 6,
+  marginTop: 12,
+});
+
+export const dot = style({
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  backgroundColor: vars.color.grey200,
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+  transition: 'background-color 150ms ease-out, transform 150ms ease-out',
+});
+
+export const dotActive = style({
+  backgroundColor: vars.color.blue500,
+  transform: 'scale(1.4)',
 });
 
 export const featureCardTitle = style({
@@ -80,7 +109,8 @@ export const footer = style({
 });
 
 export const entryFooter = style({
-  padding: '12px 20px 32px',
+  marginTop: 24,
+  padding: '0 0 32px',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',

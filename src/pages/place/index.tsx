@@ -1,9 +1,10 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AppBar } from '@/ui/appbar/app-bar';
 import { Button } from '@/ui/button/button';
 import { PageLayout } from '@/ui/layout/page-layout';
+import { cx } from '@/ui/utils';
 
 import * as styles from './page.css';
 
@@ -126,6 +127,55 @@ export const GuestPlaceEntryPage = () => {
   const isDragging = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
+  const rafId = useRef<number | undefined>(undefined);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const updateCardVisuals = () => {
+    const box = cardBoxRef.current;
+    if (!box) return;
+    const boxRect = box.getBoundingClientRect();
+    const boxCenter = boxRect.left + boxRect.width / 2;
+    let closestIndex = 0;
+    let closestDistance = Infinity;
+
+    Array.from(box.children).forEach((child, index) => {
+      const card = child as HTMLElement;
+      const cardRect = card.getBoundingClientRect();
+      const cardCenter = cardRect.left + cardRect.width / 2;
+      const distance = Math.abs(boxCenter - cardCenter);
+      const progress = Math.min(distance / boxRect.width, 1);
+
+      card.style.transform = `scale(${1 - progress * 0.12})`;
+      card.style.opacity = `${1 - progress * 0.55}`;
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = index;
+      }
+    });
+
+    setActiveIndex(closestIndex);
+  };
+
+  const onScroll = () => {
+    if (rafId.current) cancelAnimationFrame(rafId.current);
+    rafId.current = requestAnimationFrame(updateCardVisuals);
+  };
+
+  useEffect(() => {
+    updateCardVisuals();
+    window.addEventListener('resize', updateCardVisuals);
+    return () => {
+      window.removeEventListener('resize', updateCardVisuals);
+      if (rafId.current) cancelAnimationFrame(rafId.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const scrollToCard = (index: number) => {
+    const card = cardBoxRef.current?.children[index] as HTMLElement | undefined;
+    card?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  };
 
   const onMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true;
@@ -147,17 +197,6 @@ export const GuestPlaceEntryPage = () => {
       header={
         <AppBar title="모임장소 정하기" showBackButton onBackClick={() => navigate('/')} />
       }
-      footer={
-        <div className={styles.entryFooter}>
-          <Button size="l" color="blue" onClick={() => navigate('/place/share')}>
-            출발위치 물어보기
-          </Button>
-          <Button size="l" color="white" onClick={() => navigate('/place/direct')}>
-            출발위치 입력하기
-          </Button>
-          <span className={styles.caption}>모두의 출발지를 알고 계신가요?</span>
-        </div>
-      }
       className={styles.entryContent}
     >
       <div className={styles.heroSection}>
@@ -170,6 +209,7 @@ export const GuestPlaceEntryPage = () => {
       <div
         ref={cardBoxRef}
         className={styles.featureCardBox}
+        onScroll={onScroll}
         onMouseDown={onMouseDown}
         onMouseMove={onMouseMove}
         onMouseUp={onMouseUp}
@@ -183,6 +223,28 @@ export const GuestPlaceEntryPage = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className={styles.dotRow}>
+        {FEATURE_CARDS.map(({ title }, index) => (
+          <button
+            key={title}
+            type="button"
+            aria-label={`${title} 카드로 이동`}
+            className={cx(styles.dot, index === activeIndex && styles.dotActive)}
+            onClick={() => scrollToCard(index)}
+          />
+        ))}
+      </div>
+
+      <div className={styles.entryFooter}>
+        <Button size="l" color="blue" onClick={() => navigate('/place/share')}>
+          출발위치 물어보기
+        </Button>
+        <Button size="l" color="white" onClick={() => navigate('/place/direct')}>
+          출발위치 입력하기
+        </Button>
+        <span className={styles.caption}>모두의 출발지를 알고 계신가요?</span>
       </div>
     </PageLayout>
   );
