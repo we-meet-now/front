@@ -30,30 +30,52 @@ export const subtitle = style({
 
 export const cardBox = style({
   display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  marginTop: 35,
-  gap: 16,
+  flexDirection: 'row',
+  marginTop: 24,
+  gap: 12,
+  overflowX: 'auto',
+  paddingBottom: 8,
+  paddingLeft: 'calc(50% - 163.5px)',
+  paddingRight: 'calc(50% - 163.5px)',
+  scrollSnapType: 'x mandatory',
+  cursor: 'grab',
+  userSelect: 'none',
+  WebkitOverflowScrolling: 'touch',
+  selectors: {
+    '&::-webkit-scrollbar': { display: 'none' },
+    '&:active': { cursor: 'grabbing' },
+  },
 });
 
 export const card = style({
   background: vars.color.white,
   width: 327,
-  height: 165,
-  padding: 20,
+  flexShrink: 0,
+  padding: 16,
+  borderRadius: 12,
   display: 'flex',
   flexDirection: 'column',
   gap: 10,
+  scrollSnapAlign: 'center',
 });
 
-export const cardIcon = style({
-  fontSize: '24px',
+export const cardImage = style({
+  width: '100%',
+  aspectRatio: '1 / 1',
+  borderRadius: 8,
+  overflow: 'hidden',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  flexShrink: 0,
 });
 
 export const cardTitle = style({
   color: vars.color.grey900,
   fontWeight: vars.fontWeight.bold,
-  fontSize: vars.fontSize.m,
+  fontSize: vars.fontSize.xl,
+  letterSpacing: '-0.5px',
+  textAlign: 'center',
 });
 
 export const cardDesc = style({
@@ -62,9 +84,27 @@ export const cardDesc = style({
 });
 
 export const buttonContainer = style({
-  marginTop: 30,
+  marginTop: 24,
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 16,
+  gap: 12,
+});
+
+export const guestButton = style({
+  background: 'none',
+  border: 'none',
+  cursor: 'pointer',
+  fontSize: vars.fontSize.s,
+  color: vars.color.grey600,
+  fontWeight: vars.fontWeight.medium,
+  padding: '4px 0',
+  textDecoration: 'underline',
+  textUnderlineOffset: 3,
+});
+
+export const guestCaption = style({
+  fontSize: vars.fontSize.xxs,
+  color: vars.color.grey400,
+  marginTop: -6,
 });
