@@ -1,5 +1,5 @@
 import { apiClient } from '../client';
-import { API_MODE } from '../config';
+import { AI_URL, API_MODE } from '../config';
 
 export type PlaceSearchRequest = {
   date?: string;
@@ -41,5 +41,6 @@ export const fetchSearchPlaces = async (body: PlaceSearchRequest): Promise<Place
   return apiClient('/recommend/meeting-places', {
     method: 'POST',
     body,
+    baseUrl: AI_URL,
   });
 };

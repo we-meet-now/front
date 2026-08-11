@@ -76,6 +76,11 @@ export const input = style({
   },
 });
 
+export const errorText = style({
+  fontSize: vars.fontSize.xs,
+  color: '#ef4444',
+});
+
 export const loginButton = style({
   marginTop: 8,
   height: 48,

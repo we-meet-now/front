@@ -31,6 +31,13 @@ export const avatar = style({
   color: vars.color.grey400,
 });
 
+export const avatarImage = style({
+  width: '100%',
+  height: '100%',
+  borderRadius: '50%',
+  objectFit: 'cover',
+});
+
 export const editBadge = style({
   position: 'absolute',
   bottom: 0,
