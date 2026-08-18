@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react';
 
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 
-import { cx } from '../utils';
+import { cx, fluid, fluidText } from '../utils';
 
 import { vars } from '../theme.css';
 import * as styles from './button.css';
@@ -18,12 +18,12 @@ type ButtonProps = {
 
 const sizeMap: Record<
   ButtonSize,
-  { height: number; paddingX: number; minWidth: number; fontSize: string }
+  { height: number; paddingX: number; minWidth: number; fontSizeMin: number; fontSizeMax: number }
 > = {
-  xs: { height: 30, paddingX: 10, minWidth: 70, fontSize: vars.fontSize.xs },
-  s: { height: 32, paddingX: 12, minWidth: 120, fontSize: vars.fontSize.s },
-  m: { height: 44, paddingX: 16, minWidth: 231, fontSize: vars.fontSize.m },
-  l: { height: 48, paddingX: 20, minWidth: 327, fontSize: vars.fontSize.m },
+  xs: { height: 30, paddingX: 10, minWidth: 70, fontSizeMin: 11, fontSizeMax: 12 },
+  s: { height: 32, paddingX: 12, minWidth: 120, fontSizeMin: 12, fontSizeMax: 14 },
+  m: { height: 44, paddingX: 16, minWidth: 231, fontSizeMin: 14, fontSizeMax: 16 },
+  l: { height: 48, paddingX: 20, minWidth: 327, fontSizeMin: 14, fontSizeMax: 16 },
 };
 
 const colorMap: Record<ButtonColor, { bg: string; text: string }> = {
@@ -58,13 +58,13 @@ export const Button = ({ size = 'm', color = 'blue', className, style, ...rest }
       className={cx(styles.button, className)}
       style={{
         ...assignInlineVars({
-          [styles.heightVar]: `${sizeStyle.height}px`,
-          [styles.paddingXVar]: `${sizeStyle.paddingX}px`,
-          [styles.minWidthVar]: `${sizeStyle.minWidth}px`,
+          [styles.heightVar]: fluid(sizeStyle.height),
+          [styles.paddingXVar]: fluid(sizeStyle.paddingX),
+          [styles.minWidthVar]: fluid(sizeStyle.minWidth),
           [styles.bgColorVar]: colorStyle.bg,
           [styles.textColorVar]: colorStyle.text,
         }),
-        fontSize: sizeStyle.fontSize,
+        fontSize: fluidText(sizeStyle.fontSizeMin, sizeStyle.fontSizeMax),
         ...style,
       }}
       {...rest}

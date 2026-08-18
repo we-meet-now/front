@@ -21,6 +21,7 @@ type ChatMessage = {
   unread?: number;
   showAvatar?: boolean;
   showName?: boolean;
+  imageUrl?: string;
 };
 
 type Message = SystemMessage | DateMessage | ChatMessage;

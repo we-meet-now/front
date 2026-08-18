@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { fetchSearchPlaces, type PlaceSearchType } from '@/api/create-meeting/place';
+import { type PlaceSearchType, fetchSearchPlaces } from '@/api/create-meeting/place';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { PageLayout } from '@/ui/layout/page-layout';
 
@@ -21,16 +21,35 @@ export const GuestResultPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
+  // 참고: 이 화면은 이미 실제 API(backend-ai의 POST /recommend/meeting-places, fetchSearchPlaces)로
+  // 연동되어 있음 — 다른 dummy 영역과 달리 추가 연동 불필요. 다만 backend-ai는 GPT가 장소를 지어내는
+  // 방식이라 주소가 실존/정확함이 검증되지 않음(좌표 기반 검증 로직은 별도로 필요).
   const loadPlaces = async (category: Category) => {
     setIsLoading(true);
     try {
       const result = await fetchSearchPlaces({ loc: `${midpoint} ${category}` });
       setPlaces(result);
     } catch {
+      // TODO(백엔드 연동): 아래는 API 실패 시에만 쓰이는 폴백용 더미 데이터라 문제 없음(그대로 둬도 됨).
       setPlaces([
-        { id: '1', name: `${midpoint} 분위기 좋은 곳`, address: `${midpoint} 인근 · 도보 5분`, comment: '접근성 우수하고 모임하기 좋아요' },
-        { id: '2', name: `${midpoint} 인기 맛집`, address: `${midpoint} 인근 · 도보 8분`, comment: '가성비 좋고 넓어서 단체 이용에 적합해요' },
-        { id: '3', name: `${midpoint} 카페라운지`, address: `${midpoint} 인근 · 도보 3분`, comment: '조용하고 좌석이 많아요' },
+        {
+          id: '1',
+          name: `${midpoint} 분위기 좋은 곳`,
+          address: `${midpoint} 인근 · 도보 5분`,
+          comment: '접근성 우수하고 모임하기 좋아요',
+        },
+        {
+          id: '2',
+          name: `${midpoint} 인기 맛집`,
+          address: `${midpoint} 인근 · 도보 8분`,
+          comment: '가성비 좋고 넓어서 단체 이용에 적합해요',
+        },
+        {
+          id: '3',
+          name: `${midpoint} 카페라운지`,
+          address: `${midpoint} 인근 · 도보 3분`,
+          comment: '조용하고 좌석이 많아요',
+        },
       ]);
     } finally {
       setIsLoading(false);
@@ -66,11 +85,7 @@ export const GuestResultPage = () => {
   return (
     <PageLayout
       header={
-        <AppBar
-          title="모임장소 정하기"
-          showBackButton
-          onBackClick={() => navigate(backPath)}
-        />
+        <AppBar title="모임장소 정하기" showBackButton onBackClick={() => navigate(backPath)} />
       }
       footer={
         <div className={styles.footer}>
@@ -96,8 +111,19 @@ export const GuestResultPage = () => {
       }
     >
       <div className={styles.body}>
-        <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.6px', lineHeight: 1.3, marginTop: 22, marginBottom: 4 }}>
-          {midpoint} 근처에서 만나기<br />좋은 곳을 추천해 드려요!
+        <h2
+          style={{
+            fontSize: 20,
+            fontWeight: 800,
+            letterSpacing: '-0.6px',
+            lineHeight: 1.3,
+            marginTop: 22,
+            marginBottom: 4,
+          }}
+        >
+          {midpoint} 근처에서 만나기
+          <br />
+          좋은 곳을 추천해 드려요!
         </h2>
         <p className={styles.helperText} style={{ marginBottom: 16 }}>
           마음에 드는 곳을 골라 공유해 보세요 (최대 3곳)
@@ -119,7 +145,9 @@ export const GuestResultPage = () => {
           <div className={styles.loadingBox}>
             <div className={styles.spinner} />
             <p className={styles.loadingText}>AI가 장소를 찾고 있어요</p>
-            <p className={styles.loadingSubText}>{midpoint} 인근 {activeCategory}를 탐색 중이에요</p>
+            <p className={styles.loadingSubText}>
+              {midpoint} 인근 {activeCategory}를 탐색 중이에요
+            </p>
           </div>
         ) : (
           <>

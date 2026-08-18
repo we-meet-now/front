@@ -20,19 +20,21 @@ export const MeetingCompletePage = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.card}>
-        <div className={styles.icon}>🎉</div>
+      <div className={styles.content}>
+        <div className={styles.iconWrapper}>
+          <span className={styles.icon}>🎉</span>
+        </div>
 
         <h1 className={styles.title}>모임이 생성되었어요!</h1>
 
         <p className={styles.description}>이제 친구들에게 초대 링크를 공유해보세요.</p>
 
         <div className={styles.buttonGroup}>
-          <Button size="l" onClick={handleEnterRoom}>
+          <Button size="l" style={{ minWidth: '100%' }} onClick={handleEnterRoom}>
             모임방 입장하기
           </Button>
 
-          <Button size="l" color="white" onClick={handleCopyLink}>
+          <Button size="l" color="white" style={{ minWidth: '100%' }} onClick={handleCopyLink}>
             초대 링크 복사
           </Button>
         </div>

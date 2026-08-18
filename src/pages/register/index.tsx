@@ -31,6 +31,8 @@ export const RegisterPage = () => {
         </div>
 
         {/* Form */}
+        {/* TODO(백엔드 연동): 아래 이름/전화번호/비밀번호/이메일 input이 전부 state에 연결되어 있지 않음(값 저장 안 됨).
+            전부 state 연결 필요. 백엔드 auth-service에 실제 동작하는 POST /join(회원가입), POST /login이 이미 존재함. */}
         <div className={styles.form}>
           {/* 이름 */}
           <div className={styles.field}>
@@ -53,6 +55,8 @@ export const RegisterPage = () => {
           </div>
 
           {/* 이메일 + 인증 */}
+          {/* TODO(백엔드 연동): "인증하기"/"확인" 버튼이 실제 이메일 발송·인증번호 검증 API 호출 없이 로컬 state만 토글함.
+              이메일 인증번호 발송/검증 API 자체가 백엔드에 없음 — 신규 개발 필요. */}
           <div className={styles.field}>
             <label className={styles.label}>이메일</label>
             <div className={styles.inlineField}>
@@ -82,6 +86,7 @@ export const RegisterPage = () => {
         </div>
 
         <Spacer size={28} />
+        {/* TODO(백엔드 연동): 지금은 API 호출 없이 바로 이동함. POST /join 호출 후 성공 응답을 받은 뒤에만 navigate 하도록 변경 필요. */}
         <Button onClick={() => navigate('/onboarding/complete')}>회원가입</Button>
       </div>
     </PageLayout>

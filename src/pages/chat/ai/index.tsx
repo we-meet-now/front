@@ -19,6 +19,8 @@ const TABS = [
   { key: 'settlement', label: '정산' },
 ];
 
+// TODO(백엔드 연동): 참여자 목록이 하드코딩됨. 백엔드 chat-service에 ChatParticipantController가 이미 있으니
+// roomId로 참여자 목록을 조회해서 채우면 됨.
 const MEMBERS = [
   { name: '민지', text: '민', color: '#e53935' },
   { name: '수현', text: '수', color: '#fb8c00' },
@@ -64,6 +66,8 @@ export const AiManagerPage = () => {
     navigate(`/room/${roomId}/${key}`);
   };
 
+  // TODO(백엔드 연동): setTimeout으로 결과를 흉내내는 완전 목업. 실제로는 참여자들의 출발지를 모아
+  // 중간지점을 계산하는 API가 필요한데, 백엔드/AI 서버 어디에도 이런 API가 없음(좌표 기반 계산 로직 자체가 없음) — 신규 개발 필요.
   const handleExtractFairPlace = () => {
     setIsExtracting(true);
     // 목업: 1.5초 후 결과
@@ -90,6 +94,9 @@ export const AiManagerPage = () => {
     }, 1500);
   };
 
+  // TODO(백엔드 연동): setTimeout으로 결과를 흉내내는 완전 목업. src/api/create-meeting/place.ts의
+  // fetchSearchPlaces()가 이미 backend-ai의 POST /recommend/meeting-places를 실제로 호출하고 있으니,
+  // 그 함수로 교체하면 됨(단, backend-ai 쪽 응답은 GPT가 지어낸 장소라 주소 실존 여부가 검증되지 않았음에 유의).
   const handleRecommend = (searchKeyword: string) => {
     if (!searchKeyword.trim()) return;
     setIsRecommending(true);
@@ -126,16 +133,11 @@ export const AiManagerPage = () => {
             {TABS.map((tab) => (
               <div
                 key={tab.key}
-                className={cx(
-                  chatStyles.tab,
-                  tab.key === 'ai' && chatStyles.activeTab,
-                )}
+                className={cx(chatStyles.tab, tab.key === 'ai' && chatStyles.activeTab)}
                 onClick={() => handleTabClick(tab.key)}
               >
                 {tab.label}
-                {tab.badge && (
-                  <span className={chatStyles.tabBadge}>{tab.badge}</span>
-                )}
+                {tab.badge && <span className={chatStyles.tabBadge}>{tab.badge}</span>}
               </div>
             ))}
           </div>
@@ -150,10 +152,7 @@ export const AiManagerPage = () => {
           <div className={styles.memberList}>
             {MEMBERS.map((m) => (
               <div key={m.name} className={styles.memberItem}>
-                <div
-                  className={styles.memberAvatar}
-                  style={{ backgroundColor: m.color }}
-                >
+                <div className={styles.memberAvatar} style={{ backgroundColor: m.color }}>
                   {m.text}
                 </div>
                 <span className={styles.memberName}>{m.name}</span>
@@ -178,33 +177,25 @@ export const AiManagerPage = () => {
                     {s.num}
                   </div>
                   <span
-                    className={cx(
-                      styles.stepLabel,
-                      currentStep >= s.num && styles.stepLabelActive,
-                    )}
+                    className={cx(styles.stepLabel, currentStep >= s.num && styles.stepLabelActive)}
                   >
                     {s.label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 && (
                   <div
-                    className={cx(
-                      styles.stepLine,
-                      currentStep > s.num && styles.stepLineActive,
-                    )}
+                    className={cx(styles.stepLine, currentStep > s.num && styles.stepLineActive)}
                   />
                 )}
               </div>
             ))}
           </div>
-          <div className={styles.statusMessage}>
-            현재 장소 선정 중이에요 📍
-          </div>
+          <div className={styles.statusMessage}>현재 장소 선정 중이에요 📍</div>
         </div>
 
         {/* ── 공평한 장소 ── */}
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>공평한 장소는?</div>
+          <div className={styles.sectionTitle}>중간장소 추천</div>
           <div className={styles.fairPlaceBox}>
             {fairPlace ? (
               <>
@@ -266,11 +257,7 @@ export const AiManagerPage = () => {
           </button>
 
           {/* 로딩 */}
-          {isRecommending && (
-            <div className={styles.loadingBox}>
-              🔍 AI가 장소를 찾고 있어요...
-            </div>
-          )}
+          {isRecommending && <div className={styles.loadingBox}>🔍 AI가 장소를 찾고 있어요...</div>}
 
           {/* 추천 결과 */}
           {recommendations.length > 0 && (
@@ -293,10 +280,7 @@ export const AiManagerPage = () => {
                   </div>
                 </div>
               ))}
-              <button
-                className={styles.moreButton}
-                onClick={() => handleRecommend(keyword)}
-              >
+              <button className={styles.moreButton} onClick={() => handleRecommend(keyword)}>
                 ✨ 다른 장소도 추천받기
               </button>
             </div>

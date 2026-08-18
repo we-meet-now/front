@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { AddressSearchSheet } from '@/ui/address-search-sheet/address-search-sheet';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { PageLayout } from '@/ui/layout/page-layout';
+import { Toast } from '@/ui/toast/toast';
+import { useToast } from '@/ui/toast/use-toast';
 
 import * as styles from '../page.css';
 
@@ -15,7 +18,12 @@ export const GuestSharePage = () => {
   const [departure, setDeparture] = useState('');
   const [nickname, setNickname] = useState('익명이');
   const [customNick, setCustomNick] = useState('익명이');
+  const [showAddressSheet, setShowAddressSheet] = useState(false);
+  const { message: toastMessage, showToast } = useToast();
 
+  // TODO(백엔드 연동): 공유 링크가 고정 문자열임. 실제 모임/공유 링크 생성 API가 필요함(백엔드에 없음) —
+  // 생성된 고유 링크(만료 7일 등)를 응답받아 여기 넣어야 함. 카카오톡/다른 앱 공유 버튼도 지금은 토스트만
+  // 띄우는 목업이라, 실제 카카오 SDK/Web Share API 연동이 필요함.
   const mockLink = 'wemeettalk.com/meet/abc123';
 
   const handleNext = () => {
@@ -26,25 +34,21 @@ export const GuestSharePage = () => {
   };
 
   const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text).catch(() => {});
+    navigator.clipboard
+      .writeText(text)
+      .then(() => showToast('복사되었어요'))
+      .catch(() => {});
   };
 
   if (step === 'share') {
     return (
       <PageLayout
         header={
-          <AppBar
-            title="모임장소 정하기"
-            showBackButton
-            onBackClick={() => setStep('input')}
-          />
+          <AppBar title="모임장소 정하기" showBackButton onBackClick={() => setStep('input')} />
         }
         footer={
           <div className={styles.footer}>
-            <button
-              className={styles.primaryButton}
-              onClick={() => navigate('/place/status')}
-            >
+            <button className={styles.primaryButton} onClick={() => navigate('/place/status')}>
               입력 현황 보러 가기
             </button>
           </div>
@@ -60,7 +64,8 @@ export const GuestSharePage = () => {
 
           <div className={styles.shareCard}>
             <p style={{ fontSize: 13.5, lineHeight: 1.6, color: '#4D5159', margin: 0 }}>
-              [위밋톡] 우리 어디서 만날까요?<br />
+              [위밋톡] 우리 어디서 만날까요?
+              <br />
               출발지만 입력하면, 모두의 중간위치를 찾고 만날 장소도 추천해 드려요!
             </p>
             <p className={styles.shareLink}>{mockLink}</p>
@@ -76,23 +81,27 @@ export const GuestSharePage = () => {
 
           <div className={styles.sectionTitle}>공유하기</div>
           <div className={styles.shareButtons}>
-            <button className={styles.shareIconButton}>
+            <button
+              className={styles.shareIconButton}
+              onClick={() => showToast('카카오톡으로 공유했어요')}
+            >
               <span>💬</span>
               <span className={styles.shareIconLabel}>카카오톡</span>
             </button>
-            <button className={styles.shareIconButton}>
+            <button
+              className={styles.shareIconButton}
+              onClick={() => showToast('공유 시트를 열었어요')}
+            >
               <span>📤</span>
               <span className={styles.shareIconLabel}>다른 앱</span>
             </button>
-            <button
-              className={styles.shareIconButton}
-              onClick={() => handleCopy(mockLink)}
-            >
+            <button className={styles.shareIconButton} onClick={() => handleCopy(mockLink)}>
               <span>🔗</span>
               <span className={styles.shareIconLabel}>링크 복사</span>
             </button>
           </div>
         </div>
+        {toastMessage && <Toast message={toastMessage} />}
       </PageLayout>
     );
   }
@@ -100,11 +109,7 @@ export const GuestSharePage = () => {
   return (
     <PageLayout
       header={
-        <AppBar
-          title="모임장소 정하기"
-          showBackButton
-          onBackClick={() => navigate('/place')}
-        />
+        <AppBar title="모임장소 정하기" showBackButton onBackClick={() => navigate('/place')} />
       }
       footer={
         <div className={styles.footer}>
@@ -120,7 +125,9 @@ export const GuestSharePage = () => {
     >
       <div className={styles.body}>
         <h2 className={styles.sectionTitle} style={{ marginTop: 24, fontSize: 20 }}>
-          먼저, 내 출발지를<br />입력해 주세요
+          먼저, 내 출발지를
+          <br />
+          입력해 주세요
         </h2>
 
         <div className={styles.section}>
@@ -129,7 +136,8 @@ export const GuestSharePage = () => {
             className={styles.input}
             placeholder="출발지를 입력해 주세요"
             value={departure}
-            onChange={(e) => setDeparture(e.target.value)}
+            readOnly
+            onClick={() => setShowAddressSheet(true)}
           />
           <p className={styles.helperText}>
             🔒 출발지는 시·구까지만 공개되고, 상세주소는 공개되지 않아요
@@ -171,6 +179,12 @@ export const GuestSharePage = () => {
           </div>
         )}
       </div>
+      {showAddressSheet && (
+        <AddressSearchSheet
+          onSelect={(address) => setDeparture(address)}
+          onClose={() => setShowAddressSheet(false)}
+        />
+      )}
     </PageLayout>
   );
 };

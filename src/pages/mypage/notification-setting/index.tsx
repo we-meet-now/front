@@ -27,13 +27,7 @@ const Row = ({
   </div>
 );
 
-const OptionRow = ({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) => (
+const OptionRow = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className={styles.row}>
     <span className={styles.rowLabel}>{label}</span>
     <div className={styles.optionGroup}>{children}</div>
@@ -84,20 +78,44 @@ type Settings = {
 };
 
 const DEFAULT: Settings = {
-  map_place: true, map_placeConfirm: true, map_placeChange: true,
-  map_location: true, map_friendArrived: true, map_iArrived: true, map_iLate: true,
-  map_share: true, map_shareInactive: true, map_shareStart: true,
-  remind_departure: true, remind_timeRange: 'default',
-  remind_preAlert: true, remind_d1: true, remind_dday: true,
-  remind_departureTime: true, remind_participation: true,
-  remind_scheduleChange: true, remind_scheduleDelete: true,
-  chat_allMessages: true, chat_sound: true, chat_ringtone: false,
-  chat_vibration: true, chat_alertContent: 'full',
-  chat_autoJoin: false, chat_sortOrder: 'latest',
-  chat_aiAutoCreate: true, chat_newRoom: true,
-  chat_voteStart: true, chat_voteRemind: true, chat_voteEnd: true, chat_voteResult: true,
-  chat_calendarCreate: true, chat_calendarChange: true, chat_calendarSummary: true,
-  chat_settlementStart: true, chat_settlementAmount: true, chat_settlementComplete: true,
+  map_place: true,
+  map_placeConfirm: true,
+  map_placeChange: true,
+  map_location: true,
+  map_friendArrived: true,
+  map_iArrived: true,
+  map_iLate: true,
+  map_share: true,
+  map_shareInactive: true,
+  map_shareStart: true,
+  remind_departure: true,
+  remind_timeRange: 'default',
+  remind_preAlert: true,
+  remind_d1: true,
+  remind_dday: true,
+  remind_departureTime: true,
+  remind_participation: true,
+  remind_scheduleChange: true,
+  remind_scheduleDelete: true,
+  chat_allMessages: true,
+  chat_sound: true,
+  chat_ringtone: false,
+  chat_vibration: true,
+  chat_alertContent: 'full',
+  chat_autoJoin: false,
+  chat_sortOrder: 'latest',
+  chat_aiAutoCreate: true,
+  chat_newRoom: true,
+  chat_voteStart: true,
+  chat_voteRemind: true,
+  chat_voteEnd: true,
+  chat_voteResult: true,
+  chat_calendarCreate: true,
+  chat_calendarChange: true,
+  chat_calendarSummary: true,
+  chat_settlementStart: true,
+  chat_settlementAmount: true,
+  chat_settlementComplete: true,
   chat_photoUpload: true,
 };
 
@@ -111,8 +129,18 @@ const MapSection = ({ s, toggle }: { s: Settings; toggle: (k: keyof Settings) =>
       <span className={styles.sectionTitle}>1. 모임 장소 확정/변경 시 알림</span>
       <Switch on={s.map_place} onToggle={() => toggle('map_place')} />
     </div>
-    <Row label="장소 확정 시" on={s.map_placeConfirm} onToggle={() => toggle('map_placeConfirm')} sub />
-    <Row label="장소 변경 시" on={s.map_placeChange} onToggle={() => toggle('map_placeChange')} sub />
+    <Row
+      label="장소 확정 시"
+      on={s.map_placeConfirm}
+      onToggle={() => toggle('map_placeConfirm')}
+      sub
+    />
+    <Row
+      label="장소 변경 시"
+      on={s.map_placeChange}
+      onToggle={() => toggle('map_placeChange')}
+      sub
+    />
 
     <div className={styles.divider} />
 
@@ -120,7 +148,12 @@ const MapSection = ({ s, toggle }: { s: Settings; toggle: (k: keyof Settings) =>
       <span className={styles.sectionTitle}>2. 실시간 위치 기반 알림</span>
       <Switch on={s.map_location} onToggle={() => toggle('map_location')} />
     </div>
-    <Row label="친구가 도착했을 때" on={s.map_friendArrived} onToggle={() => toggle('map_friendArrived')} sub />
+    <Row
+      label="친구가 도착했을 때"
+      on={s.map_friendArrived}
+      onToggle={() => toggle('map_friendArrived')}
+      sub
+    />
     <Row label="내가 도착했을 때" on={s.map_iArrived} onToggle={() => toggle('map_iArrived')} sub />
     <Row label="내가 늦었을 때" on={s.map_iLate} onToggle={() => toggle('map_iLate')} sub />
 
@@ -130,13 +163,27 @@ const MapSection = ({ s, toggle }: { s: Settings; toggle: (k: keyof Settings) =>
       <span className={styles.sectionTitle}>3. 위치 공유 상태 알림</span>
       <Switch on={s.map_share} onToggle={() => toggle('map_share')} />
     </div>
-    <Row label="위치 공유 비활성화 상태" on={s.map_shareInactive} onToggle={() => toggle('map_shareInactive')} sub />
-    <Row label="위치 공유 시작 시" on={s.map_shareStart} onToggle={() => toggle('map_shareStart')} sub />
+    <Row
+      label="위치 공유 비활성화 상태"
+      on={s.map_shareInactive}
+      onToggle={() => toggle('map_shareInactive')}
+      sub
+    />
+    <Row
+      label="위치 공유 시작 시"
+      on={s.map_shareStart}
+      onToggle={() => toggle('map_shareStart')}
+      sub
+    />
   </>
 );
 
 // ── 리마인드 섹션 ────────────────────────────────────────
-const RemindSection = ({ s, toggle, set }: {
+const RemindSection = ({
+  s,
+  toggle,
+  set,
+}: {
   s: Settings;
   toggle: (k: keyof Settings) => void;
   set: <K extends keyof Settings>(k: K, v: Settings[K]) => void;
@@ -151,18 +198,28 @@ const RemindSection = ({ s, toggle, set }: {
         출발 전 리마인드 알림, 모임 시간 기준으로 미리 알림을 설정할 수 있어요.
       </p>
     </div>
-    <Row label="출발 전 리마인드 알림" on={s.remind_departure} onToggle={() => toggle('remind_departure')} />
+    <Row
+      label="출발 전 리마인드 알림"
+      on={s.remind_departure}
+      onToggle={() => toggle('remind_departure')}
+    />
     <div className={styles.timeRangeRow}>
       <span className={styles.timeRangeLabel}>리마인드 수신 시간 범위 지정</span>
       <div className={styles.optionGroup}>
         <button
-          className={cx(styles.optionButton, s.remind_timeRange === 'default' && styles.optionButtonActive)}
+          className={cx(
+            styles.optionButton,
+            s.remind_timeRange === 'default' && styles.optionButtonActive,
+          )}
           onClick={() => set('remind_timeRange', 'default')}
         >
           오전 9시~오후 10시
         </button>
         <button
-          className={cx(styles.optionButton, s.remind_timeRange === 'custom' && styles.optionButtonActive)}
+          className={cx(
+            styles.optionButton,
+            s.remind_timeRange === 'custom' && styles.optionButtonActive,
+          )}
           onClick={() => set('remind_timeRange', 'custom')}
         >
           직접 설정
@@ -178,21 +235,43 @@ const RemindSection = ({ s, toggle, set }: {
     </div>
     <Row label="D-1 리마인드" on={s.remind_d1} onToggle={() => toggle('remind_d1')} sub />
     <Row label="D-Day 리마인드" on={s.remind_dday} onToggle={() => toggle('remind_dday')} sub />
-    <Row label="출발 시간 안내" on={s.remind_departureTime} onToggle={() => toggle('remind_departureTime')} sub />
-    <Row label="참여 확인 요청" on={s.remind_participation} onToggle={() => toggle('remind_participation')} sub />
+    <Row
+      label="출발 시간 안내"
+      on={s.remind_departureTime}
+      onToggle={() => toggle('remind_departureTime')}
+      sub
+    />
+    <Row
+      label="참여 확인 요청"
+      on={s.remind_participation}
+      onToggle={() => toggle('remind_participation')}
+      sub
+    />
 
     <div className={styles.divider} />
 
     <div className={styles.sectionRow}>
       <span className={styles.sectionTitle}>일정 변경 리마인드</span>
     </div>
-    <Row label="일정 변경 알림" on={s.remind_scheduleChange} onToggle={() => toggle('remind_scheduleChange')} />
-    <Row label="일정 삭제 알림" on={s.remind_scheduleDelete} onToggle={() => toggle('remind_scheduleDelete')} />
+    <Row
+      label="일정 변경 알림"
+      on={s.remind_scheduleChange}
+      onToggle={() => toggle('remind_scheduleChange')}
+    />
+    <Row
+      label="일정 삭제 알림"
+      on={s.remind_scheduleDelete}
+      onToggle={() => toggle('remind_scheduleDelete')}
+    />
   </>
 );
 
 // ── 채팅 섹션 ────────────────────────────────────────────
-const ChatSection = ({ s, toggle, set }: {
+const ChatSection = ({
+  s,
+  toggle,
+  set,
+}: {
   s: Settings;
   toggle: (k: keyof Settings) => void;
   set: <K extends keyof Settings>(k: K, v: Settings[K]) => void;
@@ -212,7 +291,10 @@ const ChatSection = ({ s, toggle, set }: {
       {(['full', 'name', 'hidden'] as const).map((v) => (
         <button
           key={v}
-          className={cx(styles.optionButton, s.chat_alertContent === v && styles.optionButtonActive)}
+          className={cx(
+            styles.optionButton,
+            s.chat_alertContent === v && styles.optionButtonActive,
+          )}
           onClick={() => set('chat_alertContent', v)}
         >
           {v === 'full' ? '이름+메시지' : v === 'name' ? '이름' : '표시 안함'}
@@ -231,7 +313,11 @@ const ChatSection = ({ s, toggle, set }: {
         </button>
       ))}
     </OptionRow>
-    <Row label="AI 매니저 자동 생성" on={s.chat_aiAutoCreate} onToggle={() => toggle('chat_aiAutoCreate')} />
+    <Row
+      label="AI 매니저 자동 생성"
+      on={s.chat_aiAutoCreate}
+      onToggle={() => toggle('chat_aiAutoCreate')}
+    />
     <Row label="새 채팅방 생성 알림" on={s.chat_newRoom} onToggle={() => toggle('chat_newRoom')} />
 
     <div className={styles.divider} />
@@ -240,7 +326,11 @@ const ChatSection = ({ s, toggle, set }: {
       <span className={styles.sectionTitle}>투표 알림</span>
     </div>
     <Row label="투표 시작 알림" on={s.chat_voteStart} onToggle={() => toggle('chat_voteStart')} />
-    <Row label="내 투표 참여 유도" on={s.chat_voteRemind} onToggle={() => toggle('chat_voteRemind')} />
+    <Row
+      label="내 투표 참여 유도"
+      on={s.chat_voteRemind}
+      onToggle={() => toggle('chat_voteRemind')}
+    />
     <Row label="투표 마감 알림" on={s.chat_voteEnd} onToggle={() => toggle('chat_voteEnd')} />
     <Row label="투표 결과 공유" on={s.chat_voteResult} onToggle={() => toggle('chat_voteResult')} />
 
@@ -249,25 +339,53 @@ const ChatSection = ({ s, toggle, set }: {
     <div className={styles.sectionRow}>
       <span className={styles.sectionTitle}>공유 캘린더 알림</span>
     </div>
-    <Row label="약속 생성 시 알림" on={s.chat_calendarCreate} onToggle={() => toggle('chat_calendarCreate')} />
-    <Row label="약속 변경 시 알림" on={s.chat_calendarChange} onToggle={() => toggle('chat_calendarChange')} />
-    <Row label="약속 확정 요약" on={s.chat_calendarSummary} onToggle={() => toggle('chat_calendarSummary')} />
+    <Row
+      label="약속 생성 시 알림"
+      on={s.chat_calendarCreate}
+      onToggle={() => toggle('chat_calendarCreate')}
+    />
+    <Row
+      label="약속 변경 시 알림"
+      on={s.chat_calendarChange}
+      onToggle={() => toggle('chat_calendarChange')}
+    />
+    <Row
+      label="약속 확정 요약"
+      on={s.chat_calendarSummary}
+      onToggle={() => toggle('chat_calendarSummary')}
+    />
 
     <div className={styles.divider} />
 
     <div className={styles.sectionRow}>
       <span className={styles.sectionTitle}>정산 알림</span>
     </div>
-    <Row label="정산 시작 알림" on={s.chat_settlementStart} onToggle={() => toggle('chat_settlementStart')} />
-    <Row label="내 금액 확정 알림" on={s.chat_settlementAmount} onToggle={() => toggle('chat_settlementAmount')} />
-    <Row label="정산 완료 메시지" on={s.chat_settlementComplete} onToggle={() => toggle('chat_settlementComplete')} />
+    <Row
+      label="정산 시작 알림"
+      on={s.chat_settlementStart}
+      onToggle={() => toggle('chat_settlementStart')}
+    />
+    <Row
+      label="내 금액 확정 알림"
+      on={s.chat_settlementAmount}
+      onToggle={() => toggle('chat_settlementAmount')}
+    />
+    <Row
+      label="정산 완료 메시지"
+      on={s.chat_settlementComplete}
+      onToggle={() => toggle('chat_settlementComplete')}
+    />
 
     <div className={styles.divider} />
 
     <div className={styles.sectionRow}>
       <span className={styles.sectionTitle}>사진 공유 알림</span>
     </div>
-    <Row label="사진 업로드 시 알림" on={s.chat_photoUpload} onToggle={() => toggle('chat_photoUpload')} />
+    <Row
+      label="사진 업로드 시 알림"
+      on={s.chat_photoUpload}
+      onToggle={() => toggle('chat_photoUpload')}
+    />
   </>
 );
 
@@ -275,6 +393,9 @@ const ChatSection = ({ s, toggle, set }: {
 export const NotificationSettingPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'map' | 'remind' | 'chat'>('map');
+  // TODO(백엔드 연동): 알림 설정 전체가 이 컴포넌트의 로컬 state(DEFAULT)에서만 관리됨 — 새로고침하면 초기화되고,
+  // 다른 기기에서도 반영 안 됨. 마운트 시 GET 알림설정 API로 초기값을 불러오고, toggle 시 PUT/PATCH로 저장해야 함.
+  // 백엔드에 알림 관련 기능이 아직 전혀 없음(신규 개발 필요, 위 Settings 타입을 그대로 API 스키마 초안으로 써도 됨).
   const [s, setS] = useState<Settings>(DEFAULT);
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -313,8 +434,7 @@ export const NotificationSettingPage = () => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const toggle = (k: keyof Settings) =>
-    setS((prev) => ({ ...prev, [k]: !prev[k] }));
+  const toggle = (k: keyof Settings) => setS((prev) => ({ ...prev, [k]: !prev[k] }));
 
   const set = <K extends keyof Settings>(k: K, v: Settings[K]) =>
     setS((prev) => ({ ...prev, [k]: v }));

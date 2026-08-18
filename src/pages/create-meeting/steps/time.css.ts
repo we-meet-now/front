@@ -1,12 +1,14 @@
 import { style } from '@vanilla-extract/css';
 
+import { fluid, fluidHeight, fluidText } from '@/ui/utils';
+
 import { vars } from '@/ui/theme.css';
 
 export const container = style({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 25,
+  gap: fluidHeight(14, 25),
   padding: '24px 12px',
 });
 
@@ -18,15 +20,16 @@ export const numbers = style({
 
 /* 원형 step */
 export const step = style({
-  width: 36,
-  height: 36,
+  width: fluid(36),
+  height: fluid(36),
   borderRadius: '50%',
+  flexShrink: 0,
 
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
 
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(13, 16),
   fontWeight: vars.fontWeight.bold,
 
   backgroundColor: vars.color.grey300,
@@ -68,13 +71,13 @@ export const titleBox = style({
 });
 
 export const title = style({
-  fontSize: vars.fontSize.xxl,
+  fontSize: fluidText(18, 22),
   color: vars.color.grey900,
-  fontWeight: 'bold',
+  fontWeight: vars.fontWeight.bold,
 });
 
 export const description = style({
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   color: vars.color.grey500,
 });
 
@@ -86,17 +89,21 @@ export const tabBox = style({
 });
 
 export const tab = style({
-  width: 145,
-  height: 50,
-  padding: '8px 0',
+  flex: 1,
+  minWidth: 0,
+  height: fluid(50),
+  padding: '8px 4px',
   borderRadius: 8,
   backgroundColor: vars.color.grey100,
   border: `2px solid ${vars.color.grey500}`,
   color: vars.color.grey500,
   textAlign: 'center',
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   fontWeight: vars.fontWeight.bold,
   cursor: 'pointer',
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 export const activeTab = style({
@@ -123,7 +130,7 @@ export const field = style({
 
 /* 라벨 */
 export const label = style({
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   color: vars.color.black,
 });
 
@@ -133,7 +140,7 @@ export const input = style({
   padding: '0 12px',
   borderRadius: 10,
   border: `1px solid ${vars.color.grey400}`,
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(14, 16),
 
   selectors: {
     '&:focus': {
@@ -147,19 +154,22 @@ export const input = style({
 export const customBox = style({
   width: '80%',
   marginBottom: 32,
-  height: 48,
+  boxSizing: 'border-box',
+  minHeight: 48,
   backgroundColor: vars.color.blue50,
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   color: vars.color.grey800,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   fontWeight: vars.fontWeight.regular,
   borderRadius: 8,
-  padding: 18,
+  padding: '14px 16px',
+  lineHeight: 1.5,
 });
 
 export const helper = style({
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   color: vars.color.grey600,
+  textAlign: 'center',
 });

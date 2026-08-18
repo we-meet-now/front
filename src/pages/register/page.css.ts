@@ -1,5 +1,7 @@
 import { style } from '@vanilla-extract/css';
 
+import { fluidText } from '@/ui/utils';
+
 import { vars } from '@/ui/theme.css';
 
 export const container = style({
@@ -24,13 +26,13 @@ export const header = style({
 });
 
 export const title = style({
-  fontSize: vars.fontSize.xxxl,
+  fontSize: fluidText(20, 24),
   fontWeight: vars.fontWeight.bold,
   marginBottom: 8,
 });
 
 export const description = style({
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(14, 16),
   color: vars.color.grey600,
   lineHeight: 1.4,
 });
@@ -53,7 +55,7 @@ export const inlineField = style({
 });
 
 export const label = style({
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(14, 16),
   color: vars.color.grey900,
 });
 
@@ -62,7 +64,7 @@ export const input = style({
   padding: '8px 12px',
   borderRadius: 8,
   border: `1px solid ${vars.color.grey500}`,
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(14, 16),
 
   selectors: {
     '&::placeholder': {
@@ -84,16 +86,16 @@ export const verifyButton = style({
   backgroundColor: vars.color.white,
   color: vars.color.green600,
 
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   cursor: 'pointer',
 });
 
 export const helperText = style({
-  fontSize: vars.fontSize.xs,
+  fontSize: fluidText(11, 12),
   color: vars.color.grey500,
 });
 
 export const verifiedText = style({
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   color: vars.color.green600,
 });

@@ -21,7 +21,8 @@ type SharedCalendarProps = {
 // 나(도희)의 정보
 const MY_INFO = { name: '도희', color: '#3B82F6' };
 
-// 목업: 다른 멤버들의 가능 일자
+// TODO(백엔드 연동): 다른 멤버들의 가능 일자가 하드코딩됨. 백엔드 ScheduleController가 roomId 기준으로
+// 일정 CRUD(POST/GET/PUT/DELETE)를 이미 제공하므로, roomId로 참여자별 선택 일자를 조회해서 채워야 함.
 const OTHER_MEMBERS_AVAILABILITY: MemberAvailability[] = [
   { name: '민지', color: '#e53935', dates: [5, 12, 15, 19, 26] },
   { name: '수현', color: '#fb8c00', dates: [5, 8, 15, 22, 26] },
@@ -36,13 +37,13 @@ function getFirstDayOfWeek(year: number, month: number) {
   return new Date(year, month, 1).getDay();
 }
 
-export const SharedCalendar = ({
-  confirmedDate = null,
-  onConfirm,
-}: SharedCalendarProps) => {
+export const SharedCalendar = ({ confirmedDate = null, onConfirm }: SharedCalendarProps) => {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
+  // TODO(백엔드 연동): 내가 선택/확정한 날짜가 컴포넌트 local state에만 있어 새로고침하면 사라지고,
+  // 같은 방의 다른 참여자 화면에도 반영되지 않음("공유" 캘린더인데 실제로는 공유가 안 됨).
+  // ScheduleController(roomId 기준 CRUD)로 저장하고, 마운트 시 조회해서 초기값을 채워야 함.
   const [selectedDates, setSelectedDates] = useState<Set<number>>(new Set());
   const [confirmedDates, setConfirmedDates] = useState<Set<number>>(new Set());
 
@@ -87,13 +88,12 @@ export const SharedCalendar = ({
   ];
 
   // 모든 멤버가 가능한 날
-  const allAvailableDays = Array.from({ length: daysInMonth }, (_, i) => i + 1).filter(
-    (day) => allMembers.every((m) => m.dates.includes(day)),
+  const allAvailableDays = Array.from({ length: daysInMonth }, (_, i) => i + 1).filter((day) =>
+    allMembers.every((m) => m.dates.includes(day)),
   );
 
   // 특정 날짜에 가능한 멤버 목록
-  const getAvailableMembers = (day: number) =>
-    allMembers.filter((m) => m.dates.includes(day));
+  const getAvailableMembers = (day: number) => allMembers.filter((m) => m.dates.includes(day));
 
   const hintText = confirmedDate
     ? '확정일자는 별표 표시돼요!'
@@ -174,11 +174,7 @@ export const SharedCalendar = ({
               {availableMembers.length > 0 && (
                 <div className={styles.dotContainer}>
                   {availableMembers.map((m) => (
-                    <div
-                      key={m.name}
-                      className={styles.dot}
-                      style={{ backgroundColor: m.color }}
-                    />
+                    <div key={m.name} className={styles.dot} style={{ backgroundColor: m.color }} />
                   ))}
                 </div>
               )}

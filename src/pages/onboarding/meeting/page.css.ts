@@ -1,42 +1,48 @@
 import { style } from '@vanilla-extract/css';
 
+import { fluidHeight, fluidText } from '@/ui/utils';
+
 import { vars } from '@/ui/theme.css';
 
 export const container = style({
-  background: '#FFFBEB ',
+  background: vars.color.grey100,
   display: 'flex',
   flexDirection: 'column',
-  padding: '40px 24px',
+  paddingTop: fluidHeight(14, 28),
+  paddingBottom: fluidHeight(12, 24),
+  paddingLeft: 24,
+  paddingRight: 24,
 });
 
 export const content = style({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 20,
+  gap: fluidHeight(8, 16),
   textAlign: 'center',
-  marginTop: 20,
+  marginTop: fluidHeight(4, 12),
 });
 
 export const party = style({
-  width: 120,
-  height: 120,
+  width: fluidHeight(44, 120),
+  height: fluidHeight(44, 120),
   background: vars.color.blue50,
-  fontSize: 60,
+  fontSize: fluidText(20, 60),
   borderRadius: '50%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  flexShrink: 0,
 });
 
 export const title = style({
-  fontSize: vars.fontSize.xxxl,
+  fontSize: fluidText(18, 24),
   fontWeight: vars.fontWeight.bold,
   textAlign: 'center',
 });
 
 export const desc = style({
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(12, 16),
   fontWeight: vars.fontWeight.regular,
   textAlign: 'center',
   color: vars.color.grey600,
@@ -45,16 +51,16 @@ export const desc = style({
 export const content2 = style({
   display: 'flex',
   flexDirection: 'column',
-  gap: 20,
-  padding: 24,
+  gap: fluidHeight(10, 20),
+  padding: fluidHeight(12, 24),
   background: vars.color.white,
   borderRadius: 16,
   boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
-  marginTop: 40,
+  marginTop: fluidHeight(12, 28),
 });
 
 export const title2 = style({
-  fontSize: vars.fontSize.l,
+  fontSize: fluidText(16, 18),
   fontWeight: vars.fontWeight.bold,
 });
 
@@ -63,15 +69,16 @@ export const step = style({
 });
 
 export const stepNumber = style({
-  width: 32,
-  height: 32,
+  width: fluidHeight(24, 32),
+  height: fluidHeight(24, 32),
   background: vars.color.blue200,
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(14, 16),
   fontWeight: vars.fontWeight.bold,
   borderRadius: '50%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  flexShrink: 0,
 });
 
 export const stepContent = style({
@@ -82,12 +89,12 @@ export const stepContent = style({
 });
 
 export const stepTitle = style({
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(14, 16),
   fontWeight: vars.fontWeight.bold,
 });
 
 export const stepDesc = style({
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   fontWeight: vars.fontWeight.regular,
   color: vars.color.grey600,
 });
@@ -96,18 +103,23 @@ export const content3 = style({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 8,
-  background: '#FFF7ED',
-  marginTop: 40,
+  gap: 6,
+  paddingTop: fluidHeight(8, 14),
+  paddingBottom: fluidHeight(8, 14),
+  paddingLeft: 16,
+  paddingRight: 16,
+  borderRadius: 12,
+  background: vars.color.blue50,
+  marginTop: fluidHeight(12, 28),
 });
 
 export const title3 = style({
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(14, 16),
   fontWeight: vars.fontWeight.bold,
-  color: '#C2410C',
+  color: vars.color.blue600,
 });
 export const desc3 = style({
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   fontWeight: vars.fontWeight.regular,
-  color: '#C2410C',
+  color: vars.color.blue600,
 });

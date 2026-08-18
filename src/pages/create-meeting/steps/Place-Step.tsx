@@ -102,7 +102,7 @@ export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
           >
             <div className={styles.cardLeft}>
               <div className={styles.icon}>{item.emoji}</div>
-              <div>
+              <div className={styles.cardBody}>
                 <div className={styles.cardTitle}>{item.title}</div>
                 <div className={styles.cardDesc}>{item.desc}</div>
               </div>
@@ -160,7 +160,7 @@ export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
       )}
 
       <div className={styles.footer}>
-        <Button size="l" onClick={onSubmit} disabled={isNextDisabled}>
+        <Button size="l" style={{ minWidth: '100%' }} onClick={onSubmit} disabled={isNextDisabled}>
           모임 생성
         </Button>
       </div>

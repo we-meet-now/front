@@ -1,5 +1,7 @@
 import { style } from '@vanilla-extract/css';
 
+import { fluid, fluidText } from '@/ui/utils';
+
 import { vars } from '@/ui/theme.css';
 
 /* ── 전체 ── */
@@ -28,33 +30,40 @@ export const sectionTitle = style({
 /* ── 멤버 리스트 ── */
 export const memberList = style({
   display: 'flex',
-  gap: 14,
-  justifyContent: 'center',
-  flexWrap: 'wrap',
+  gap: 10,
+  justifyContent: 'flex-start',
+  overflowX: 'auto',
+  paddingBottom: 2,
+  WebkitOverflowScrolling: 'touch',
+  selectors: {
+    '&::-webkit-scrollbar': { display: 'none' },
+  },
 });
 
 export const memberItem = style({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 6,
-  minWidth: 48,
+  gap: 4,
+  minWidth: 40,
+  flexShrink: 0,
 });
 
 export const memberAvatar = style({
-  width: 44,
-  height: 44,
+  width: fluid(36),
+  height: fluid(36),
   borderRadius: '50%',
+  flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   color: vars.color.white,
-  fontSize: '16px',
+  fontSize: fluidText(12, 14),
   fontWeight: vars.fontWeight.bold,
 });
 
 export const memberName = style({
-  fontSize: vars.fontSize.xs,
+  fontSize: fluidText(10, 11),
   color: vars.color.grey700,
   fontWeight: vars.fontWeight.medium,
   textAlign: 'center',
@@ -78,13 +87,14 @@ export const step = style({
 });
 
 export const stepCircle = style({
-  width: 32,
-  height: 32,
+  width: fluid(36),
+  height: fluid(36),
   borderRadius: '50%',
+  flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   fontWeight: vars.fontWeight.bold,
   backgroundColor: vars.color.grey200,
   color: vars.color.grey500,

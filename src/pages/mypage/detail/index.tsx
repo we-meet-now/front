@@ -40,13 +40,13 @@ export const MyPageDetail = () => {
 
   return (
     <PageLayout
-      header={
-        <AppBar title="회원정보 수정" showBackButton onBackClick={() => navigate(-1)} />
-      }
+      header={<AppBar title="회원정보 수정" showBackButton onBackClick={() => navigate(-1)} />}
       footer={<GNB />}
     >
       <div className={styles.container}>
         {/* 기본정보 */}
+        {/* TODO(백엔드 연동): 이름/닉네임/이메일/연락처가 전부 하드코딩됨. GET 내정보 API로 채워야 함.
+            닉네임/이메일/연락처 옆 "수정" 버튼도 onClick이 없음 — 각각 수정 API 연동 필요. */}
         <div className={styles.section}>
           <div className={styles.sectionTitle}>기본정보</div>
 
@@ -80,6 +80,8 @@ export const MyPageDetail = () => {
         </div>
 
         {/* 비밀번호 변경 */}
+        {/* TODO(백엔드 연동): handleChangePassword가 클라이언트 측 검증만 하고 바로 성공 모달을 띄움.
+            실제로는 검증 통과 후 비밀번호 변경 API를 호출하고, 그 응답이 성공일 때만 성공 모달을 띄워야 함. */}
         <div className={styles.passwordSection}>
           <div className={styles.sectionTitle}>비밀번호 변경</div>
 
@@ -114,7 +116,9 @@ export const MyPageDetail = () => {
           />
 
           {error && <span className={styles.errorText}>{error}</span>}
-          <Button color="grey" size="l" onClick={handleChangePassword}>비밀번호 변경</Button>
+          <Button color="grey" size="l" onClick={handleChangePassword}>
+            비밀번호 변경
+          </Button>
         </div>
 
         {/* 비밀번호 변경 완료 팝업 */}
@@ -139,6 +143,7 @@ export const MyPageDetail = () => {
         )}
 
         {/* 회원 탈퇴 */}
+        {/* TODO(백엔드 연동): onClick이 없음 — 회원 탈퇴 API 연동 필요. */}
         <div className={styles.withdrawRow}>
           <span className={styles.withdrawLabel}>회원 탈퇴</span>
           <span className={styles.withdrawArrow}>›</span>

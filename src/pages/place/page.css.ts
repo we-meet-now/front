@@ -1,5 +1,7 @@
 import { keyframes, style } from '@vanilla-extract/css';
 
+import { fluidText } from '@/ui/utils';
+
 import { vars } from '@/ui/theme.css';
 
 const spin = keyframes({
@@ -26,12 +28,13 @@ export const entryContent = style({
 export const featureCardBox = style({
   display: 'flex',
   flexDirection: 'row',
+  flexShrink: 0,
   marginTop: 24,
   gap: 12,
   overflowX: 'auto',
   paddingBottom: 8,
-  paddingLeft: 'calc(50% - 163.5px)',
-  paddingRight: 'calc(50% - 163.5px)',
+  paddingLeft: 'calc(50% - 109px)',
+  paddingRight: 'calc(50% - 109px)',
   scrollSnapType: 'x mandatory',
   cursor: 'grab',
   userSelect: 'none',
@@ -44,7 +47,7 @@ export const featureCardBox = style({
 
 export const featureCard = style({
   background: vars.color.white,
-  width: 327,
+  width: 218,
   flexShrink: 0,
   padding: 16,
   borderRadius: 12,
@@ -84,7 +87,7 @@ export const dotActive = style({
 export const featureCardTitle = style({
   color: vars.color.grey900,
   fontWeight: vars.fontWeight.bold,
-  fontSize: vars.fontSize.xl,
+  fontSize: fluidText(13, 15),
   letterSpacing: '-0.5px',
   textAlign: 'center',
 });
@@ -138,7 +141,7 @@ export const heroIcon = style({
 });
 
 export const heroTitle = style({
-  fontSize: vars.fontSize.xxl,
+  fontSize: fluidText(18, 22),
   fontWeight: vars.fontWeight.bold,
   letterSpacing: '-0.6px',
   lineHeight: 1.3,
@@ -147,7 +150,7 @@ export const heroTitle = style({
 });
 
 export const heroDesc = style({
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(13, 14),
   color: vars.color.grey500,
   lineHeight: 1.55,
 });
@@ -222,7 +225,7 @@ export const textButton = style({
 
 export const caption = style({
   textAlign: 'center',
-  fontSize: vars.fontSize.xs,
+  fontSize: fluidText(11, 12),
   color: vars.color.grey400,
 });
 
@@ -250,6 +253,7 @@ export const label = style({
 export const input = style({
   width: '100%',
   height: 50,
+  boxSizing: 'border-box',
   border: `1px solid ${vars.color.grey200}`,
   borderRadius: 8,
   padding: '0 14px',
@@ -567,6 +571,7 @@ export const inputRow = style({
 export const directInputName = style({
   width: 80,
   height: 50,
+  boxSizing: 'border-box',
   border: `1px solid ${vars.color.grey200}`,
   borderRadius: 8,
   padding: '0 10px',
@@ -584,6 +589,7 @@ export const directInputName = style({
 export const directInputAddr = style({
   flex: 1,
   height: 50,
+  boxSizing: 'border-box',
   border: `1px solid ${vars.color.grey200}`,
   borderRadius: 8,
   padding: '0 14px',

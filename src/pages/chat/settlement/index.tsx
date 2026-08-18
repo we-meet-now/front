@@ -42,16 +42,11 @@ export const SettlementPage = () => {
             {TABS.map((tab) => (
               <div
                 key={tab.key}
-                className={cx(
-                  chatStyles.tab,
-                  tab.key === 'settlement' && chatStyles.activeTab,
-                )}
+                className={cx(chatStyles.tab, tab.key === 'settlement' && chatStyles.activeTab)}
                 onClick={() => handleTabClick(tab.key)}
               >
                 {tab.label}
-                {tab.badge && (
-                  <span className={chatStyles.tabBadge}>{tab.badge}</span>
-                )}
+                {tab.badge && <span className={chatStyles.tabBadge}>{tab.badge}</span>}
               </div>
             ))}
           </div>
@@ -59,7 +54,18 @@ export const SettlementPage = () => {
       }
       footer={<GNB />}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '15px' }}>
+      {/* TODO(백엔드 연동): 화면 자체가 미구현. 백엔드에 정산 관련 기능이 아예 없음(신규 개발 필요) —
+          모임 비용 입력, 인원별 분배 계산, 정산 현황 조회/완료 처리 API 등이 필요함. */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          color: '#9ca3af',
+          fontSize: '15px',
+        }}
+      >
         향후 오픈 예정이에요.
       </div>
     </PageLayout>

@@ -1,42 +1,94 @@
 import { style } from '@vanilla-extract/css';
 
+import { fluidText } from '@/ui/utils';
+
 import { vars } from '@/ui/theme.css';
 
 export const onboarding = style({
   background: vars.color.grey100,
   display: 'flex',
   flexDirection: 'column',
-  padding: '40px 20px 20px 20px',
+  padding: '20px 20px 20px 20px',
+});
+
+export const brandHeader = style({
+  position: 'sticky',
+  top: 0,
+  zIndex: 10,
+  height: 44,
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  // 아래 buttonContainer의 'l' 사이즈 버튼 좌측 시작 위치와 맞춘 값
+  paddingLeft: 'clamp(40px, 12.8vw, 56px)',
+  paddingRight: 20,
+  backgroundColor: vars.color.white,
+  borderBottom: `1px solid ${vars.color.grey200}`,
+});
+
+export const brandHeaderText = style({
+  color: vars.color.grey800,
+  fontWeight: vars.fontWeight.medium,
+  fontSize: fluidText(14, 16),
+  letterSpacing: '-0.2px',
+});
+
+export const loginLink = style({
+  border: 'none',
+  background: 'none',
+  padding: 0,
+  color: vars.color.blue500,
+  fontWeight: vars.fontWeight.medium,
+  fontSize: fluidText(13, 14),
+  cursor: 'pointer',
+});
+
+export const topIntro = style({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
 });
 
 export const logo = style({
   display: 'flex',
   justifyContent: 'center',
+  '@media': {
+    '(max-height: 700px)': {
+      display: 'none',
+    },
+  },
+});
+
+export const logoIcon = style({
+  width: 'clamp(48px, 15vw, 66px)',
+  height: 'clamp(48px, 15vw, 66px)',
 });
 
 export const title = style({
   color: vars.color.grey900,
   fontWeight: vars.fontWeight.bold,
-  fontSize: vars.fontSize.xxxl,
+  fontSize: fluidText(16, 18),
   textAlign: 'center',
 });
 
 export const subtitle = style({
   color: vars.color.grey500,
   fontWeight: vars.fontWeight.regular,
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(12, 14),
   textAlign: 'center',
 });
 
 export const cardBox = style({
   display: 'flex',
   flexDirection: 'row',
+  flexShrink: 0,
   marginTop: 24,
   gap: 12,
   overflowX: 'auto',
   paddingBottom: 8,
-  paddingLeft: 'calc(50% - 163.5px)',
-  paddingRight: 'calc(50% - 163.5px)',
+  paddingLeft: 'calc(50% - 109px)',
+  paddingRight: 'calc(50% - 109px)',
   scrollSnapType: 'x mandatory',
   cursor: 'grab',
   userSelect: 'none',
@@ -49,7 +101,7 @@ export const cardBox = style({
 
 export const card = style({
   background: vars.color.white,
-  width: 327,
+  width: 218,
   flexShrink: 0,
   padding: 16,
   borderRadius: 12,
@@ -100,7 +152,7 @@ export const cardImage = style({
 export const cardTitle = style({
   color: vars.color.grey900,
   fontWeight: vars.fontWeight.bold,
-  fontSize: vars.fontSize.xl,
+  fontSize: fluidText(13, 15),
   letterSpacing: '-0.5px',
   textAlign: 'center',
 });

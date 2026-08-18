@@ -1,22 +1,24 @@
 import { style } from '@vanilla-extract/css';
 
+import { fluid, fluidHeight, fluidText } from '@/ui/utils';
+
 import { vars } from '@/ui/theme.css';
 
 export const container = style({
-  background: '#FFFBEB ',
+  background: vars.color.grey100,
   display: 'flex',
   flexDirection: 'column',
-  padding: '80px 24px',
+  padding: '32px 24px 24px',
 });
 
 export const title = style({
-  fontSize: vars.fontSize.xxxl,
+  fontSize: fluidText(20, 24),
   fontWeight: vars.fontWeight.bold,
   textAlign: 'center',
 });
 
 export const desc = style({
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(14, 16),
   fontWeight: vars.fontWeight.regular,
   textAlign: 'center',
 });
@@ -25,15 +27,16 @@ export const box = style({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 32,
+  gap: 16,
   cursor: 'pointer',
 
-  marginTop: 20,
+  marginTop: 12,
 });
 
 export const option = style({
-  width: 342,
-  height: 236,
+  width: fluid(342),
+  height: fluidHeight(130, 236),
+  overflow: 'hidden',
   background: vars.color.white,
   borderRadius: 16,
   boxShadow: '0px 4px 16px rgba(0, 0, 0, 0.1)',
@@ -51,23 +54,24 @@ export const option = style({
 });
 
 export const star = style({
-  width: 80,
-  height: 80,
-  background: '#FFEDD5',
-  fontSize: 40,
+  width: fluidHeight(40, 80),
+  height: fluidHeight(40, 80),
+  background: vars.color.blue50,
+  fontSize: fluidText(20, 40),
   borderRadius: '50%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  flexShrink: 0,
 });
 
 export const optionTitle = style({
-  fontSize: vars.fontSize.l,
+  fontSize: fluidText(16, 18),
   fontWeight: vars.fontWeight.bold,
 });
 
 export const optionDesc = style({
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(13, 16),
   fontWeight: vars.fontWeight.regular,
   color: vars.color.grey500,
   textAlign: 'center',
@@ -75,12 +79,13 @@ export const optionDesc = style({
 });
 
 export const hand = style({
-  width: 80,
-  height: 80,
-  background: '#DBEAFE',
-  fontSize: 40,
+  width: fluidHeight(40, 80),
+  height: fluidHeight(40, 80),
+  background: vars.color.blue100,
+  fontSize: fluidText(20, 40),
   borderRadius: '50%',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
+  flexShrink: 0,
 });

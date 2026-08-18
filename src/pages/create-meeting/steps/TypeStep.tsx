@@ -79,7 +79,7 @@ export const TypeStep = ({ value, onChange, onNext }: Props) => {
               }
             >
               <div className={styles.cardIcon}>{item.emoji}</div>
-              <div>
+              <div className={styles.cardBody}>
                 <div className={styles.cardTitle}>{item.label}</div>
                 <div className={styles.cardDesc}>{item.desc}</div>
               </div>
@@ -119,7 +119,7 @@ export const TypeStep = ({ value, onChange, onNext }: Props) => {
 
       {/* Footer */}
       <div className={styles.footer}>
-        <Button size="l" onClick={onNext} disabled={isNextDisabled}>
+        <Button size="l" style={{ minWidth: '100%' }} onClick={onNext} disabled={isNextDisabled}>
           다음
         </Button>
       </div>

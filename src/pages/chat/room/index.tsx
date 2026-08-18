@@ -2,11 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { type StompMessage, useStompChat } from '@/hooks/useStompChat';
-import { chatStore, type Message } from '@/store/chat-store';
+import { type Message, chatStore } from '@/store/chat-store';
 import { AppBar } from '@/ui/appbar/app-bar';
+import { AttachMenu } from '@/ui/attach-menu/attach-menu';
 import { GNB } from '@/ui/gnb/gnb';
+import { InviteInfoModal } from '@/ui/invite-info-modal/invite-info-modal';
 import { PageLayout } from '@/ui/layout/page-layout';
 import { cx } from '@/ui/utils';
+import { isLogin } from '@/utils/isLogin';
 
 import * as styles from './page.css';
 
@@ -18,7 +21,10 @@ const TABS = [
   { key: 'settlement', label: '정산' },
 ];
 
-
+// TODO(백엔드 연동): 채팅 "새 메시지"는 STOMP 웹소켓(useStompChat)으로 실제 연동되어 있지만,
+// 방에 처음 들어왔을 때 보여줄 "이전 대화 기록"은 아래 DUMMY_MESSAGES 하드코딩을 그대로 보여주고 있음.
+// 채팅 히스토리 조회 API(GET, roomId 기준 페이지네이션)가 필요 — 백엔드 chat-service에 방 생성/입장 API는 있지만
+// 메시지 히스토리 조회 API는 없음(신규 개발 필요). 응답을 받아 chatStore.setMessages(...)로 교체하면 됨.
 const DUMMY_MESSAGES: Message[] = [
   // ── 날짜 구분선 ──
   {
@@ -209,9 +215,14 @@ const AVATAR_COLOR_MAP: Record<string, string> = {
 };
 
 const getAvatarColor = (name: string) =>
-  AVATAR_COLOR_MAP[name] ?? `hsl(${[...name].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360},60%,50%)`;
+  AVATAR_COLOR_MAP[name] ??
+  `hsl(${[...name].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360},60%,50%)`;
 
-const stompMsgToMessage = (stomp: StompMessage, nextId: number, myUsername: string): Message | null => {
+const stompMsgToMessage = (
+  stomp: StompMessage,
+  nextId: number,
+  myUsername: string,
+): Message | null => {
   const time = new Date().toLocaleTimeString('ko-KR', {
     hour: 'numeric',
     minute: '2-digit',
@@ -224,7 +235,10 @@ const stompMsgToMessage = (stomp: StompMessage, nextId: number, myUsername: stri
     return {
       id: nextId,
       type: 'system',
-      text: stomp.chatType === 'ENTER' ? `${userId}님이 입장하셨습니다` : `${userId}님이 퇴장하셨습니다`,
+      text:
+        stomp.chatType === 'ENTER'
+          ? `${userId}님이 입장하셨습니다`
+          : `${userId}님이 퇴장하셨습니다`,
     };
   }
 
@@ -254,10 +268,16 @@ export const ChatRoomPage = () => {
   const [activeTab, setActiveTab] = useState('chat');
   const [messages, setMessages] = useState<Message[]>(DUMMY_MESSAGES);
   const [inputValue, setInputValue] = useState('');
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const nextIdRef = useRef(300);
 
-  const { messages: stompMessages, isConnected, sendMessage } = useStompChat({
+  const {
+    messages: stompMessages,
+    isConnected,
+    sendMessage,
+  } = useStompChat({
     roomId: roomId ?? '',
     username,
   });
@@ -312,6 +332,26 @@ export const ChatRoomPage = () => {
     setInputValue('');
   };
 
+  // TODO(백엔드 연동): 이미지 업로드 API가 없어 로컬 objectURL만 미리보기로 보여줌.
+  // 실제로는 파일을 서버(또는 스토리지)에 업로드하고 받은 URL을 imageUrl로 저장해야 함.
+  const handleImageSelected = (file: File) => {
+    chatStore.addMessage({
+      type: 'mine',
+      sender: username,
+      avatarColor: getAvatarColor(MY_USERNAME),
+      avatarText: MY_USERNAME[0],
+      text: '',
+      imageUrl: URL.createObjectURL(file),
+      time: new Date().toLocaleTimeString('ko-KR', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      }),
+      showAvatar: false,
+      showName: false,
+    });
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
       e.preventDefault();
@@ -328,132 +368,142 @@ export const ChatRoomPage = () => {
   };
 
   return (
-    <PageLayout
-      header={
-        <>
-          <AppBar
-            title="대학 동기 모임"
-            subTitle={isConnected ? '6명 참여 중 · 연결됨' : '6명 참여 중 · 오프라인'}
-            showBackButton
-            onBackClick={() => navigate(-1)}
-            rightSlot={
-              <div className={styles.headerIcons}>
-                <button className={styles.headerIconButton}>🔍</button>
-                <button className={styles.headerIconButton}>☰</button>
-              </div>
-            }
-          />
-          {/* ── 탭 네비게이션 ── */}
-          <div className={styles.tabBar}>
-            {TABS.map((tab) => (
-              <div
-                key={tab.key}
-                className={cx(
-                  styles.tab,
-                  activeTab === tab.key && styles.activeTab,
-                )}
-                onClick={() => handleTabClick(tab.key)}
-              >
-                {tab.label}
-                {tab.badge && (
-                  <span className={styles.tabBadge}>{tab.badge}</span>
-                )}
-              </div>
-            ))}
-          </div>
-        </>
-      }
-      footer={
-        /* ── 메시지 입력창 ── */
-        <>
-          <div className={styles.inputArea}>
-            <button className={styles.attachButton}>＋</button>
-            <input
-              className={styles.input}
-              placeholder="메시지를 입력하세요"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <button className={styles.sendButton} onClick={handleSend}>
-              ↑
-            </button>
-          </div>
-          <GNB />
-        </>
-      }
-    >
-      {/* ── 채팅 영역 ── */}
-      <div className={styles.chatArea}>
-        {messages.map((msg) => {
-          // 날짜 구분선
-          if (msg.type === 'date') {
-            return (
-              <div key={msg.id} className={styles.dateSeparator}>
-                {msg.text}
-              </div>
-            );
-          }
-
-          // 시스템 메시지
-          if (msg.type === 'system') {
-            return (
-              <div key={msg.id} className={styles.systemMessage}>
-                {msg.text}
-              </div>
-            );
-          }
-
-          const isMine = msg.type === 'mine';
-
-          return (
-            <div
-              key={msg.id}
-              className={cx(
-                styles.messageRow,
-                isMine && styles.messageRowMine,
-              )}
-            >
-              {/* 아바타: 내 메시지는 숨김, 연속 메시지도 숨김 */}
-              {!isMine && (
-                <div
-                  className={cx(
-                    styles.avatar,
-                    !msg.showAvatar && styles.avatarHidden,
-                  )}
-                  style={{ backgroundColor: msg.avatarColor }}
-                >
-                  {msg.avatarText}
+    <>
+      <PageLayout
+        header={
+          <>
+            {/* TODO(백엔드 연동): 방 제목 "대학 동기 모임", 참여자 수 "6명"이 하드코딩됨.
+              방 정보 조회 API(roomId 기준)로 대체 필요. 🔍/☰ 버튼도 onClick 없음(검색·메뉴 기능 미구현). */}
+            <AppBar
+              title="대학 동기 모임"
+              subTitle={isConnected ? '6명 참여 중 · 연결됨' : '6명 참여 중 · 오프라인'}
+              showBackButton
+              onBackClick={() => navigate(-1)}
+              rightSlot={
+                <div className={styles.headerIcons}>
+                  <button className={styles.headerIconButton}>🔍</button>
+                  <button
+                    className={styles.headerIconButton}
+                    onClick={() => setShowInviteModal(true)}
+                  >
+                    ☰
+                  </button>
                 </div>
-              )}
-
-              <div className={styles.messageBody}>
-                {/* 발신자 이름: 내 메시지는 숨김 */}
-                {!isMine && msg.showName && (
-                  <span className={styles.senderName}>{msg.sender}</span>
-                )}
+              }
+            />
+            {/* ── 탭 네비게이션 ── */}
+            <div className={styles.tabBar}>
+              {TABS.map((tab) => (
                 <div
-                  className={cx(styles.bubble, isMine && styles.bubbleMine)}
+                  key={tab.key}
+                  className={cx(styles.tab, activeTab === tab.key && styles.activeTab)}
+                  onClick={() => handleTabClick(tab.key)}
                 >
+                  {tab.label}
+                  {tab.badge && <span className={styles.tabBadge}>{tab.badge}</span>}
+                </div>
+              ))}
+            </div>
+          </>
+        }
+        footer={
+          /* ── 메시지 입력창 ── */
+          <>
+            <div className={styles.inputArea}>
+              <button className={styles.attachButton} onClick={() => setShowAttachMenu(true)}>
+                ＋
+              </button>
+              <input
+                className={styles.input}
+                placeholder="메시지를 입력하세요"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+              />
+              <button className={styles.sendButton} onClick={handleSend}>
+                ↑
+              </button>
+            </div>
+            <GNB />
+          </>
+        }
+      >
+        {/* ── 채팅 영역 ── */}
+        <div className={styles.chatArea}>
+          {messages.map((msg) => {
+            // 날짜 구분선
+            if (msg.type === 'date') {
+              return (
+                <div key={msg.id} className={styles.dateSeparator}>
                   {msg.text}
                 </div>
-                <div
-                  className={cx(
-                    styles.messageFooter,
-                    isMine && styles.messageFooterMine,
+              );
+            }
+
+            // 시스템 메시지
+            if (msg.type === 'system') {
+              return (
+                <div key={msg.id} className={styles.systemMessage}>
+                  {msg.text}
+                </div>
+              );
+            }
+
+            const isMine = msg.type === 'mine';
+
+            return (
+              <div key={msg.id} className={cx(styles.messageRow, isMine && styles.messageRowMine)}>
+                {/* 아바타: 내 메시지는 숨김, 연속 메시지도 숨김 */}
+                {!isMine && (
+                  <div
+                    className={cx(styles.avatar, !msg.showAvatar && styles.avatarHidden)}
+                    style={{ backgroundColor: msg.avatarColor }}
+                  >
+                    {msg.avatarText}
+                  </div>
+                )}
+
+                <div className={styles.messageBody}>
+                  {/* 발신자 이름: 내 메시지는 숨김 */}
+                  {!isMine && msg.showName && (
+                    <span className={styles.senderName}>{msg.sender}</span>
                   )}
-                >
-                  {isMine && msg.unread && (
-                    <span className={styles.unreadCount}>{msg.unread}</span>
+                  {msg.imageUrl ? (
+                    <div className={styles.imageBubble}>
+                      <img src={msg.imageUrl} className={styles.messageImage} alt="전송한 사진" />
+                    </div>
+                  ) : (
+                    <div className={cx(styles.bubble, isMine && styles.bubbleMine)}>{msg.text}</div>
                   )}
-                  <span className={styles.messageTime}>{msg.time}</span>
+                  <div className={cx(styles.messageFooter, isMine && styles.messageFooterMine)}>
+                    {isMine && msg.unread && (
+                      <span className={styles.unreadCount}>{msg.unread}</span>
+                    )}
+                    <span className={styles.messageTime}>{msg.time}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
-        <div ref={chatEndRef} />
-      </div>
-    </PageLayout>
+            );
+          })}
+          <div ref={chatEndRef} />
+        </div>
+      </PageLayout>
+
+      {showAttachMenu && (
+        <AttachMenu
+          onClose={() => setShowAttachMenu(false)}
+          onImageSelected={handleImageSelected}
+        />
+      )}
+
+      {showInviteModal && (
+        <InviteInfoModal
+          roomTitle="대학 동기 모임"
+          roomId={roomId ?? '0'}
+          isLoggedIn={Boolean(isLogin())}
+          onClose={() => setShowInviteModal(false)}
+        />
+      )}
+    </>
   );
 };

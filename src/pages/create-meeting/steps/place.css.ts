@@ -1,12 +1,14 @@
 import { style } from '@vanilla-extract/css';
 
+import { fluid, fluidHeight, fluidText } from '@/ui/utils';
+
 import { vars } from '@/ui/theme.css';
 
 export const container = style({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  gap: 25,
+  gap: fluidHeight(14, 25),
   padding: '24px 12px',
 });
 
@@ -18,15 +20,16 @@ export const numbers = style({
 
 /* 원형 step */
 export const step = style({
-  width: 36,
-  height: 36,
+  width: fluid(36),
+  height: fluid(36),
   borderRadius: '50%',
+  flexShrink: 0,
 
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
 
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(13, 16),
   fontWeight: vars.fontWeight.bold,
 
   backgroundColor: vars.color.grey300,
@@ -68,13 +71,13 @@ export const titleBox = style({
 });
 
 export const title = style({
-  fontSize: vars.fontSize.xxl,
+  fontSize: fluidText(18, 22),
   color: vars.color.grey900,
   fontWeight: vars.fontWeight.bold,
 });
 
 export const description = style({
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   color: vars.color.grey500,
 });
 
@@ -89,6 +92,7 @@ export const card = style({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
+  boxSizing: 'border-box',
 
   padding: '18px',
   borderRadius: 16,
@@ -108,25 +112,32 @@ export const cardLeft = style({
   display: 'flex',
   gap: 12,
   alignItems: 'center',
+  minWidth: 0,
+});
+
+export const cardBody = style({
+  minWidth: 0,
 });
 
 export const icon = style({
-  fontSize: 26,
+  fontSize: fluidText(18, 26),
+  flexShrink: 0,
 });
 
 export const cardTitle = style({
-  fontSize: vars.fontSize.m,
+  fontSize: fluidText(14, 16),
   fontWeight: vars.fontWeight.bold,
 });
 
 export const cardDesc = style({
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(12, 14),
   opacity: 0.8,
 });
 
 export const check = style({
-  fontSize: 18,
+  fontSize: 16,
   fontWeight: vars.fontWeight.bold,
+  flexShrink: 0,
 });
 
 export const footer = style({
@@ -143,10 +154,13 @@ export const searchBox = style({
 
 export const searchInput = style({
   flex: 1,
+  minWidth: 0,
+  boxSizing: 'border-box',
   height: 40,
   padding: '0 12px',
   borderRadius: 8,
   border: `1px solid ${vars.color.grey400}`,
+  fontSize: fluidText(13, 15),
 });
 
 export const searchButton = style({
@@ -161,6 +175,7 @@ export const resultList = style({
 });
 
 export const resultCard = style({
+  boxSizing: 'border-box',
   padding: '12px',
   borderRadius: 12,
   border: `1px solid ${vars.color.grey300}`,
@@ -171,24 +186,25 @@ export const resultCard = style({
 });
 
 export const aiBadge = style({
+  display: 'inline-block',
   padding: '2px 6px',
   borderRadius: 4,
   backgroundColor: vars.color.green100,
   color: vars.color.green900,
-  fontSize: vars.fontSize.xxs,
+  fontSize: fluidText(10, 11),
   marginRight: 6,
 });
 
 export const resultCardTitle = style({
-  fontSize: vars.fontSize.s,
+  fontSize: fluidText(13, 14),
   fontWeight: vars.fontWeight.bold,
 });
 export const resultCardAddress = style({
-  fontSize: vars.fontSize.xs,
+  fontSize: fluidText(11, 12),
   color: vars.color.grey500,
 });
 export const resultCardComment = style({
-  fontSize: vars.fontSize.xs,
+  fontSize: fluidText(11, 12),
   color: vars.color.grey700,
 });
 
