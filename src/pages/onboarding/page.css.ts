@@ -135,3 +135,43 @@ export const guestCaption = style({
   color: vars.color.grey400,
   marginTop: -6,
 });
+
+export const joinFooterLink = style({
+  marginLeft: 4,
+  color: vars.color.blue500,
+  fontWeight: vars.fontWeight.medium,
+  textDecoration: 'underline',
+  textUnderlineOffset: 3,
+  cursor: 'pointer',
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  fontSize: vars.fontSize.xs,
+});
+
+export const joinField = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 20,
+});
+
+export const joinInput = style({
+  padding: '12px 14px',
+  borderRadius: 10,
+  border: `1px solid ${vars.color.grey300}`,
+  fontSize: vars.fontSize.m,
+  color: vars.color.grey900,
+  textAlign: 'center',
+  letterSpacing: '2px',
+
+  selectors: {
+    '&::placeholder': {
+      color: vars.color.grey400,
+      letterSpacing: 'normal',
+    },
+    '&:focus': {
+      outline: 'none',
+      borderColor: vars.color.blue500,
+    },
+  },
+});

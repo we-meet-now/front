@@ -6,6 +6,7 @@ import { AppBar } from '@/ui/appbar/app-bar';
 import { Button } from '@/ui/button/button';
 import { PageLayout } from '@/ui/layout/page-layout';
 import { Spacer } from '@/ui/spacer/spacer';
+import { formatPhoneNumber } from '@/utils/formatPhoneNumber';
 
 import * as styles from './page.css';
 
@@ -48,7 +49,7 @@ export const RegisterPage = () => {
         password,
         passwordCorrect: passwordConfirm,
         nickname,
-        phoneNumber,
+        phoneNumber: phoneNumber.replace(/-/g, ''),
       },
       {
         onSuccess: () => navigate('/onboarding/complete'),
@@ -123,11 +124,11 @@ export const RegisterPage = () => {
             <label className={styles.label}>전화번호</label>
             <input
               className={styles.input}
-              placeholder="01012345678"
+              placeholder="010-1234-5678"
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
+              onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
+              maxLength={13}
             />
-            <span className={styles.helperText}>- 없이 숫자만 입력해주세요</span>
           </div>
 
           {/* 비밀번호 */}

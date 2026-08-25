@@ -15,6 +15,13 @@ export type PlaceSearchType = {
   name: string;
   address: string;
   comment: string;
+  // 아직 서버가 내려주지 않는 값들. 화면에서는 없으면 mock으로 채우고,
+  // 서버가 주기 시작하면 별도 수정 없이 실데이터가 우선한다.
+  category?: string;
+  stationExit?: string;
+  walkingMinutes?: number;
+  rating?: number;
+  reviewCount?: number;
 };
 
 const mock: PlaceSearchResponse = [

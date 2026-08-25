@@ -16,11 +16,11 @@ type Member = {
 
 const INITIAL_MEMBERS: Member[] = [
   { name: sessionStorage.getItem('guest_nickname') ?? '익명이 (나)', region: sessionStorage.getItem('guest_departure') ?? '위치 미입력', color: AVATAR_COLORS[0] },
-  { name: '토끼', region: '서울시 마포구', color: AVATAR_COLORS[1] },
-  { name: '민수', region: '경기도 수원시', color: AVATAR_COLORS[2] },
 ];
 
 const EXTRA_MEMBERS: Member[] = [
+  { name: '토끼', region: '서울시 마포구', color: AVATAR_COLORS[1] },
+  { name: '민수', region: '경기도 수원시', color: AVATAR_COLORS[2] },
   { name: '지훈', region: '서울시 강남구', color: AVATAR_COLORS[3] },
   { name: '서연', region: '경기도 성남시', color: AVATAR_COLORS[4] },
 ];
@@ -36,7 +36,10 @@ export const GuestStatusPage = () => {
     setExtraIdx((i) => i + 1);
   };
 
+  const hasMidpoint = members.length >= 2;
+
   const handleGetRecommendation = () => {
+    if (!hasMidpoint) return;
     sessionStorage.setItem('guest_midpoint', '사당역');
     navigate('/place/result?from=share');
   };
@@ -52,7 +55,11 @@ export const GuestStatusPage = () => {
       }
       footer={
         <div className={styles.footer}>
-          <button className={styles.primaryButton} onClick={handleGetRecommendation}>
+          <button
+            className={styles.primaryButton}
+            onClick={handleGetRecommendation}
+            disabled={!hasMidpoint}
+          >
             모임장소 추천받기
           </button>
         </div>
@@ -71,13 +78,19 @@ export const GuestStatusPage = () => {
 
         {/* 지도 목업 */}
         <div className={styles.mockMap}>
-          <div className={styles.mapMiniPin} style={{ left: '22%', top: '32%' }} />
-          <div className={styles.mapMiniPin} style={{ left: '72%', top: '58%' }} />
-          <div className={styles.mapMiniPin} style={{ left: '36%', top: '72%' }} />
-          <div className={styles.mapPin}>
-            <div className={styles.mapPinDot} />
-            <span className={styles.mapPinLabel}>중간위치 · 사당역</span>
-          </div>
+          {hasMidpoint ? (
+            <>
+              <div className={styles.mapMiniPin} style={{ left: '22%', top: '32%' }} />
+              <div className={styles.mapMiniPin} style={{ left: '72%', top: '58%' }} />
+              <div className={styles.mapMiniPin} style={{ left: '36%', top: '72%' }} />
+              <div className={styles.mapPin}>
+                <div className={styles.mapPinDot} />
+                <span className={styles.mapPinLabel}>중간위치 · 사당역</span>
+              </div>
+            </>
+          ) : (
+            <span className={styles.mapEmptyText}>출발지가 2개 이상 모이면 중간위치를 보여드려요</span>
+          )}
         </div>
 
         <div className={styles.sectionTitle}>입력한 사람</div>

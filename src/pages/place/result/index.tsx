@@ -1,63 +1,95 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { fetchSearchPlaces, type PlaceSearchType } from '@/api/create-meeting/place';
+import { type PlaceSearchType, fetchSearchPlaces } from '@/api/create-meeting/place';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { PageLayout } from '@/ui/layout/page-layout';
+import { cx } from '@/ui/utils';
+
+import { loadMidpoint, saveSelectedPlaces } from '../guest-session';
+import { buildNaverMapUrl, enrichPlace } from '../place-detail';
+import { useCarousel } from '../use-carousel';
 
 import * as styles from '../page.css';
 
 const CATEGORIES = ['맛집', '카페', '문화생활'] as const;
 type Category = (typeof CATEGORIES)[number];
 
+const MAX_SELECT = 3;
+
+type Status = 'loading' | 'error' | 'success';
+
 export const GuestResultPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const from = searchParams.get('from') ?? 'share';
 
-  const midpoint = sessionStorage.getItem('guest_midpoint') ?? '강남역';
+  const midpoint = loadMidpoint() || '강남역';
   const [activeCategory, setActiveCategory] = useState<Category>('맛집');
   const [places, setPlaces] = useState<PlaceSearchType[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [status, setStatus] = useState<Status>('loading');
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const loadPlaces = async (category: Category) => {
-    setIsLoading(true);
-    try {
-      const result = await fetchSearchPlaces({ loc: `${midpoint} ${category}` });
-      setPlaces(result);
-    } catch {
-      setPlaces([
-        { id: '1', name: `${midpoint} 분위기 좋은 곳`, address: `${midpoint} 인근 · 도보 5분`, comment: '접근성 우수하고 모임하기 좋아요' },
-        { id: '2', name: `${midpoint} 인기 맛집`, address: `${midpoint} 인근 · 도보 8분`, comment: '가성비 좋고 넓어서 단체 이용에 적합해요' },
-        { id: '3', name: `${midpoint} 카페라운지`, address: `${midpoint} 인근 · 도보 3분`, comment: '조용하고 좌석이 많아요' },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // 재조회 트리거. 값이 바뀔 때마다 아래 이펙트가 다시 실행된다.
+  const [reloadKey, setReloadKey] = useState(0);
+  // 카테고리를 연달아 누를 때 느린 응답이 최신 결과를 덮어쓰지 않도록
+  const reqId = useRef(0);
 
   useEffect(() => {
-    loadPlaces(activeCategory);
-  }, [activeCategory]);
+    const myReq = ++reqId.current;
+
+    fetchSearchPlaces({ loc: `${midpoint} ${activeCategory}` })
+      .then((result) => {
+        if (myReq !== reqId.current) return;
+        setPlaces(result);
+        setStatus(result.length > 0 ? 'success' : 'error');
+      })
+      .catch(() => {
+        if (myReq !== reqId.current) return;
+        setPlaces([]);
+        setStatus('error');
+      });
+  }, [activeCategory, midpoint, reloadKey]);
+
+  // 로딩 표시는 이펙트가 아니라 사용자 조작 시점에 켠다
+  const handleCategoryChange = (category: Category) => {
+    if (category === activeCategory) return;
+    setStatus('loading');
+    setActiveCategory(category);
+  };
+
+  const handleRetry = () => {
+    setStatus('loading');
+    setReloadKey((key) => key + 1);
+  };
+
+  const details = useMemo(
+    () =>
+      places.map((place) => enrichPlace(place, { category: activeCategory, station: midpoint })),
+    [places, activeCategory, midpoint],
+  );
+
+  const { containerRef, activeIndex, onScroll, scrollToIndex, dragHandlers } = useCarousel(
+    details.length,
+  );
 
   const toggleSelect = (id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
         next.delete(id);
-      } else if (next.size < 3) {
+      } else if (next.size < MAX_SELECT) {
         next.add(id);
       }
       return next;
     });
   };
 
+  const selectedPlaces = details.filter((place) => selected.has(place.id));
+
   const handleShare = () => {
-    sessionStorage.setItem(
-      'guest_selected_places',
-      JSON.stringify(places.filter((p) => selected.has(p.id)).map((p) => p.name)),
-    );
+    if (selectedPlaces.length === 0) return;
+    saveSelectedPlaces(selectedPlaces);
     navigate('/place/share-complete');
   };
 
@@ -66,78 +98,156 @@ export const GuestResultPage = () => {
   return (
     <PageLayout
       header={
-        <AppBar
-          title="모임장소 정하기"
-          showBackButton
-          onBackClick={() => navigate(backPath)}
-        />
+        <AppBar title="모임장소 정하기" showBackButton onBackClick={() => navigate(backPath)} />
       }
       footer={
         <div className={styles.footer}>
-          {selected.size > 0 && (
-            <div className={styles.selectedChips}>
-              {places
-                .filter((p) => selected.has(p.id))
-                .map((p) => (
-                  <span key={p.id} className={styles.selectedChipItem}>
-                    {p.name}
+          {selectedPlaces.length > 0 && (
+            <>
+              <span className={styles.caption} style={{ textAlign: 'left' }}>
+                선택한 장소 {selectedPlaces.length}곳
+              </span>
+              <div className={styles.selectedChips}>
+                {selectedPlaces.map((place) => (
+                  <span key={place.id} className={styles.selectedChipItem}>
+                    {place.name}
+                    <button
+                      className={styles.selectedChipRemove}
+                      onClick={() => toggleSelect(place.id)}
+                      aria-label={`${place.name} 선택 해제`}
+                    >
+                      ✕
+                    </button>
                   </span>
                 ))}
-            </div>
+              </div>
+            </>
           )}
           <button
             className={styles.primaryButton}
-            disabled={selected.size === 0}
+            disabled={selectedPlaces.length === 0}
             onClick={handleShare}
           >
-            선택한 장소 공유하기
+            선택한 장소 공유하기{selectedPlaces.length > 0 && ` (${selectedPlaces.length})`}
           </button>
         </div>
       }
     >
       <div className={styles.body}>
-        <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.6px', lineHeight: 1.3, marginTop: 22, marginBottom: 4 }}>
-          {midpoint} 근처에서 만나기<br />좋은 곳을 추천해 드려요!
+        <h2 className={styles.pageTitle}>
+          {midpoint} 근처에서 만나기
+          <br />
+          좋은 곳을 추천해 드려요!
         </h2>
         <p className={styles.helperText} style={{ marginBottom: 16 }}>
-          마음에 드는 곳을 골라 공유해 보세요 (최대 3곳)
+          마음에 드는 곳을 골라 공유해 보세요 (최대 {MAX_SELECT}곳)
         </p>
 
         <div className={styles.chipRow}>
-          {CATEGORIES.map((cat) => (
+          {CATEGORIES.map((category) => (
             <button
-              key={cat}
-              className={`${styles.chip} ${activeCategory === cat ? styles.chipActive : ''}`}
-              onClick={() => setActiveCategory(cat)}
+              key={category}
+              className={cx(styles.chip, activeCategory === category && styles.chipActive)}
+              onClick={() => handleCategoryChange(category)}
             >
-              {cat}
+              {category}
             </button>
           ))}
         </div>
 
-        {isLoading ? (
+        {status === 'loading' && (
           <div className={styles.loadingBox}>
             <div className={styles.spinner} />
-            <p className={styles.loadingText}>AI가 장소를 찾고 있어요</p>
-            <p className={styles.loadingSubText}>{midpoint} 인근 {activeCategory}를 탐색 중이에요</p>
+            <p className={styles.loadingText}>만나기 좋은 장소를 찾고 있어요</p>
+            <p className={styles.loadingSubText}>모두의 중간위치를 기준으로 분석하고 있습니다</p>
           </div>
-        ) : (
+        )}
+
+        {status === 'error' && (
+          <div className={styles.loadingBox}>
+            <div className={styles.errorIcon}>!</div>
+            <p className={styles.loadingText}>장소를 찾지 못했어요</p>
+            <p className={styles.loadingSubText}>다시 한 번 시도해 주세요</p>
+            <div className={styles.errorAction}>
+              <button className={styles.outlineButton} onClick={handleRetry}>
+                다시 시도하기
+              </button>
+            </div>
+          </div>
+        )}
+
+        {status === 'success' && (
           <>
-            {places.map((place) => (
-              <div
-                key={place.id}
-                className={`${styles.placeCard} ${selected.has(place.id) ? styles.placeCardSelected : ''}`}
-                onClick={() => toggleSelect(place.id)}
-              >
-                <div className={styles.placeName}>{place.name}</div>
-                <div className={styles.placeMeta}>{place.address}</div>
-                <span className={styles.placeReason}>{place.comment}</span>
-              </div>
-            ))}
+            <div
+              ref={containerRef}
+              className={styles.placeCarousel}
+              onScroll={onScroll}
+              {...dragHandlers}
+            >
+              {details.map((place, index) => {
+                const isSelected = selected.has(place.id);
+
+                return (
+                  <div
+                    key={place.id}
+                    className={cx(styles.placeSlide, isSelected && styles.placeSlideSelected)}
+                  >
+                    <div className={styles.placeSlideTop}>
+                      <span className={styles.placeName}>{place.name}</span>
+                      <span className={styles.placeIndexBadge}>
+                        {index + 1}/{details.length}
+                      </span>
+                    </div>
+                    <span className={styles.placeMeta}>
+                      {place.category} · {place.stationExit} 도보 {place.walkingMinutes}분
+                    </span>
+                    <span className={styles.placeRatingRow}>
+                      ★ {place.rating.toFixed(1)}
+                      <span style={{ color: '#9BA7B5' }}>(리뷰 {place.reviewCount})</span>
+                    </span>
+                    <span className={styles.placeReason}>{place.comment}</span>
+
+                    <div className={styles.placeActions}>
+                      <a
+                        className={styles.placeActionButton}
+                        href={buildNaverMapUrl(place)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        자세히 보기
+                      </a>
+                      <button
+                        className={cx(
+                          styles.placeActionButton,
+                          isSelected && styles.placeActionButtonActive,
+                        )}
+                        onClick={() => toggleSelect(place.id)}
+                      >
+                        {isSelected ? '✓ 선택됨' : '선택하기'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className={styles.dotRow}>
+              {details.map((place, index) => (
+                <button
+                  key={place.id}
+                  type="button"
+                  aria-label={`${index + 1}번째 장소로 이동`}
+                  className={cx(styles.dot, index === activeIndex && styles.dotActive)}
+                  onClick={() => scrollToIndex(index)}
+                />
+              ))}
+            </div>
+
             <button
               className={styles.outlineButton}
-              style={{ marginTop: 4 }}
-              onClick={() => loadPlaces(activeCategory)}
+              style={{ marginTop: 12 }}
+              onClick={handleRetry}
             >
               ↻ 다른 장소 더 추천받기
             </button>
