@@ -372,6 +372,15 @@ export const OnBoardingPage = () => {
           모임장소 추천받기
         </button>
         <span className={styles.guestCaption}>회원가입 없이 바로 써볼 수 있어요</span>
+
+        <div className={styles.loginDivider} />
+
+        <div className={styles.loginRow}>
+          이미 계정이 있으신가요?
+          <button type="button" className={styles.loginLink} onClick={() => navigate('/login')}>
+            로그인
+          </button>
+        </div>
       </div>
 
       {isJoinPopupOpen && (

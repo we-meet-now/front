@@ -175,3 +175,32 @@ export const joinInput = style({
     },
   },
 });
+
+export const loginDivider = style({
+  width: '100%',
+  maxWidth: 327,
+  height: 1,
+  marginTop: 8,
+  background: vars.color.grey200,
+});
+
+export const loginRow = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 4,
+  fontSize: vars.fontSize.xs,
+  color: vars.color.grey500,
+});
+
+export const loginLink = style({
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  cursor: 'pointer',
+  fontSize: vars.fontSize.xs,
+  fontWeight: vars.fontWeight.bold,
+  color: vars.color.blue500,
+  textDecoration: 'underline',
+  textUnderlineOffset: 3,
+});
