@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import type { AddressSearchResult } from '@/api/create-meeting/address';
+import { AddressSearchModal } from '@/ui/address-search-modal/address-search-modal';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { PageLayout } from '@/ui/layout/page-layout';
+import { Toast } from '@/ui/toast/toast';
+import { cx } from '@/ui/utils';
 
 import * as styles from '../page.css';
 
@@ -12,16 +16,18 @@ const AVATAR_COLORS = ['#38BDF8', '#5AC8B0', '#6C9BF7', '#C08BEF', '#F080A8'];
 export const GuestSharePage = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<'input' | 'share'>('input');
-  const [departure, setDeparture] = useState('');
+  const [departure, setDeparture] = useState<AddressSearchResult | null>(null);
+  const [isSearchOpen, setSearchOpen] = useState(false);
+  const [showLocationError, setShowLocationError] = useState(false);
   const [nickname, setNickname] = useState('익명이');
   const [customNick, setCustomNick] = useState('익명이');
 
   const mockLink = 'wemeettalk.com/meet/abc123';
 
   const handleNext = () => {
-    if (!departure.trim()) return;
+    if (!departure) return;
     sessionStorage.setItem('guest_nickname', nickname);
-    sessionStorage.setItem('guest_departure', departure);
+    sessionStorage.setItem('guest_departure', departure.address);
     setStep('share');
   };
 
@@ -33,18 +39,11 @@ export const GuestSharePage = () => {
     return (
       <PageLayout
         header={
-          <AppBar
-            title="모임장소 정하기"
-            showBackButton
-            onBackClick={() => setStep('input')}
-          />
+          <AppBar title="모임장소 정하기" showBackButton onBackClick={() => setStep('input')} />
         }
         footer={
           <div className={styles.footer}>
-            <button
-              className={styles.primaryButton}
-              onClick={() => navigate('/place/status')}
-            >
+            <button className={styles.primaryButton} onClick={() => navigate('/place/status')}>
               입력 현황 보러 가기
             </button>
           </div>
@@ -60,7 +59,8 @@ export const GuestSharePage = () => {
 
           <div className={styles.shareCard}>
             <p style={{ fontSize: 13.5, lineHeight: 1.6, color: '#4D5159', margin: 0 }}>
-              [위밋톡] 우리 어디서 만날까요?<br />
+              [위밋톡] 우리 어디서 만날까요?
+              <br />
               출발지만 입력하면, 모두의 중간위치를 찾고 만날 장소도 추천해 드려요!
             </p>
             <p className={styles.shareLink}>{mockLink}</p>
@@ -84,10 +84,7 @@ export const GuestSharePage = () => {
               <span>📤</span>
               <span className={styles.shareIconLabel}>다른 앱</span>
             </button>
-            <button
-              className={styles.shareIconButton}
-              onClick={() => handleCopy(mockLink)}
-            >
+            <button className={styles.shareIconButton} onClick={() => handleCopy(mockLink)}>
               <span>🔗</span>
               <span className={styles.shareIconLabel}>링크 복사</span>
             </button>
@@ -100,19 +97,11 @@ export const GuestSharePage = () => {
   return (
     <PageLayout
       header={
-        <AppBar
-          title="모임장소 정하기"
-          showBackButton
-          onBackClick={() => navigate('/place')}
-        />
+        <AppBar title="모임장소 정하기" showBackButton onBackClick={() => navigate('/place')} />
       }
       footer={
         <div className={styles.footer}>
-          <button
-            className={styles.primaryButton}
-            onClick={handleNext}
-            disabled={!departure.trim()}
-          >
+          <button className={styles.primaryButton} onClick={handleNext} disabled={!departure}>
             다음
           </button>
         </div>
@@ -120,23 +109,36 @@ export const GuestSharePage = () => {
     >
       <div className={styles.body}>
         <h2 className={styles.sectionTitle} style={{ marginTop: 24, fontSize: 20 }}>
-          먼저, 내 출발지를<br />입력해 주세요
+          먼저, 내 출발지를
+          <br />
+          입력해 주세요
         </h2>
 
         <div className={styles.section}>
           <label className={styles.label}>출발지</label>
-          <input
-            className={styles.input}
-            placeholder="출발지를 입력해 주세요"
-            value={departure}
-            onChange={(e) => setDeparture(e.target.value)}
-          />
+          <div className={styles.inputRow} style={{ marginBottom: 0 }}>
+            <button
+              className={cx(styles.departureValue, !departure && styles.departureValueEmpty)}
+              onClick={() => setSearchOpen(true)}
+            >
+              {departure?.address ?? '출발지를 입력해 주세요'}
+            </button>
+            {departure && (
+              <button
+                className={styles.removeButton}
+                onClick={() => setDeparture(null)}
+                aria-label="출발지 지우기"
+              >
+                ✕
+              </button>
+            )}
+          </div>
           <p className={styles.helperText}>
             🔒 출발지는 시·구까지만 공개되고, 상세주소는 공개되지 않아요
           </p>
         </div>
 
-        {departure.trim() && (
+        {departure && (
           <div className={styles.section}>
             <label className={styles.label}>닉네임</label>
             <input
@@ -171,6 +173,25 @@ export const GuestSharePage = () => {
           </div>
         )}
       </div>
+
+      {isSearchOpen && (
+        <AddressSearchModal
+          onSelect={(result) => {
+            setDeparture(result);
+            setSearchOpen(false);
+          }}
+          onClose={() => setSearchOpen(false)}
+          onLocationError={() => setShowLocationError(true)}
+        />
+      )}
+
+      {showLocationError && (
+        <Toast
+          title="현재 위치를 불러올 수 없어요"
+          description="출발지를 직접 검색해 주세요"
+          onClose={() => setShowLocationError(false)}
+        />
+      )}
     </PageLayout>
   );
 };
