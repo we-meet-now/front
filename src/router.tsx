@@ -1,13 +1,6 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import { CalendarPage } from './pages/calendar';
-import { GuestPlaceEntryPage } from './pages/place';
-import { GuestDirectPage } from './pages/place/direct';
-import { GuestMidpointPage } from './pages/place/midpoint';
-import { GuestResultPage } from './pages/place/result';
-import { GuestSharePage } from './pages/place/share';
-import { GuestShareCompletePage } from './pages/place/share-complete';
-import { GuestStatusPage } from './pages/place/status';
 import { ChatPage } from './pages/chat';
 import { AiManagerPage } from './pages/chat/ai';
 import { ChatCalendarPage } from './pages/chat/calendar';
@@ -32,7 +25,15 @@ import { OnBoardingPage } from './pages/onboarding';
 import { CompletePage } from './pages/onboarding/complete';
 import { FlowPage } from './pages/onboarding/flow';
 import { MeetingPage } from './pages/onboarding/meeting';
-import { StartPage } from './pages/onboarding/start';
+import { GuestPlaceEntryPage } from './pages/place';
+import { GuestDirectPage } from './pages/place/direct';
+import { GuestMidpointPage } from './pages/place/midpoint';
+import { GuestResultPage } from './pages/place/result';
+import { GuestSharePage } from './pages/place/share';
+import { GuestShareCompletePage } from './pages/place/share-complete';
+import { GuestSharedResultPage } from './pages/place/shared-result';
+import { GuestStatusPage } from './pages/place/status';
+// import { StartPage } from './pages/onboarding/start';
 import { RegisterPage } from './pages/register';
 
 export const Router = () => {
@@ -42,11 +43,11 @@ export const Router = () => {
         <Route path="/" element={<OnBoardingPage />} />
         {/* 공통 페이지 */}
         <Route path="onboarding">
-          <Route index element={<OnBoardingPage />} />{' '}
-          <Route path="start" element={<StartPage />} />{' '}
-          <Route path="meeting" element={<MeetingPage />} />{' '}
-          <Route path="complete" element={<CompletePage />} />{' '}
-          <Route path="flow" element={<FlowPage />} />{' '}
+          <Route index element={<OnBoardingPage />} />
+          {/* <Route path="start" element={<StartPage />} />*/}
+          <Route path="meeting" element={<MeetingPage />} />
+          <Route path="complete" element={<CompletePage />} />
+          <Route path="flow" element={<FlowPage />} />
         </Route>
 
         {/* 비로그인 모임장소 추천 */}
@@ -55,6 +56,7 @@ export const Router = () => {
         <Route path="place/status" element={<GuestStatusPage />} />
         <Route path="place/result" element={<GuestResultPage />} />
         <Route path="place/share-complete" element={<GuestShareCompletePage />} />
+        <Route path="place/shared-result" element={<GuestSharedResultPage />} />
         <Route path="place/direct" element={<GuestDirectPage />} />
         <Route path="place/midpoint" element={<GuestMidpointPage />} />
 

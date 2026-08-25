@@ -227,7 +227,20 @@ export const caption = style({
 });
 
 export const section = style({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'stretch',
   marginBottom: 24,
+});
+
+export const pageTitle = style({
+  fontSize: 20,
+  fontWeight: 800,
+  letterSpacing: '-0.6px',
+  lineHeight: 1.3,
+  marginTop: 20,
+  marginBottom: 6,
+  color: vars.color.grey900,
 });
 
 export const sectionTitle = style({
@@ -248,7 +261,6 @@ export const label = style({
 });
 
 export const input = style({
-  width: '100%',
   height: 50,
   border: `1px solid ${vars.color.grey200}`,
   borderRadius: 8,
@@ -354,6 +366,36 @@ export const mapMiniPin = style({
   borderRadius: '50%',
   backgroundColor: vars.color.grey400,
   border: '2px solid white',
+});
+
+export const mapEmptyText = style({
+  position: 'absolute',
+  inset: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: '0 32px',
+  textAlign: 'center',
+  fontSize: vars.fontSize.xs,
+  color: vars.color.grey400,
+  lineHeight: 1.5,
+});
+
+export const mapNumberedPin = style({
+  position: 'absolute',
+  width: 24,
+  height: 24,
+  borderRadius: '50%',
+  backgroundColor: vars.color.blue500,
+  border: '3px solid white',
+  boxShadow: '0 3px 10px rgba(59,130,246,0.45)',
+  color: vars.color.white,
+  fontSize: vars.fontSize.xs,
+  fontWeight: vars.fontWeight.bold,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  transform: 'translate(-50%, -50%)',
 });
 
 export const memberRow = style({
@@ -472,6 +514,109 @@ export const placeReason = style({
   fontWeight: vars.fontWeight.medium,
 });
 
+/* 추천 장소 캐러셀 — featureCardBox는 랜딩 전용 폭(327px)에 맞춰져 있어 별도로 둔다 */
+export const placeCarousel = style({
+  display: 'flex',
+  gap: 12,
+  margin: '0 -20px',
+  padding: '4px 20px 12px',
+  overflowX: 'auto',
+  scrollSnapType: 'x mandatory',
+  cursor: 'grab',
+  userSelect: 'none',
+  WebkitOverflowScrolling: 'touch',
+  selectors: {
+    '&::-webkit-scrollbar': { display: 'none' },
+    '&:active': { cursor: 'grabbing' },
+  },
+});
+
+export const placeSlide = style({
+  width: 'calc(100% - 48px)',
+  flexShrink: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 6,
+  padding: 16,
+  border: `1px solid ${vars.color.grey200}`,
+  borderRadius: 12,
+  backgroundColor: vars.color.white,
+  scrollSnapAlign: 'center',
+  transformOrigin: 'center',
+  transition: 'transform 150ms ease-out, opacity 150ms ease-out, border-color 120ms',
+  willChange: 'transform, opacity',
+});
+
+export const placeSlideSelected = style({
+  borderColor: vars.color.blue500,
+  borderWidth: 1.5,
+  backgroundColor: vars.color.blue50,
+});
+
+export const placeSlideTop = style({
+  display: 'flex',
+  alignItems: 'baseline',
+  justifyContent: 'space-between',
+  gap: 8,
+});
+
+export const placeIndexBadge = style({
+  flexShrink: 0,
+  fontSize: vars.fontSize.xs,
+  color: vars.color.grey400,
+  fontWeight: vars.fontWeight.medium,
+});
+
+export const placeRatingRow = style({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 4,
+  fontSize: vars.fontSize.xs,
+  color: vars.color.grey600,
+});
+
+export const placeActions = style({
+  display: 'flex',
+  gap: 8,
+  marginTop: 10,
+});
+
+export const placeActionButton = style({
+  flex: 1,
+  height: 38,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 4,
+  borderRadius: 8,
+  border: `1px solid ${vars.color.grey200}`,
+  backgroundColor: vars.color.white,
+  fontSize: vars.fontSize.xs,
+  fontWeight: vars.fontWeight.medium,
+  color: vars.color.grey700,
+  cursor: 'pointer',
+  textDecoration: 'none',
+  selectors: {
+    '&:active': { backgroundColor: vars.color.grey100 },
+  },
+});
+
+export const placeActionButtonActive = style({
+  backgroundColor: vars.color.grey900,
+  borderColor: vars.color.grey900,
+  color: vars.color.white,
+});
+
+export const selectedChipRemove = style({
+  border: 'none',
+  background: 'none',
+  color: 'inherit',
+  fontSize: 11,
+  cursor: 'pointer',
+  padding: 0,
+  lineHeight: 1,
+});
+
 export const shareCard = style({
   border: `1px solid ${vars.color.grey200}`,
   borderRadius: 12,
@@ -564,37 +709,37 @@ export const inputRow = style({
   marginBottom: 12,
 });
 
-export const directInputName = style({
-  width: 80,
-  height: 50,
-  border: `1px solid ${vars.color.grey200}`,
-  borderRadius: 8,
-  padding: '0 10px',
-  fontSize: vars.fontSize.s,
-  color: vars.color.grey900,
-  backgroundColor: vars.color.white,
-  outline: 'none',
+export const departureIndex = style({
+  width: 18,
   flexShrink: 0,
-  selectors: {
-    '&:focus': { borderColor: vars.color.grey900 },
-    '&::placeholder': { color: vars.color.grey400 },
-  },
+  fontSize: vars.fontSize.s,
+  fontWeight: vars.fontWeight.medium,
+  color: vars.color.grey500,
 });
 
-export const directInputAddr = style({
+export const departureValue = style({
   flex: 1,
   height: 50,
+  display: 'flex',
+  alignItems: 'center',
   border: `1px solid ${vars.color.grey200}`,
   borderRadius: 8,
   padding: '0 14px',
   fontSize: vars.fontSize.s,
   color: vars.color.grey900,
   backgroundColor: vars.color.white,
-  outline: 'none',
+  textAlign: 'left',
+  cursor: 'pointer',
+  overflow: 'hidden',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
   selectors: {
-    '&:focus': { borderColor: vars.color.grey900 },
-    '&::placeholder': { color: vars.color.grey400 },
+    '&:hover': { borderColor: vars.color.grey300 },
   },
+});
+
+export const departureValueEmpty = style({
+  color: vars.color.grey400,
 });
 
 export const removeButton = style({
@@ -622,6 +767,21 @@ export const travelRow = style({
   selectors: {
     '&:last-child': { borderBottom: 'none' },
   },
+});
+
+export const travelIndex = style({
+  width: 20,
+  height: 20,
+  marginRight: 10,
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '50%',
+  backgroundColor: vars.color.grey100,
+  color: vars.color.grey600,
+  fontSize: vars.fontSize.xxs,
+  fontWeight: vars.fontWeight.bold,
 });
 
 export const travelName = style({
@@ -759,6 +919,22 @@ export const loadingSubText = style({
   fontSize: vars.fontSize.xs,
   color: vars.color.grey500,
   marginTop: -8,
+});
+
+export const errorIcon = style({
+  width: 48,
+  height: 48,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '50%',
+  backgroundColor: vars.color.grey100,
+  fontSize: 22,
+});
+
+export const errorAction = style({
+  width: 180,
+  marginTop: 4,
 });
 
 export const divider = style({
