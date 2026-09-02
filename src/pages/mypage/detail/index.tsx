@@ -53,11 +53,6 @@ export const MyPageDetail = () => {
           <div className={styles.sectionTitle}>기본정보</div>
 
           <div className={styles.infoRow}>
-            <span className={styles.infoLabel}>이름</span>
-            <span className={styles.infoValue}>{userInfo?.data.username ?? '-'}</span>
-          </div>
-
-          <div className={styles.infoRow}>
             <span className={styles.infoLabel}>닉네임</span>
             <span className={styles.infoValue}>{userInfo?.data.nickname ?? '-'}</span>
             <button className={styles.editButton}>수정</button>

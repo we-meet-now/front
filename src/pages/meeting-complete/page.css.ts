@@ -41,7 +41,6 @@ export const description = style({
 });
 
 export const buttonGroup = style({
-  width: '100%',
   display: 'flex',
   flexDirection: 'column',
   gap: 12,

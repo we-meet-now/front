@@ -62,6 +62,12 @@ export const useStompChat = ({ roomId, username }: UseStompChatOptions) => {
   }, [username, roomId]);
 
   useEffect(() => {
+    if (!WS_URL) {
+      console.error('[STOMP] WS_URL이 비어 있어 연결을 시도하지 않습니다. VITE_WS_URL 설정을 확인하세요.');
+      setIsConnected(false);
+      return;
+    }
+
     const client = new Client({
       webSocketFactory: () => new SockJS(WS_URL),
       reconnectDelay: 3000,
