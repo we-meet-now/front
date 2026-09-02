@@ -190,7 +190,8 @@ export const RegisterPage = () => {
             </div>
             {sendStatus === 'error' && (
               <span className={styles.errorText}>
-                {sendEmailMutation.error?.message ?? '인증번호 발송에 실패했어요. 다시 시도해 주세요.'}
+                {sendEmailMutation.error?.message ??
+                  '인증번호 발송에 실패했어요. 다시 시도해 주세요.'}
               </span>
             )}
             {sendStatus === 'sent' && (
@@ -226,7 +227,8 @@ export const RegisterPage = () => {
               </div>
               {verifyStatus === 'error' && (
                 <span className={styles.errorText}>
-                  {verifyEmailMutation.error?.message ?? '인증번호가 올바르지 않아요. 다시 입력해 주세요.'}
+                  {verifyEmailMutation.error?.message ??
+                    '인증번호가 올바르지 않아요. 다시 입력해 주세요.'}
                 </span>
               )}
             </div>

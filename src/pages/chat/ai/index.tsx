@@ -126,16 +126,11 @@ export const AiManagerPage = () => {
             {TABS.map((tab) => (
               <div
                 key={tab.key}
-                className={cx(
-                  chatStyles.tab,
-                  tab.key === 'ai' && chatStyles.activeTab,
-                )}
+                className={cx(chatStyles.tab, tab.key === 'ai' && chatStyles.activeTab)}
                 onClick={() => handleTabClick(tab.key)}
               >
                 {tab.label}
-                {tab.badge && (
-                  <span className={chatStyles.tabBadge}>{tab.badge}</span>
-                )}
+                {tab.badge && <span className={chatStyles.tabBadge}>{tab.badge}</span>}
               </div>
             ))}
           </div>
@@ -150,10 +145,7 @@ export const AiManagerPage = () => {
           <div className={styles.memberList}>
             {MEMBERS.map((m) => (
               <div key={m.name} className={styles.memberItem}>
-                <div
-                  className={styles.memberAvatar}
-                  style={{ backgroundColor: m.color }}
-                >
+                <div className={styles.memberAvatar} style={{ backgroundColor: m.color }}>
                   {m.text}
                 </div>
                 <span className={styles.memberName}>{m.name}</span>
@@ -178,28 +170,20 @@ export const AiManagerPage = () => {
                     {s.num}
                   </div>
                   <span
-                    className={cx(
-                      styles.stepLabel,
-                      currentStep >= s.num && styles.stepLabelActive,
-                    )}
+                    className={cx(styles.stepLabel, currentStep >= s.num && styles.stepLabelActive)}
                   >
                     {s.label}
                   </span>
                 </div>
                 {i < STEPS.length - 1 && (
                   <div
-                    className={cx(
-                      styles.stepLine,
-                      currentStep > s.num && styles.stepLineActive,
-                    )}
+                    className={cx(styles.stepLine, currentStep > s.num && styles.stepLineActive)}
                   />
                 )}
               </div>
             ))}
           </div>
-          <div className={styles.statusMessage}>
-            현재 장소 선정 중이에요 📍
-          </div>
+          <div className={styles.statusMessage}>현재 장소 선정 중이에요 📍</div>
         </div>
 
         {/* ── 공평한 장소 ── */}
@@ -266,11 +250,7 @@ export const AiManagerPage = () => {
           </button>
 
           {/* 로딩 */}
-          {isRecommending && (
-            <div className={styles.loadingBox}>
-              🔍 AI가 장소를 찾고 있어요...
-            </div>
-          )}
+          {isRecommending && <div className={styles.loadingBox}>🔍 AI가 장소를 찾고 있어요...</div>}
 
           {/* 추천 결과 */}
           {recommendations.length > 0 && (
@@ -293,10 +273,7 @@ export const AiManagerPage = () => {
                   </div>
                 </div>
               ))}
-              <button
-                className={styles.moreButton}
-                onClick={() => handleRecommend(keyword)}
-              >
+              <button className={styles.moreButton} onClick={() => handleRecommend(keyword)}>
                 ✨ 다른 장소도 추천받기
               </button>
             </div>

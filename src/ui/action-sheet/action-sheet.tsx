@@ -25,9 +25,7 @@ export const ActionSheet = ({ items, onClose }: ActionSheetProps) => {
               <span className={styles.actionIcon}>{item.icon}</span>
               <div className={styles.actionContent}>
                 <span className={styles.actionLabel}>{item.label}</span>
-                {item.desc && (
-                  <span className={styles.actionDesc}>{item.desc}</span>
-                )}
+                {item.desc && <span className={styles.actionDesc}>{item.desc}</span>}
               </div>
             </div>
           </div>

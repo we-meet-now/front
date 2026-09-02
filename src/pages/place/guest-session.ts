@@ -1,3 +1,4 @@
+import type { UserStartInfo } from '@/api/create-meeting/middle-point';
 import type { PlaceSearchType } from '@/api/create-meeting/place';
 
 /**
@@ -6,6 +7,7 @@ import type { PlaceSearchType } from '@/api/create-meeting/place';
  */
 export const GUEST_KEYS = {
   directPoints: 'guest_direct_points',
+  startInfos: 'guest_start_infos',
   midpoint: 'guest_midpoint',
   selectedPlaces: 'guest_selected_places',
 } as const;
@@ -34,6 +36,16 @@ export const loadDeparturePoints = () => readArray<DeparturePoint>(GUEST_KEYS.di
 
 export const saveDeparturePoints = (points: DeparturePoint[]) =>
   sessionStorage.setItem(GUEST_KEYS.directPoints, JSON.stringify(points));
+
+/**
+ * 중간위치·장소추천 API가 그대로 쓰는 참여자 목록.
+ * 직접 입력 플로우와 링크 공유 플로우가 출발지를 모으는 방식이 달라
+ * 각 화면이 요청 형태로 변환한 결과를 여기에 저장해 다음 단계로 넘긴다.
+ */
+export const loadStartInfos = () => readArray<UserStartInfo>(GUEST_KEYS.startInfos);
+
+export const saveStartInfos = (infos: UserStartInfo[]) =>
+  sessionStorage.setItem(GUEST_KEYS.startInfos, JSON.stringify(infos));
 
 export const loadMidpoint = () => sessionStorage.getItem(GUEST_KEYS.midpoint) ?? '';
 

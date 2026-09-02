@@ -21,13 +21,7 @@ export const MeetingLayout = () => {
 
   return (
     <PageLayout
-      header={
-        <AppBar
-          title={title}
-          showBackButton
-          onBackClick={() => navigate(-1)}
-        />
-      }
+      header={<AppBar title={title} showBackButton onBackClick={() => navigate(-1)} />}
       footer={<GNB />}
     >
       <Outlet />

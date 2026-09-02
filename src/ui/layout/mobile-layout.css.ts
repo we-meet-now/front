@@ -1,6 +1,6 @@
-import { vars } from '../theme.css';
-
 import { style } from '@vanilla-extract/css';
+
+import { vars } from '../theme.css';
 
 export const mobileLayoutWrapper = style({
   display: 'flex',

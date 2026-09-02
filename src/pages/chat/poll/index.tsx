@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { pollStore, type PollPlace } from '@/store/poll-store';
+import { type PollPlace, pollStore } from '@/store/poll-store';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { Button } from '@/ui/button/button';
 import { GNB } from '@/ui/gnb/gnb';
@@ -47,9 +47,7 @@ export const PollPage = () => {
   };
 
   // 가장 투표 많은 장소
-  const topPlace = places.length > 0
-    ? [...places].sort((a, b) => b.votes - a.votes)[0]
-    : null;
+  const topPlace = places.length > 0 ? [...places].sort((a, b) => b.votes - a.votes)[0] : null;
 
   return (
     <PageLayout
@@ -65,16 +63,11 @@ export const PollPage = () => {
             {TABS.map((tab) => (
               <div
                 key={tab.key}
-                className={cx(
-                  chatStyles.tab,
-                  tab.key === 'poll' && chatStyles.activeTab,
-                )}
+                className={cx(chatStyles.tab, tab.key === 'poll' && chatStyles.activeTab)}
                 onClick={() => handleTabClick(tab.key)}
               >
                 {tab.label}
-                {tab.badge && (
-                  <span className={chatStyles.tabBadge}>{tab.badge}</span>
-                )}
+                {tab.badge && <span className={chatStyles.tabBadge}>{tab.badge}</span>}
               </div>
             ))}
           </div>
@@ -94,9 +87,7 @@ export const PollPage = () => {
             </div>
           ) : (
             <>
-              <div className={styles.pollMeta}>
-                {places.length}개 장소 등록됨
-              </div>
+              <div className={styles.pollMeta}>{places.length}개 장소 등록됨</div>
 
               {/* 장소 목록 */}
               <div className={styles.placeList}>
@@ -110,10 +101,7 @@ export const PollPage = () => {
                     onClick={() => setSelectedId(place.id)}
                   >
                     <div
-                      className={cx(
-                        styles.radio,
-                        selectedId === place.id && styles.radioSelected,
-                      )}
+                      className={cx(styles.radio, selectedId === place.id && styles.radioSelected)}
                     />
                     <div className={styles.placeInfo}>
                       <span className={styles.placeName}>{place.name}</span>

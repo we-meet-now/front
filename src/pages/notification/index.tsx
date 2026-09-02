@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-import TrashIcon from '@/assets/icons/trash.svg?react';
 import BellOffIcon from '@/assets/icons/bell-off.svg?react';
+import TrashIcon from '@/assets/icons/trash.svg?react';
 import { ActionSheet } from '@/ui/action-sheet/action-sheet';
 import { NotificationCard } from '@/ui/notification-card/notification-card';
 
@@ -82,8 +82,7 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
 ];
 
 export const NotificationPage = () => {
-  const [notifications, setNotifications] =
-    useState<Notification[]>(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
   const selectedNoti = notifications.find((n) => n.id === selectedId);
@@ -120,9 +119,7 @@ export const NotificationPage = () => {
             {
               icon: <BellOffIcon width={22} height={22} />,
               label: '알림 끄기',
-              desc: selectedNoti
-                ? `${selectedNoti.roomName} 알림을 끕니다.`
-                : '',
+              desc: selectedNoti ? `${selectedNoti.roomName} 알림을 끕니다.` : '',
               onClick: () => setSelectedId(null),
             },
           ]}

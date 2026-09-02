@@ -42,16 +42,11 @@ export const SettlementPage = () => {
             {TABS.map((tab) => (
               <div
                 key={tab.key}
-                className={cx(
-                  chatStyles.tab,
-                  tab.key === 'settlement' && chatStyles.activeTab,
-                )}
+                className={cx(chatStyles.tab, tab.key === 'settlement' && chatStyles.activeTab)}
                 onClick={() => handleTabClick(tab.key)}
               >
                 {tab.label}
-                {tab.badge && (
-                  <span className={chatStyles.tabBadge}>{tab.badge}</span>
-                )}
+                {tab.badge && <span className={chatStyles.tabBadge}>{tab.badge}</span>}
               </div>
             ))}
           </div>
@@ -59,7 +54,16 @@ export const SettlementPage = () => {
       }
       footer={<GNB />}
     >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#9ca3af', fontSize: '15px' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+          color: '#9ca3af',
+          fontSize: '15px',
+        }}
+      >
         향후 오픈 예정이에요.
       </div>
     </PageLayout>

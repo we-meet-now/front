@@ -1,9 +1,9 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import HomeIcon from '@/assets/icons/home.svg?react';
 import CalendarIcon from '@/assets/icons/calendar.svg?react';
 import ChatIcon from '@/assets/icons/chat.svg?react';
 import GalleryIcon from '@/assets/icons/gallery.svg?react';
+import HomeIcon from '@/assets/icons/home.svg?react';
 import MypageIcon from '@/assets/icons/mypage.svg?react';
 
 import { cx } from '../utils';

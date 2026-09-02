@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react';
 import { assignInlineVars } from '@vanilla-extract/dynamic';
 
 import { cx } from '../utils';
+
 import * as styles from './spacer.css';
 
 type SpacerProps = {

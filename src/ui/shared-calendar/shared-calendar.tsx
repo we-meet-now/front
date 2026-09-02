@@ -36,10 +36,7 @@ function getFirstDayOfWeek(year: number, month: number) {
   return new Date(year, month, 1).getDay();
 }
 
-export const SharedCalendar = ({
-  confirmedDate = null,
-  onConfirm,
-}: SharedCalendarProps) => {
+export const SharedCalendar = ({ confirmedDate = null, onConfirm }: SharedCalendarProps) => {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -87,13 +84,12 @@ export const SharedCalendar = ({
   ];
 
   // 모든 멤버가 가능한 날
-  const allAvailableDays = Array.from({ length: daysInMonth }, (_, i) => i + 1).filter(
-    (day) => allMembers.every((m) => m.dates.includes(day)),
+  const allAvailableDays = Array.from({ length: daysInMonth }, (_, i) => i + 1).filter((day) =>
+    allMembers.every((m) => m.dates.includes(day)),
   );
 
   // 특정 날짜에 가능한 멤버 목록
-  const getAvailableMembers = (day: number) =>
-    allMembers.filter((m) => m.dates.includes(day));
+  const getAvailableMembers = (day: number) => allMembers.filter((m) => m.dates.includes(day));
 
   const hintText = confirmedDate
     ? '확정일자는 별표 표시돼요!'
@@ -174,11 +170,7 @@ export const SharedCalendar = ({
               {availableMembers.length > 0 && (
                 <div className={styles.dotContainer}>
                   {availableMembers.map((m) => (
-                    <div
-                      key={m.name}
-                      className={styles.dot}
-                      style={{ backgroundColor: m.color }}
-                    />
+                    <div key={m.name} className={styles.dot} style={{ backgroundColor: m.color }} />
                   ))}
                 </div>
               )}

@@ -2,12 +2,12 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { type EmailApiResponse, sendEmailCode, verifyEmailCode } from '@/api/auth/email';
 import {
-  getUserInfo,
   type JoinRequest,
   type JoinResponse,
-  joinUser,
   type LoginRequest,
   type LoginResponse,
+  getUserInfo,
+  joinUser,
   loginUser,
 } from '@/api/auth/user';
 import { isLogin } from '@/utils/isLogin';

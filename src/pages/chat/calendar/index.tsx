@@ -43,16 +43,11 @@ export const ChatCalendarPage = () => {
             {TABS.map((tab) => (
               <div
                 key={tab.key}
-                className={cx(
-                  chatStyles.tab,
-                  tab.key === 'calendar' && chatStyles.activeTab,
-                )}
+                className={cx(chatStyles.tab, tab.key === 'calendar' && chatStyles.activeTab)}
                 onClick={() => handleTabClick(tab.key)}
               >
                 {tab.label}
-                {tab.badge && (
-                  <span className={chatStyles.tabBadge}>{tab.badge}</span>
-                )}
+                {tab.badge && <span className={chatStyles.tabBadge}>{tab.badge}</span>}
               </div>
             ))}
           </div>

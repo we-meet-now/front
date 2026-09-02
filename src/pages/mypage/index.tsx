@@ -2,8 +2,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { useUserInfoQuery } from '@/api/query/auth';
 import { AppBar } from '@/ui/appbar/app-bar';
-import { PageLayout } from '@/ui/layout/page-layout';
 import { GNB } from '@/ui/gnb/gnb';
+import { PageLayout } from '@/ui/layout/page-layout';
 
 import * as styles from './page.css';
 
@@ -21,9 +21,7 @@ export const MyPage = () => {
 
   return (
     <PageLayout
-      header={
-        <AppBar title="마이 페이지" showBackButton onBackClick={() => navigate(-1)} />
-      }
+      header={<AppBar title="마이 페이지" showBackButton onBackClick={() => navigate(-1)} />}
       footer={<GNB />}
     >
       {/* 프로필 영역 */}
@@ -46,11 +44,7 @@ export const MyPage = () => {
       {/* 메뉴 리스트 */}
       <div className={styles.menuSection}>
         {MENU_ITEMS.map((item) => (
-          <div
-            key={item.label}
-            className={styles.menuItem}
-            onClick={() => navigate(item.path)}
-          >
+          <div key={item.label} className={styles.menuItem} onClick={() => navigate(item.path)}>
             <span>{item.label}</span>
             <span className={styles.menuArrow}>›</span>
           </div>
@@ -58,10 +52,7 @@ export const MyPage = () => {
       </div>
 
       {/* 하이라이트 메뉴 */}
-      <div
-        className={styles.highlightItem}
-        onClick={() => navigate('/create-meeting')}
-      >
+      <div className={styles.highlightItem} onClick={() => navigate('/create-meeting')}>
         <span>🎉 모임 주최하러가기</span>
         <span className={styles.menuArrow}>›</span>
       </div>

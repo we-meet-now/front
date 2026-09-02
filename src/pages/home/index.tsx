@@ -52,9 +52,7 @@ export const HomePage = () => {
         onClick={() => navigate(`/meeting/${roomId}/notification`)}
       >
         <BellIcon className={styles.bellIcon} />
-        {UNREAD_COUNT > 0 && (
-          <span className={styles.alarmBadge}>{UNREAD_COUNT}</span>
-        )}
+        {UNREAD_COUNT > 0 && <span className={styles.alarmBadge}>{UNREAD_COUNT}</span>}
       </button>
 
       {/* ── 네이버 지도 ── */}

@@ -968,3 +968,20 @@ export const selectedChipItem = style({
   fontSize: vars.fontSize.xxs,
   fontWeight: vars.fontWeight.medium,
 });
+
+/* 참여자별 소요시간 칩 — 후보 장소 카드 안에 나열한다 */
+export const travelChipRow = style({
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: 4,
+  marginTop: 6,
+});
+
+export const travelChip = style({
+  fontSize: vars.fontSize.xxs,
+  color: vars.color.grey600,
+  backgroundColor: vars.color.grey100,
+  borderRadius: 4,
+  padding: '3px 6px',
+  whiteSpace: 'nowrap',
+});

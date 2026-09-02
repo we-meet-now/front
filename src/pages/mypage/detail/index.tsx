@@ -42,9 +42,7 @@ export const MyPageDetail = () => {
 
   return (
     <PageLayout
-      header={
-        <AppBar title="회원정보 수정" showBackButton onBackClick={() => navigate(-1)} />
-      }
+      header={<AppBar title="회원정보 수정" showBackButton onBackClick={() => navigate(-1)} />}
       footer={<GNB />}
     >
       <div className={styles.container}>
@@ -111,7 +109,9 @@ export const MyPageDetail = () => {
           />
 
           {error && <span className={styles.errorText}>{error}</span>}
-          <Button color="grey" size="l" onClick={handleChangePassword}>비밀번호 변경</Button>
+          <Button color="grey" size="l" onClick={handleChangePassword}>
+            비밀번호 변경
+          </Button>
         </div>
 
         {/* 비밀번호 변경 완료 팝업 */}

@@ -1,20 +1,17 @@
 export type GeoPoint = { lat: number; lng: number };
 
-/** 출발지들의 좌표 평균. 중간위치 산출 API가 없어 클라이언트에서 계산한다. */
-export const computeCentroid = (points: GeoPoint[]): GeoPoint => ({
-  lat: points.reduce((sum, p) => sum + p.lat, 0) / points.length,
-  lng: points.reduce((sum, p) => sum + p.lng, 0) / points.length,
-});
+/** 서버 응답의 장소명에는 공백이 두 칸씩 들어오는 경우가 있다. */
+export const normalizePlaceName = (name: string) => name.trim().replace(/\s+/g, ' ');
 
-/** 위경도 차이를 km로 환산 (위도 1도 ≈ 111km, 경도는 위도에 따라 보정) */
-export const distanceKm = (a: GeoPoint, b: GeoPoint) => {
-  const latKm = (a.lat - b.lat) * 111;
-  const lngKm = (a.lng - b.lng) * 111 * Math.cos((a.lat * Math.PI) / 180);
-  return Math.sqrt(latKm ** 2 + lngKm ** 2);
+/**
+ * 서버가 '군포역  1호선'처럼 노선명을 붙여 내려주므로 화면·검색어에는 역 이름만 쓴다.
+ * 토큰이 하나뿐이면(= 역명만 온 경우) 그대로 둔다.
+ */
+export const formatStationName = (name: string) => {
+  const tokens = normalizePlaceName(name).split(' ');
+  if (tokens.length > 1 && /선$/.test(tokens[tokens.length - 1])) tokens.pop();
+  return tokens.join(' ');
 };
-
-/** 대중교통 소요시간 추정: 기본 대기 8분 + 평균 25km/h */
-export const estimateTransitMinutes = (km: number) => Math.max(5, Math.round(8 + (km / 25) * 60));
 
 /**
  * 좌표를 지도 목업 박스 안의 % 위치로 변환한다.

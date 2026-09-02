@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { type StompMessage, useStompChat } from '@/hooks/useStompChat';
-import { chatStore, type Message } from '@/store/chat-store';
+import { type Message, chatStore } from '@/store/chat-store';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { GNB } from '@/ui/gnb/gnb';
 import { PageLayout } from '@/ui/layout/page-layout';
@@ -17,7 +17,6 @@ const TABS = [
   { key: 'poll', label: '투표', badge: 3 },
   { key: 'settlement', label: '정산' },
 ];
-
 
 const DUMMY_MESSAGES: Message[] = [
   // ── 날짜 구분선 ──
@@ -209,9 +208,14 @@ const AVATAR_COLOR_MAP: Record<string, string> = {
 };
 
 const getAvatarColor = (name: string) =>
-  AVATAR_COLOR_MAP[name] ?? `hsl(${[...name].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360},60%,50%)`;
+  AVATAR_COLOR_MAP[name] ??
+  `hsl(${[...name].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360},60%,50%)`;
 
-const stompMsgToMessage = (stomp: StompMessage, nextId: number, myUsername: string): Message | null => {
+const stompMsgToMessage = (
+  stomp: StompMessage,
+  nextId: number,
+  myUsername: string,
+): Message | null => {
   const time = new Date().toLocaleTimeString('ko-KR', {
     hour: 'numeric',
     minute: '2-digit',
@@ -224,7 +228,10 @@ const stompMsgToMessage = (stomp: StompMessage, nextId: number, myUsername: stri
     return {
       id: nextId,
       type: 'system',
-      text: stomp.chatType === 'ENTER' ? `${userId}님이 입장하셨습니다` : `${userId}님이 퇴장하셨습니다`,
+      text:
+        stomp.chatType === 'ENTER'
+          ? `${userId}님이 입장하셨습니다`
+          : `${userId}님이 퇴장하셨습니다`,
     };
   }
 
@@ -257,7 +264,11 @@ export const ChatRoomPage = () => {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const nextIdRef = useRef(300);
 
-  const { messages: stompMessages, isConnected, sendMessage } = useStompChat({
+  const {
+    messages: stompMessages,
+    isConnected,
+    sendMessage,
+  } = useStompChat({
     roomId: roomId ?? '',
     username,
   });
@@ -348,16 +359,11 @@ export const ChatRoomPage = () => {
             {TABS.map((tab) => (
               <div
                 key={tab.key}
-                className={cx(
-                  styles.tab,
-                  activeTab === tab.key && styles.activeTab,
-                )}
+                className={cx(styles.tab, activeTab === tab.key && styles.activeTab)}
                 onClick={() => handleTabClick(tab.key)}
               >
                 {tab.label}
-                {tab.badge && (
-                  <span className={styles.tabBadge}>{tab.badge}</span>
-                )}
+                {tab.badge && <span className={styles.tabBadge}>{tab.badge}</span>}
               </div>
             ))}
           </div>
@@ -407,20 +413,11 @@ export const ChatRoomPage = () => {
           const isMine = msg.type === 'mine';
 
           return (
-            <div
-              key={msg.id}
-              className={cx(
-                styles.messageRow,
-                isMine && styles.messageRowMine,
-              )}
-            >
+            <div key={msg.id} className={cx(styles.messageRow, isMine && styles.messageRowMine)}>
               {/* 아바타: 내 메시지는 숨김, 연속 메시지도 숨김 */}
               {!isMine && (
                 <div
-                  className={cx(
-                    styles.avatar,
-                    !msg.showAvatar && styles.avatarHidden,
-                  )}
+                  className={cx(styles.avatar, !msg.showAvatar && styles.avatarHidden)}
                   style={{ backgroundColor: msg.avatarColor }}
                 >
                   {msg.avatarText}
@@ -429,23 +426,10 @@ export const ChatRoomPage = () => {
 
               <div className={styles.messageBody}>
                 {/* 발신자 이름: 내 메시지는 숨김 */}
-                {!isMine && msg.showName && (
-                  <span className={styles.senderName}>{msg.sender}</span>
-                )}
-                <div
-                  className={cx(styles.bubble, isMine && styles.bubbleMine)}
-                >
-                  {msg.text}
-                </div>
-                <div
-                  className={cx(
-                    styles.messageFooter,
-                    isMine && styles.messageFooterMine,
-                  )}
-                >
-                  {isMine && msg.unread && (
-                    <span className={styles.unreadCount}>{msg.unread}</span>
-                  )}
+                {!isMine && msg.showName && <span className={styles.senderName}>{msg.sender}</span>}
+                <div className={cx(styles.bubble, isMine && styles.bubbleMine)}>{msg.text}</div>
+                <div className={cx(styles.messageFooter, isMine && styles.messageFooterMine)}>
+                  {isMine && msg.unread && <span className={styles.unreadCount}>{msg.unread}</span>}
                   <span className={styles.messageTime}>{msg.time}</span>
                 </div>
               </div>

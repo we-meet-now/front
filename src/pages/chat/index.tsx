@@ -59,10 +59,7 @@ export const ChatPage = () => {
         {CHAT_TABS.map((tab) => (
           <div
             key={tab.key}
-            className={cx(
-              styles.tab,
-              activeTab === tab.key && styles.activeTab,
-            )}
+            className={cx(styles.tab, activeTab === tab.key && styles.activeTab)}
             onClick={() => setActiveTab(tab.key)}
           >
             {tab.label}
@@ -70,51 +67,48 @@ export const ChatPage = () => {
         ))}
       </div>
 
-      {activeTab === 'friends' && (
-        <div className={styles.emptyState}>향후 오픈 예정이에요.</div>
-      )}
+      {activeTab === 'friends' && <div className={styles.emptyState}>향후 오픈 예정이에요.</div>}
 
       {activeTab === 'chat' && (
-      <div className={styles.chatList}>
-        {DUMMY_ROOMS.map((room) => {
-          const positions =
-            AVATAR_POSITIONS[room.avatars.length] ?? AVATAR_POSITIONS[3]!;
+        <div className={styles.chatList}>
+          {DUMMY_ROOMS.map((room) => {
+            const positions = AVATAR_POSITIONS[room.avatars.length] ?? AVATAR_POSITIONS[3]!;
 
-          return (
-            <div
-              key={room.id}
-              className={styles.chatItem}
-              onClick={() => handleRoomClick(room.id)}
-            >
-              {/* 아바타 그룹 */}
-              <div className={styles.avatarGroup}>
-                {room.avatars.map((av, i) => (
-                  <div
-                    key={i}
-                    className={styles.avatarCircle}
-                    style={{
-                      backgroundColor: av.color,
-                      top: positions[i]?.top,
-                      left: positions[i]?.left,
-                    }}
-                  >
-                    {av.text}
-                  </div>
-                ))}
+            return (
+              <div
+                key={room.id}
+                className={styles.chatItem}
+                onClick={() => handleRoomClick(room.id)}
+              >
+                {/* 아바타 그룹 */}
+                <div className={styles.avatarGroup}>
+                  {room.avatars.map((av, i) => (
+                    <div
+                      key={i}
+                      className={styles.avatarCircle}
+                      style={{
+                        backgroundColor: av.color,
+                        top: positions[i]?.top,
+                        left: positions[i]?.left,
+                      }}
+                    >
+                      {av.text}
+                    </div>
+                  ))}
+                </div>
+
+                {/* 채팅방 정보 */}
+                <div className={styles.chatInfo}>
+                  <div className={styles.chatName}>{room.name}</div>
+                  <div className={styles.chatPreview}>{room.lastMessage}</div>
+                </div>
+
+                {/* 시간 */}
+                <span className={styles.chatTime}>{room.timeAgo}</span>
               </div>
-
-              {/* 채팅방 정보 */}
-              <div className={styles.chatInfo}>
-                <div className={styles.chatName}>{room.name}</div>
-                <div className={styles.chatPreview}>{room.lastMessage}</div>
-              </div>
-
-              {/* 시간 */}
-              <span className={styles.chatTime}>{room.timeAgo}</span>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
       )}
     </>
   );
