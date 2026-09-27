@@ -85,6 +85,7 @@ export const useStompChat = ({ roomId, username }: UseStompChatOptions) => {
             addMessage(msg);
           } catch {
             // 파싱 실패한 메시지는 무시
+            console.warn('[STOMP] 수신 메시지 파싱 실패:', frame.body);
           }
         });
 
