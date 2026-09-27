@@ -77,7 +77,7 @@ export const useStompChat = ({ roomId, username }: UseStompChatOptions) => {
       onConnect: () => {
         console.log('[STOMP] 연결 성공 — room:', roomId);
         setIsConnected(true);
-
+        // api/chat/v1/message 고정
         client.subscribe(`/api/chat/v1/message/topic/public`, (frame) => {
           try {
             const msg: StompMessage = JSON.parse(frame.body);
