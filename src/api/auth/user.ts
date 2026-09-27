@@ -60,6 +60,19 @@ export type UserInfoResponse = {
   message: string;
 };
 
+export type RandomNicknameResponse = {
+  statusCode: string;
+  data: {
+    nickname: string;
+  };
+  message: string;
+};
+
+export const getRandomNickname = (): Promise<RandomNicknameResponse> =>
+  apiClient('/users/create-random-nickname', {
+    baseUrl: AUTH_URL,
+  });
+
 export const getUserInfo = (): Promise<UserInfoResponse> =>
   apiClient('/users/get-user-info', {
     baseUrl: AUTH_URL,

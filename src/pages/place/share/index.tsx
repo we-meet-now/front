@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import type { AddressSearchResult } from '@/api/create-meeting/address';
+import { useRandomNicknames } from '@/api/query/auth';
 import { AddressSearchModal } from '@/ui/address-search-modal/address-search-modal';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { PageLayout } from '@/ui/layout/page-layout';
@@ -10,7 +11,9 @@ import { cx } from '@/ui/utils';
 
 import * as styles from '../page.css';
 
-const NICK_PRESETS = ['익명이', '토끼', '사자', '곰돌이'];
+const NICK_COUNT = 4;
+/** 랜덤 닉네임 API가 느리거나(Render 콜드스타트) 실패할 때 보여줄 기본 목록 */
+const FALLBACK_NICKS = ['익명이', '토끼', '사자', '곰돌이'];
 const AVATAR_COLORS = ['#38BDF8', '#5AC8B0', '#6C9BF7', '#C08BEF', '#F080A8'];
 
 export const GuestSharePage = () => {
@@ -19,8 +22,12 @@ export const GuestSharePage = () => {
   const [departure, setDeparture] = useState<AddressSearchResult | null>(null);
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [showLocationError, setShowLocationError] = useState(false);
-  const [nickname, setNickname] = useState('익명이');
-  const [customNick, setCustomNick] = useState('익명이');
+  // null이면 아직 사용자가 고르거나 입력하지 않은 상태 → 추천 목록 첫 번째를 쓴다
+  const [pickedNickname, setPickedNickname] = useState<string | null>(null);
+
+  const { data: randomNicks } = useRandomNicknames(NICK_COUNT);
+  const nickPresets = randomNicks?.length ? randomNicks : FALLBACK_NICKS;
+  const nickname = pickedNickname ?? nickPresets[0];
 
   const mockLink = 'wemeettalk.com/meet/abc123';
 
@@ -145,21 +152,15 @@ export const GuestSharePage = () => {
               className={styles.input}
               placeholder="닉네임 입력 (최대 8자)"
               maxLength={8}
-              value={customNick}
-              onChange={(e) => {
-                setCustomNick(e.target.value);
-                setNickname(e.target.value);
-              }}
+              value={nickname}
+              onChange={(e) => setPickedNickname(e.target.value)}
             />
             <div className={styles.nickChips}>
-              {NICK_PRESETS.map((nick, i) => (
+              {nickPresets.map((nick, i) => (
                 <button
                   key={nick}
                   className={`${styles.nickChip} ${nickname === nick ? styles.nickChipActive : ''}`}
-                  onClick={() => {
-                    setNickname(nick);
-                    setCustomNick(nick);
-                  }}
+                  onClick={() => setPickedNickname(nick)}
                 >
                   <span style={{ color: AVATAR_COLORS[i], marginRight: 4 }}>●</span>
                   {nick}

@@ -6,6 +6,7 @@ import {
   type JoinResponse,
   type LoginRequest,
   type LoginResponse,
+  getRandomNickname,
   getUserInfo,
   joinUser,
   loginUser,
@@ -29,6 +30,23 @@ export const useUserInfoQuery = () => {
     queryKey: ['userInfo'],
     queryFn: getUserInfo,
     enabled: !!isLogin(),
+  });
+};
+
+/**
+ * API는 호출당 닉네임 1개를 주므로 count만큼 병렬 호출한다.
+ * 같은 값이 겹칠 수 있어 중복은 제거한다.
+ */
+export const useRandomNicknames = (count: number) => {
+  return useQuery({
+    queryKey: ['randomNicknames', count],
+    queryFn: async () => {
+      const responses = await Promise.all(Array.from({ length: count }, getRandomNickname));
+      return [...new Set(responses.map(({ data }) => data.nickname))];
+    },
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+    retry: 1,
   });
 };
 
