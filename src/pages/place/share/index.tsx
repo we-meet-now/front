@@ -128,7 +128,7 @@ export const GuestSharePage = () => {
               className={cx(styles.departureValue, !departure && styles.departureValueEmpty)}
               onClick={() => setSearchOpen(true)}
             >
-              {departure?.address ?? '출발지를 입력해 주세요'}
+              {departure?.name ?? '출발지를 입력해 주세요'}
             </button>
             {departure && (
               <button
@@ -141,7 +141,9 @@ export const GuestSharePage = () => {
             )}
           </div>
           <p className={styles.helperText}>
-            🔒 출발지는 시·구까지만 공개되고, 상세주소는 공개되지 않아요
+            {departure
+              ? `🔒 다른 사람에게는 '${departure.address}'까지만 보여요`
+              : '🔒 출발지는 시·구까지만 공개되고, 상세주소는 공개되지 않아요'}
           </p>
         </div>
 

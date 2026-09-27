@@ -121,7 +121,7 @@ export const AddressSearchModal = ({
         <div className={styles.inputWrapper}>
           <input
             className={styles.input}
-            placeholder="예) 강남구, 강남역, 분당"
+            placeholder="예) 강남역, 스타벅스 역삼, 테헤란로 152"
             value={keyword}
             autoFocus
             onChange={(e) => setKeyword(e.target.value)}
@@ -161,12 +161,13 @@ export const AddressSearchModal = ({
                 onClick={() => handlePick(result)}
               >
                 <span className={styles.resultName}>{result.name}</span>
+                {result.detail && <span className={styles.resultAddress}>{result.detail}</span>}
               </button>
             ))}
           </div>
         ) : (
           <p className={styles.emptyText}>
-            검색 결과가 없어요. 구·시 이름이나 역 이름으로 검색해 보세요
+            검색 결과가 없어요. 가게 이름, 역 이름, 도로명 주소로 검색해 보세요
           </p>
         ))}
 

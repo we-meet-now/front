@@ -1,13 +1,16 @@
 import { type KakaoAddress, type KakaoPlace, loadKakao } from '@/utils/kakao';
 
 /**
- * 출발지는 시군구 단위로만 다룬다 ("서울 강남구", "경기 성남시 분당구").
- * 상세주소·장소명·좌표는 검색 매칭에만 쓰고 결과에 담지 않는다.
+ * 검색 결과는 본인이 고를 수 있게 장소명·도로명 그대로 보여주고,
+ * 다른 사람에게 보이는 값(address)은 시군구까지만 담는다.
  */
 export type AddressSearchResult = {
   id: string;
+  /** 본인에게만 보이는 이름: 가게명·역명·건물명·도로명 주소 */
   name: string;
-  /** 저장·공유·중간위치 API에 쓰이는 값. name과 같은 시군구 라벨이다. */
+  /** 본인에게만 보이는 상세주소. 저장하거나 다른 사람에게 보내지 않는다. */
+  detail?: string;
+  /** 저장·공유·중간위치 API에 쓰이는 시군구 ("서울 강남구", "경기 성남시 분당구") */
   address: string;
   lat?: number;
   lng?: number;
@@ -57,13 +60,26 @@ const regionFromAddressName = (addressName: string) => {
   return parts.join(' ');
 };
 
-const regionOfPlace = (place: KakaoPlace) => regionFromAddressName(place.address_name);
+const fromPlace = (place: KakaoPlace): AddressSearchResult => ({
+  id: `place-${place.id}`,
+  name: place.place_name,
+  detail: place.road_address_name || place.address_name,
+  address: regionFromAddressName(place.address_name),
+});
 
-const regionOfAddress = (item: KakaoAddress) => {
+const fromAddress = (item: KakaoAddress): AddressSearchResult => {
   const region = item.address ?? item.road_address;
-  return region
-    ? toRegionLabel(region.region_1depth_name, region.region_2depth_name)
-    : regionFromAddressName(item.address_name);
+  const roadName = item.road_address?.address_name;
+  const name = item.road_address?.building_name || roadName || item.address_name;
+  return {
+    id: `address-${item.address_name}`,
+    name,
+    // 도로명이 이름이 되면 지번 주소를, 건물명이 이름이 되면 도로명 주소를 함께 보여준다
+    detail: [roadName, item.address?.address_name].find((value) => value && value !== name),
+    address: region
+      ? toRegionLabel(region.region_1depth_name, region.region_2depth_name)
+      : regionFromAddressName(item.address_name),
+  };
 };
 
 /** "서울"처럼 시도만 있는 결과는 너무 넓어 제외한다. 시군구가 없는 세종은 예외. */
@@ -73,11 +89,11 @@ const searchPlaces = async (keyword: string) => {
   const kakao = await loadKakao();
   const { Places, Status } = kakao.maps.services;
 
-  return new Promise<string[]>((resolve, reject) => {
+  return new Promise<AddressSearchResult[]>((resolve, reject) => {
     new Places().keywordSearch(
       keyword,
       (data, status) => {
-        if (status === Status.OK) resolve(data.map(regionOfPlace));
+        if (status === Status.OK) resolve(data.map(fromPlace));
         else if (status === Status.ZERO_RESULT) resolve([]);
         else reject(new Error('장소 검색 실패'));
       },
@@ -90,9 +106,9 @@ const searchRoadAddresses = async (keyword: string) => {
   const kakao = await loadKakao();
   const { Geocoder, Status } = kakao.maps.services;
 
-  return new Promise<string[]>((resolve, reject) => {
+  return new Promise<AddressSearchResult[]>((resolve, reject) => {
     new Geocoder().addressSearch(keyword, (data, status) => {
-      if (status === Status.OK) resolve(data.map(regionOfAddress));
+      if (status === Status.OK) resolve(data.map(fromAddress));
       else if (status === Status.ZERO_RESULT) resolve([]);
       else reject(new Error('주소 검색 실패'));
     });
@@ -100,8 +116,7 @@ const searchRoadAddresses = async (keyword: string) => {
 };
 
 /**
- * 지역명("강남구"), 장소 이름("강남역"), 주소("테헤란로 152")로 검색해
- * 해당하는 시군구 목록을 중복 없이 돌려준다.
+ * 가게명·역명("강남역")과 도로명·지번 주소("테헤란로 152")를 함께 검색한다.
  * 결과가 없으면 빈 배열(= "검색 결과가 없어요"), SDK·네트워크 오류는 throw.
  */
 export const searchAddresses = async (keyword: string): Promise<AddressSearchResult[]> => {
@@ -116,15 +131,13 @@ export const searchAddresses = async (keyword: string): Promise<AddressSearchRes
   // 둘 다 실패했을 때만 오류로 본다. 한쪽만 실패하면 나머지 결과라도 보여준다.
   if (places.status === 'rejected' && addresses.status === 'rejected') throw places.reason;
 
-  // 주소 검색은 "강남구"처럼 지역명을 직접 입력한 경우라 먼저 보여준다
-  const labels = [
+  // 주소 검색은 주소처럼 입력했을 때만 결과가 나오므로, 나왔다면 의도에 더 가까워 먼저 둔다
+  return [
     ...(addresses.status === 'fulfilled' ? addresses.value : []),
     ...(places.status === 'fulfilled' ? places.value : []),
-  ].filter(isSigunguLevel);
-
-  return [...new Set(labels)]
-    .slice(0, MAX_RESULTS)
-    .map((label) => ({ id: `region-${label}`, name: label, address: label }));
+  ]
+    .filter((result) => isSigunguLevel(result.address))
+    .slice(0, MAX_RESULTS);
 };
 
 /** 현재 위치 좌표를 시군구 라벨로 바꾼다. 좌표는 이 함수 밖으로 내보내지 않는다. */
