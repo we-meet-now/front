@@ -1,301 +1,146 @@
+import { type KakaoAddress, type KakaoPlace, loadKakao } from '@/utils/kakao';
+
+/**
+ * 출발지는 시군구 단위로만 다룬다 ("서울 강남구", "경기 성남시 분당구").
+ * 상세주소·장소명·좌표는 검색 매칭에만 쓰고 결과에 담지 않는다.
+ */
 export type AddressSearchResult = {
   id: string;
   name: string;
+  /** 저장·공유·중간위치 API에 쓰이는 값. name과 같은 시군구 라벨이다. */
   address: string;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
+};
+
+const MAX_RESULTS = 15;
+
+const SIDO_SHORT: Record<string, string> = {
+  서울특별시: '서울',
+  부산광역시: '부산',
+  대구광역시: '대구',
+  인천광역시: '인천',
+  광주광역시: '광주',
+  대전광역시: '대전',
+  울산광역시: '울산',
+  세종특별자치시: '세종',
+  경기도: '경기',
+  강원도: '강원',
+  강원특별자치도: '강원',
+  충청북도: '충북',
+  충청남도: '충남',
+  전라북도: '전북',
+  전북특별자치도: '전북',
+  전라남도: '전남',
+  경상북도: '경북',
+  경상남도: '경남',
+  제주특별자치도: '제주',
+};
+
+const shortSido = (sido: string) => SIDO_SHORT[sido] ?? sido;
+
+/** "경기 성남시 분당구" → 시·구가 함께 있는 곳까지 포함해 시군구 라벨을 만든다. */
+const toRegionLabel = (sido: string, sigungu: string) =>
+  [shortSido(sido), sigungu].filter(Boolean).join(' ');
+
+/** "서울 강남구 역삼동 123-4" 같은 주소 문자열에서 시군구까지만 잘라낸다. */
+const regionFromAddressName = (addressName: string) => {
+  const [sido, second, third] = addressName.split(/\s+/);
+  if (!sido) return '';
+
+  const parts = [shortSido(sido)];
+  if (second && /(시|군|구)$/.test(second)) {
+    parts.push(second);
+    // 성남시 분당구처럼 일반구가 있는 시
+    if (third && second.endsWith('시') && third.endsWith('구')) parts.push(third);
+  }
+  return parts.join(' ');
+};
+
+const regionOfPlace = (place: KakaoPlace) => regionFromAddressName(place.address_name);
+
+const regionOfAddress = (item: KakaoAddress) => {
+  const region = item.address ?? item.road_address;
+  return region
+    ? toRegionLabel(region.region_1depth_name, region.region_2depth_name)
+    : regionFromAddressName(item.address_name);
+};
+
+/** "서울"처럼 시도만 있는 결과는 너무 넓어 제외한다. 시군구가 없는 세종은 예외. */
+const isSigunguLevel = (label: string) => label.includes(' ') || label === '세종';
+
+const searchPlaces = async (keyword: string) => {
+  const kakao = await loadKakao();
+  const { Places, Status } = kakao.maps.services;
+
+  return new Promise<string[]>((resolve, reject) => {
+    new Places().keywordSearch(
+      keyword,
+      (data, status) => {
+        if (status === Status.OK) resolve(data.map(regionOfPlace));
+        else if (status === Status.ZERO_RESULT) resolve([]);
+        else reject(new Error('장소 검색 실패'));
+      },
+      { size: MAX_RESULTS },
+    );
+  });
+};
+
+const searchRoadAddresses = async (keyword: string) => {
+  const kakao = await loadKakao();
+  const { Geocoder, Status } = kakao.maps.services;
+
+  return new Promise<string[]>((resolve, reject) => {
+    new Geocoder().addressSearch(keyword, (data, status) => {
+      if (status === Status.OK) resolve(data.map(regionOfAddress));
+      else if (status === Status.ZERO_RESULT) resolve([]);
+      else reject(new Error('주소 검색 실패'));
+    });
+  });
 };
 
 /**
- * 주소 검색 서버 API가 아직 없어 클라이언트 고정 목록으로 대체한다.
- * 좌표를 함께 들고 있어야 중간위치를 하드코딩하지 않고 실제로 계산할 수 있다.
- * 실제 API가 생기면 아래 searchAddresses 하나만 교체하면 된다.
+ * 지역명("강남구"), 장소 이름("강남역"), 주소("테헤란로 152")로 검색해
+ * 해당하는 시군구 목록을 중복 없이 돌려준다.
+ * 결과가 없으면 빈 배열(= "검색 결과가 없어요"), SDK·네트워크 오류는 throw.
  */
-const ADDRESSES: AddressSearchResult[] = [
-  {
-    id: 'gangnam',
-    name: '강남역',
-    address: '서울 강남구 강남대로 396',
-    lat: 37.4979,
-    lng: 127.0276,
-  },
-  {
-    id: 'yeoksam',
-    name: '역삼역',
-    address: '서울 강남구 테헤란로 156',
-    lat: 37.5006,
-    lng: 127.0364,
-  },
-  {
-    id: 'seolleung',
-    name: '선릉역',
-    address: '서울 강남구 테헤란로 340',
-    lat: 37.5045,
-    lng: 127.049,
-  },
-  {
-    id: 'samseong',
-    name: '삼성역',
-    address: '서울 강남구 영동대로 513',
-    lat: 37.5088,
-    lng: 127.0631,
-  },
-  {
-    id: 'sadang',
-    name: '사당역',
-    address: '서울 동작구 남부순환로 2089',
-    lat: 37.4766,
-    lng: 126.9816,
-  },
-  {
-    id: 'seocho',
-    name: '서초역',
-    address: '서울 서초구 서초대로 314',
-    lat: 37.4924,
-    lng: 127.0078,
-  },
-  {
-    id: 'gyodae',
-    name: '교대역',
-    address: '서울 서초구 서초대로 227',
-    lat: 37.4936,
-    lng: 127.0143,
-  },
-  {
-    id: 'sinsa',
-    name: '신사역',
-    address: '서울 강남구 강남대로 지하 636',
-    lat: 37.5162,
-    lng: 127.0201,
-  },
-  {
-    id: 'hongdae',
-    name: '홍대입구역',
-    address: '서울 마포구 양화로 160',
-    lat: 37.5571,
-    lng: 126.9245,
-  },
-  { id: 'hapjeong', name: '합정역', address: '서울 마포구 양화로 45', lat: 37.5495, lng: 126.9137 },
-  {
-    id: 'gongdeok',
-    name: '공덕역',
-    address: '서울 마포구 백범로 187',
-    lat: 37.5443,
-    lng: 126.9515,
-  },
-  {
-    id: 'sinchon',
-    name: '신촌역',
-    address: '서울 서대문구 신촌로 90',
-    lat: 37.5551,
-    lng: 126.9368,
-  },
-  {
-    id: 'jongno3',
-    name: '종로3가역',
-    address: '서울 종로구 종로 129',
-    lat: 37.5704,
-    lng: 126.9922,
-  },
-  {
-    id: 'euljiro3',
-    name: '을지로3가역',
-    address: '서울 중구 을지로 100',
-    lat: 37.5663,
-    lng: 126.9919,
-  },
-  {
-    id: 'seoulstation',
-    name: '서울역',
-    address: '서울 중구 한강대로 405',
-    lat: 37.5547,
-    lng: 126.9707,
-  },
-  {
-    id: 'yongsan',
-    name: '용산역',
-    address: '서울 용산구 한강대로 23길 55',
-    lat: 37.5299,
-    lng: 126.9648,
-  },
-  {
-    id: 'itaewon',
-    name: '이태원역',
-    address: '서울 용산구 이태원로 177',
-    lat: 37.5345,
-    lng: 126.9946,
-  },
-  {
-    id: 'wangsimni',
-    name: '왕십리역',
-    address: '서울 성동구 왕십리광장로 17',
-    lat: 37.5614,
-    lng: 127.0374,
-  },
-  {
-    id: 'konkuk',
-    name: '건대입구역',
-    address: '서울 광진구 아차산로 262',
-    lat: 37.5404,
-    lng: 127.0704,
-  },
-  {
-    id: 'jamsil',
-    name: '잠실역',
-    address: '서울 송파구 올림픽로 265',
-    lat: 37.5133,
-    lng: 127.1001,
-  },
-  {
-    id: 'cheonho',
-    name: '천호역',
-    address: '서울 강동구 천호대로 1005',
-    lat: 37.5385,
-    lng: 127.1237,
-  },
-  { id: 'nowon', name: '노원역', address: '서울 노원구 상계로 65', lat: 37.6551, lng: 127.0614 },
-  {
-    id: 'sungshin',
-    name: '성신여대입구역',
-    address: '서울 성북구 동소문로 102',
-    lat: 37.5926,
-    lng: 127.0163,
-  },
-  {
-    id: 'yeouido',
-    name: '여의도역',
-    address: '서울 영등포구 여의나루로 40',
-    lat: 37.5215,
-    lng: 126.9243,
-  },
-  {
-    id: 'yeongdeungpo',
-    name: '영등포역',
-    address: '서울 영등포구 경인로 846',
-    lat: 37.5157,
-    lng: 126.9074,
-  },
-  {
-    id: 'guro',
-    name: '구로디지털단지역',
-    address: '서울 구로구 시흥대로 578',
-    lat: 37.4853,
-    lng: 126.9015,
-  },
-  {
-    id: 'mokdong',
-    name: '목동역',
-    address: '서울 양천구 오목로 지하 340',
-    lat: 37.5262,
-    lng: 126.8752,
-  },
-  {
-    id: 'bupyeong',
-    name: '부평역',
-    address: '인천 부평구 경인로 지하 856',
-    lat: 37.4894,
-    lng: 126.7244,
-  },
-  {
-    id: 'incheon',
-    name: '인천시청역',
-    address: '인천 남동구 정각로 29',
-    lat: 37.4576,
-    lng: 126.7318,
-  },
-  { id: 'bucheon', name: '부천역', address: '경기 부천시 부천로 1', lat: 37.4844, lng: 126.783 },
-  {
-    id: 'anyang',
-    name: '안양역',
-    address: '경기 안양시 만안구 만안로 232',
-    lat: 37.4018,
-    lng: 126.9227,
-  },
-  {
-    id: 'suwon',
-    name: '수원역',
-    address: '경기 수원시 팔달구 덕영대로 924',
-    lat: 37.2659,
-    lng: 127.0001,
-  },
-  { id: 'dongtan', name: '동탄역', address: '경기 화성시 동탄대로 1', lat: 37.2013, lng: 127.0983 },
-  {
-    id: 'dongtanro',
-    name: '동탄대로 123',
-    address: '경기 화성시 동탄대로 123길',
-    lat: 37.2035,
-    lng: 127.1024,
-  },
-  {
-    id: 'seongnam',
-    name: '성남시청',
-    address: '경기 성남시 중원구 여수대로 33',
-    lat: 37.42,
-    lng: 127.1265,
-  },
-  {
-    id: 'pangyo',
-    name: '판교역',
-    address: '경기 성남시 분당구 판교역로 160',
-    lat: 37.3947,
-    lng: 127.1112,
-  },
-  {
-    id: 'jeongja',
-    name: '정자역',
-    address: '경기 성남시 분당구 성남대로 지하 331',
-    lat: 37.3671,
-    lng: 127.1082,
-  },
-  {
-    id: 'ilsan',
-    name: '일산역',
-    address: '경기 고양시 일산서구 중앙로 1554',
-    lat: 37.6819,
-    lng: 126.7699,
-  },
-  {
-    id: 'ujangsan',
-    name: '고양시청',
-    address: '경기 고양시 덕양구 고양시청로 10',
-    lat: 37.6584,
-    lng: 126.832,
-  },
-  {
-    id: 'gwangmyeong',
-    name: '광명역',
-    address: '경기 광명시 KTX광명역로 21',
-    lat: 37.4163,
-    lng: 126.8845,
-  },
-];
-
-const normalize = (value: string) => value.replace(/\s+/g, '').toLowerCase();
-
-/** 검색어를 이름·주소에 부분일치시킨다. 결과가 없으면 빈 배열(= "검색 결과가 없어요"). */
 export const searchAddresses = async (keyword: string): Promise<AddressSearchResult[]> => {
-  const query = normalize(keyword);
+  const query = keyword.trim();
   if (!query) return [];
 
-  await new Promise((r) => setTimeout(r, 300));
+  const [places, addresses] = await Promise.allSettled([
+    searchPlaces(query),
+    searchRoadAddresses(query),
+  ]);
 
-  return ADDRESSES.filter((item) =>
-    normalize(`${item.name} ${item.address}`).includes(query),
-  ).slice(0, 20);
+  // 둘 다 실패했을 때만 오류로 본다. 한쪽만 실패하면 나머지 결과라도 보여준다.
+  if (places.status === 'rejected' && addresses.status === 'rejected') throw places.reason;
+
+  // 주소 검색은 "강남구"처럼 지역명을 직접 입력한 경우라 먼저 보여준다
+  const labels = [
+    ...(addresses.status === 'fulfilled' ? addresses.value : []),
+    ...(places.status === 'fulfilled' ? places.value : []),
+  ].filter(isSigunguLevel);
+
+  return [...new Set(labels)]
+    .slice(0, MAX_RESULTS)
+    .map((label) => ({ id: `region-${label}`, name: label, address: label }));
 };
 
-/** 좌표에 가장 가까운 지점. 역지오코딩 API가 없어 중간위치 라벨링에 쓰는 대체 수단이다. */
-export const findNearestAddress = (lat: number, lng: number): AddressSearchResult => {
-  let nearest = ADDRESSES[0];
-  let shortest = Infinity;
+/** 현재 위치 좌표를 시군구 라벨로 바꾼다. 좌표는 이 함수 밖으로 내보내지 않는다. */
+export const getRegionByCoord = async (lat: number, lng: number): Promise<string> => {
+  const kakao = await loadKakao();
+  const { Geocoder, Status } = kakao.maps.services;
 
-  for (const item of ADDRESSES) {
-    const distance = (item.lat - lat) ** 2 + (item.lng - lng) ** 2;
-    if (distance < shortest) {
-      shortest = distance;
-      nearest = item;
-    }
-  }
-
-  return nearest;
+  return new Promise((resolve, reject) => {
+    new Geocoder().coord2RegionCode(lng, lat, (data, status) => {
+      // 'H' 행정동 / 'B' 법정동 — 시군구 이름은 둘이 같다
+      const region = data?.find((item) => item.region_type === 'H') ?? data?.[0];
+      if (status !== Status.OK || !region) {
+        reject(new Error('현재 위치의 지역을 찾지 못했습니다'));
+        return;
+      }
+      resolve(toRegionLabel(region.region_1depth_name, region.region_2depth_name));
+    });
+  });
 };

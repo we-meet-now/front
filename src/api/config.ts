@@ -30,3 +30,6 @@ export const CHAT_URL = readEnv('VITE_CHAT_URL', import.meta.env.VITE_CHAT_URL);
 
 // AI 추천 API
 export const AI_URL = readEnv('VITE_AI_URL', import.meta.env.VITE_AI_URL);
+
+// Kakao 지도 JS SDK (JavaScript 키. 카카오 콘솔에서 허용 도메인을 제한해 둬야 한다)
+export const KAKAO_JS_KEY = readEnv('VITE_KAKAO_JS_KEY', import.meta.env.VITE_KAKAO_JS_KEY);

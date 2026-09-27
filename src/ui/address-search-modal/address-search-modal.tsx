@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 
-import { findNearestAddress, searchAddresses } from '@/api/create-meeting/address';
+import { getRegionByCoord, searchAddresses } from '@/api/create-meeting/address';
 import type { AddressSearchResult } from '@/api/create-meeting/address';
 import { Popup } from '@/ui/popup/popup';
 
@@ -13,7 +13,7 @@ type AddressSearchModalProps = {
   onLocationError: () => void;
 };
 
-type SearchStatus = 'idle' | 'searching' | 'done';
+type SearchStatus = 'idle' | 'searching' | 'done' | 'error';
 
 export const AddressSearchModal = ({
   onSelect,
@@ -38,11 +38,18 @@ export const AddressSearchModal = ({
     const myReq = ++reqId.current;
     setStatus('searching');
 
-    const found = await searchAddresses(query);
-    if (myReq !== reqId.current) return;
+    try {
+      const found = await searchAddresses(query);
+      if (myReq !== reqId.current) return;
 
-    setResults(found);
-    setStatus('done');
+      setResults(found);
+      setStatus('done');
+    } catch {
+      if (myReq !== reqId.current) return;
+
+      setResults([]);
+      setStatus('error');
+    }
   };
 
   const handleClear = () => {
@@ -61,28 +68,27 @@ export const AddressSearchModal = ({
 
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        if (!mountedRef.current) return;
-        setIsLocating(false);
+      async ({ coords }) => {
+        try {
+          // 정밀 좌표는 시군구 변환에만 쓰고 저장·전송하지 않는다
+          const region = await getRegionByCoord(coords.latitude, coords.longitude);
+          if (!mountedRef.current) return;
 
-        // 역지오코딩 API가 없어 가장 가까운 알려진 지점으로 라벨링한다.
-        // 좌표 자체는 실제 값이라 중간위치 계산에는 그대로 쓸 수 있다.
-        const nearest = findNearestAddress(coords.latitude, coords.longitude);
-        setPicked({
-          id: 'current-location',
-          name: '현재 위치',
-          address: `${nearest.name} 근처`,
-          lat: coords.latitude,
-          lng: coords.longitude,
-        });
-        setKeyword(`${nearest.name} 근처`);
+          setPicked({ id: 'current-location', name: '현재 위치', address: region });
+          setKeyword(region);
+        } catch {
+          if (mountedRef.current) onLocationError();
+        } finally {
+          if (mountedRef.current) setIsLocating(false);
+        }
       },
       () => {
         if (!mountedRef.current) return;
         setIsLocating(false);
         onLocationError();
       },
-      { timeout: 8000, maximumAge: 60000 },
+      // 시군구만 필요하므로 고정밀 GPS는 켜지 않는다 (더 빠르고 배터리 절약)
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 5 * 60 * 1000 },
     );
   };
 
@@ -115,7 +121,7 @@ export const AddressSearchModal = ({
         <div className={styles.inputWrapper}>
           <input
             className={styles.input}
-            placeholder="출발지를 입력해주세요"
+            placeholder="예) 강남구, 강남역, 분당"
             value={keyword}
             autoFocus
             onChange={(e) => setKeyword(e.target.value)}
@@ -143,6 +149,8 @@ export const AddressSearchModal = ({
         ◎ {isLocating ? '위치를 불러오는 중...' : '내 위치 불러오기'}
       </button>
 
+      {picked && <p className={styles.emptyText}>🔒 다른 사람에게는 '{picked.address}'로 보여요</p>}
+
       {status === 'done' &&
         (results.length > 0 ? (
           <div className={styles.resultList}>
@@ -153,13 +161,18 @@ export const AddressSearchModal = ({
                 onClick={() => handlePick(result)}
               >
                 <span className={styles.resultName}>{result.name}</span>
-                <span className={styles.resultAddress}>{result.address}</span>
               </button>
             ))}
           </div>
         ) : (
-          <p className={styles.emptyText}>검색 결과가 없어요</p>
+          <p className={styles.emptyText}>
+            검색 결과가 없어요. 구·시 이름이나 역 이름으로 검색해 보세요
+          </p>
         ))}
+
+      {status === 'error' && (
+        <p className={styles.emptyText}>검색 중 문제가 생겼어요. 잠시 후 다시 시도해 주세요</p>
+      )}
     </Popup>
   );
 };
