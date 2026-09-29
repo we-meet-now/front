@@ -3,7 +3,7 @@ import { keyframes, style } from '@vanilla-extract/css';
 import { vars } from '@/ui/theme.css';
 
 export const container = style({
-  padding: '38px 16px',
+  padding: '24px 16px',
   display: 'flex',
   justifyContent: 'center',
 });

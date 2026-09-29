@@ -5,13 +5,56 @@ import { useJoinMutation, useSendEmailMutation, useVerifyEmailMutation } from '@
 import { AppBar } from '@/ui/appbar/app-bar';
 import { Button } from '@/ui/button/button';
 import { PageLayout } from '@/ui/layout/page-layout';
+import { Markdown } from '@/ui/markdown/markdown';
 import { Spacer } from '@/ui/spacer/spacer';
+import { TermsAgreement, type TermsItem } from '@/ui/terms-agreement/terms-agreement';
+import { isRequiredTermsAgreed } from '@/ui/terms-agreement/utils';
 import { formatPhoneNumber } from '@/utils/formatPhoneNumber';
+
+import locationTerms from './terms/location.md?raw';
+import marketingTerms from './terms/marketing.md?raw';
+import privacyPolicyTerms from './terms/privacy-policy.md?raw';
+import privacyTerms from './terms/privacy.md?raw';
+import serviceTerms from './terms/service.md?raw';
 
 import * as styles from './page.css';
 
 type SendStatus = 'idle' | 'loading' | 'sent' | 'error';
 type VerifyStatus = 'idle' | 'loading' | 'success' | 'error';
+
+// 약관 본문은 ./terms/*.md 에 작성
+const TERMS_ITEMS: TermsItem[] = [
+  {
+    id: 'service',
+    label: '서비스 이용약관',
+    required: true,
+    content: <Markdown>{serviceTerms}</Markdown>,
+  },
+  {
+    id: 'privacy',
+    label: '개인정보 수집 및 이용 동의',
+    required: true,
+    content: <Markdown>{privacyTerms}</Markdown>,
+  },
+  {
+    id: 'location',
+    label: '위치기반 서비스 이용약관 동의',
+    required: true,
+    content: <Markdown>{locationTerms}</Markdown>,
+  },
+  {
+    id: 'age',
+    label: '개인정보처리방침',
+    required: true,
+    content: <Markdown>{privacyPolicyTerms}</Markdown>,
+  },
+  {
+    id: 'marketing',
+    label: '마케팅 정보 수신 동의',
+    required: false,
+    content: <Markdown>{marketingTerms}</Markdown>,
+  },
+];
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
@@ -28,6 +71,7 @@ export const RegisterPage = () => {
   const [code, setCode] = useState('');
   const [sendStatus, setSendStatus] = useState<SendStatus>('idle');
   const [verifyStatus, setVerifyStatus] = useState<VerifyStatus>('idle');
+  const [agreedTermIds, setAgreedTermIds] = useState<string[]>([]);
 
   const passwordMatched = passwordConfirm.length > 0 && password === passwordConfirm;
   const passwordMismatch = passwordConfirm.length > 0 && password !== passwordConfirm;
@@ -38,6 +82,7 @@ export const RegisterPage = () => {
     emailVerified &&
     password.length >= 6 &&
     !passwordMismatch &&
+    isRequiredTermsAgreed(TERMS_ITEMS, agreedTermIds) &&
     !joinMutation.isPending;
 
   const handleSubmit = () => {
@@ -97,14 +142,14 @@ export const RegisterPage = () => {
     >
       <div className={styles.card}>
         {/* Header */}
-        <div className={styles.header}>
+        {/* <div className={styles.header}>
           <h1 className={styles.title}>회원가입 👋</h1>
           <p className={styles.description}>
             필요한 정보만 입력하면
             <br />
             바로 시작할 수 있어요
           </p>
-        </div>
+        </div> */}
 
         {/* Form */}
         <div className={styles.form}>
@@ -241,6 +286,16 @@ export const RegisterPage = () => {
               <span>이메일 인증이 완료되었습니다</span>
             </div>
           )}
+
+          {/* 약관 동의 */}
+          <div className={styles.field}>
+            <TermsAgreement
+              items={TERMS_ITEMS}
+              agreedIds={agreedTermIds}
+              onChange={setAgreedTermIds}
+            />
+          </div>
+
           {joinMutation.isError && (
             <span className={styles.errorText}>{joinMutation.error.message}</span>
           )}
