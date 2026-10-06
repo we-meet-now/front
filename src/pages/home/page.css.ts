@@ -20,12 +20,42 @@ export const searchBar = style({
   display: 'flex',
   alignItems: 'center',
   gap: 8,
-  padding: '10px 16px',
+  padding: '0 12px 0 16px',
+  height: 44,
   borderRadius: 12,
   backgroundColor: vars.color.white,
   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
   fontSize: vars.fontSize.s,
-  color: vars.color.grey400,
+});
+
+export const searchInput = style({
+  flex: 1,
+  minWidth: 0,
+  height: '100%',
+  border: 'none',
+  outline: 'none',
+  backgroundColor: 'transparent',
+  fontSize: vars.fontSize.s,
+  color: vars.color.grey900,
+  selectors: {
+    '&::placeholder': { color: vars.color.grey400 },
+  },
+});
+
+export const clearButton = style({
+  width: 20,
+  height: 20,
+  flexShrink: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  border: 'none',
+  borderRadius: '50%',
+  backgroundColor: vars.color.grey200,
+  color: vars.color.grey600,
+  fontSize: 11,
+  cursor: 'pointer',
+  padding: 0,
 });
 
 /* ── 알람 버튼 (플로팅) ── */

@@ -1,7 +1,7 @@
 import { KAKAO_JS_KEY } from '@/api/config';
 
 /**
- * Kakao 지도 JS SDK 중 이 프로젝트가 쓰는 services 라이브러리의 최소 타입.
+ * Kakao 지도 JS SDK 중 이 프로젝트가 쓰는 지도·services 라이브러리의 최소 타입.
  * @types 패키지를 추가하지 않기 위해 필요한 부분만 직접 선언한다.
  */
 type KakaoStatus = 'OK' | 'ZERO_RESULT' | 'ERROR';
@@ -12,6 +12,11 @@ export type KakaoPlace = {
   category_group_code: string;
   address_name: string;
   road_address_name: string;
+  /** "음식점 > 한식 > 육류,고기" */
+  category_name: string;
+  phone: string;
+  /** 카카오맵 장소 상세 페이지 */
+  place_url: string;
   x: string;
   y: string;
 };
@@ -24,6 +29,8 @@ type KakaoRegionAddress = {
 
 export type KakaoAddress = {
   address_name: string;
+  x: string;
+  y: string;
   address: KakaoRegionAddress | null;
   road_address: (KakaoRegionAddress & { building_name: string }) | null;
 };
@@ -34,16 +41,51 @@ export type KakaoRegion = {
   region_2depth_name: string;
 };
 
-type Kakao = {
+export type KakaoLatLng = {
+  getLat: () => number;
+  getLng: () => number;
+};
+
+export type KakaoLatLngBounds = {
+  extend: (latlng: KakaoLatLng) => void;
+  isEmpty: () => boolean;
+};
+
+export type KakaoMap = {
+  setCenter: (latlng: KakaoLatLng) => void;
+  getBounds: () => KakaoLatLngBounds;
+  setBounds: (bounds: KakaoLatLngBounds) => void;
+  /** 숫자가 작을수록 확대 (1 ~ 14) */
+  setLevel: (level: number) => void;
+  panTo: (latlng: KakaoLatLng) => void;
+  addControl: (control: object, position: number) => void;
+};
+
+export type KakaoMarker = {
+  setMap: (map: KakaoMap | null) => void;
+  setPosition: (latlng: KakaoLatLng) => void;
+};
+
+export type Kakao = {
   maps: {
     load: (callback: () => void) => void;
+    LatLng: new (lat: number, lng: number) => KakaoLatLng;
+    LatLngBounds: new () => KakaoLatLngBounds;
+    Map: new (container: HTMLElement, options: { center: KakaoLatLng; level?: number }) => KakaoMap;
+    Marker: new (options: { position: KakaoLatLng; map?: KakaoMap }) => KakaoMarker;
+    ZoomControl: new () => object;
+    event: {
+      addListener: (target: KakaoMap | KakaoMarker, type: 'click', handler: () => void) => void;
+    };
+    ControlPosition: { RIGHT: number; TOPRIGHT: number; BOTTOMRIGHT: number };
     services: {
       Status: Record<KakaoStatus, KakaoStatus>;
       Places: new () => {
         keywordSearch: (
           keyword: string,
           callback: (data: KakaoPlace[], status: KakaoStatus) => void,
-          options?: { size?: number },
+          /** bounds를 주면 그 영역 안의 장소만 찾는다 */
+          options?: { size?: number; bounds?: KakaoLatLngBounds },
         ) => void;
       };
       Geocoder: new () => {
