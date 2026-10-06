@@ -13,7 +13,7 @@ import * as styles from './gnb.css';
 const MENUS = [
   { key: 'home', label: '홈', Icon: HomeIcon },
   { key: 'calendar', label: '캘린더', Icon: CalendarIcon },
-  { key: 'chat', label: '톡', Icon: ChatIcon },
+  { key: 'chat', label: '채팅', Icon: ChatIcon },
   { key: 'gallery', label: '갤러리', Icon: GalleryIcon },
   { key: 'mypage', label: '마이', Icon: MypageIcon },
 ];
