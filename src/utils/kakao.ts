@@ -61,9 +61,13 @@ export type KakaoMap = {
   addControl: (control: object, position: number) => void;
 };
 
+export type KakaoMarkerImage = object;
+
 export type KakaoMarker = {
   setMap: (map: KakaoMap | null) => void;
   setPosition: (latlng: KakaoLatLng) => void;
+  setImage: (image: KakaoMarkerImage) => void;
+  setZIndex: (zIndex: number) => void;
 };
 
 export type Kakao = {
@@ -72,7 +76,14 @@ export type Kakao = {
     LatLng: new (lat: number, lng: number) => KakaoLatLng;
     LatLngBounds: new () => KakaoLatLngBounds;
     Map: new (container: HTMLElement, options: { center: KakaoLatLng; level?: number }) => KakaoMap;
-    Marker: new (options: { position: KakaoLatLng; map?: KakaoMap }) => KakaoMarker;
+    Marker: new (options: {
+      position: KakaoLatLng;
+      map?: KakaoMap;
+      image?: KakaoMarkerImage;
+    }) => KakaoMarker;
+    MarkerImage: new (src: string, size: object, options?: { offset?: object }) => KakaoMarkerImage;
+    Size: new (width: number, height: number) => object;
+    Point: new (x: number, y: number) => object;
     ZoomControl: new () => object;
     event: {
       addListener: (target: KakaoMap | KakaoMarker, type: 'click', handler: () => void) => void;

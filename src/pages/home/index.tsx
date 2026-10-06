@@ -7,6 +7,8 @@ import { MapSearchSheet, type MapSearchStatus } from '@/ui/map-search-sheet/map-
 import { PlaceInfoCard } from '@/ui/place-info-card/place-info-card';
 import { type Kakao, type KakaoMap, type KakaoMarker, loadKakao } from '@/utils/kakao';
 
+import { type MarkerImages, createMarkerImages } from './marker-image';
+
 import * as styles from './page.css';
 
 // 목업: 읽지 않은 알림 수 (notification 페이지의 INITIAL_NOTIFICATIONS 개수와 동일)
@@ -27,6 +29,9 @@ export const HomePage = () => {
   const mapInstanceRef = useRef<KakaoMap | null>(null);
   // 처음엔 기본 위치 마커 하나, 검색 후엔 결과마다 하나씩
   const markersRef = useRef<KakaoMarker[]>([]);
+  // 검색 결과 id → 마커. 선택된 가게의 마커만 강조하는 데 쓴다
+  const markerByIdRef = useRef(new Map<string, KakaoMarker>());
+  const markerImagesRef = useRef<MarkerImages | null>(null);
   // 빠르게 여러 번 검색했을 때 느린 응답이 최신 결과를 덮어쓰지 않도록
   const reqId = useRef(0);
 
@@ -40,6 +45,8 @@ export const HomePage = () => {
   useEffect(() => {
     // SDK 로드 중에 페이지를 떠나면 지도를 만들지 않는다
     let cancelled = false;
+    // Map 객체 자체는 바뀌지 않으므로 cleanup에서 쓸 참조를 미리 잡아둔다
+    const markerById = markerByIdRef.current;
 
     loadKakao()
       .then((kakao) => {
@@ -53,6 +60,7 @@ export const HomePage = () => {
 
         kakaoRef.current = kakao;
         mapInstanceRef.current = map;
+        markerImagesRef.current = createMarkerImages(kakao);
         markersRef.current = [new kakao.maps.Marker({ position: center, map })];
       })
       .catch((e) => console.warn('카카오 지도 초기화 실패:', e));
@@ -62,9 +70,23 @@ export const HomePage = () => {
       reqId.current += 1;
       markersRef.current.forEach((marker) => marker.setMap(null));
       markersRef.current = [];
+      markerById.clear();
       mapInstanceRef.current = null;
     };
   }, []);
+
+  // 선택된 가게의 마커만 크고 진한 색으로 바꾸고 다른 마커보다 위에 그린다
+  const selectedId = selectedPlace?.id ?? null;
+  useEffect(() => {
+    const images = markerImagesRef.current;
+    if (!images) return;
+
+    markerByIdRef.current.forEach((marker, id) => {
+      const isSelected = id === selectedId;
+      marker.setImage(isSelected ? images.selected : images.normal);
+      marker.setZIndex(isSelected ? 1 : 0);
+    });
+  }, [selectedId, results]);
 
   const drawMarkers = (places: MapSearchResult[]) => {
     const kakao = kakaoRef.current;
@@ -72,14 +94,22 @@ export const HomePage = () => {
 
     markersRef.current.forEach((marker) => marker.setMap(null));
     markersRef.current = [];
+    markerByIdRef.current.clear();
     if (!kakao || !map) return;
 
     markersRef.current = places.map((place) => {
+      const position = new kakao.maps.LatLng(place.lat, place.lng);
       const marker = new kakao.maps.Marker({
-        position: new kakao.maps.LatLng(place.lat, place.lng),
+        position,
         map,
+        image: markerImagesRef.current?.normal,
       });
-      kakao.maps.event.addListener(marker, 'click', () => setSelectedPlace(place));
+      kakao.maps.event.addListener(marker, 'click', () => {
+        setSelectedPlace(place);
+        // 확대 수준은 그대로 두고 누른 마커를 화면 중앙으로 부드럽게 옮긴다
+        map.panTo(position);
+      });
+      markerByIdRef.current.set(place.id, marker);
       return marker;
     });
   };
