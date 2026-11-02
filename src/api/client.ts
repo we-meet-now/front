@@ -1,4 +1,4 @@
-import { LOCAL_STORAGE } from '@/utils/isLogin';
+import { getAuthToken } from '@/utils/isLogin';
 
 import { API_MODE, BASE_URL } from './config';
 
@@ -27,8 +27,9 @@ export const apiClient = async <T>(url: string, options?: RequestOptions): Promi
     };
 
     if (options?.auth) {
-      const accessToken = localStorage.getItem(LOCAL_STORAGE.ACCESS_TOKEN);
-      if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+      // 회원 토큰이 우선이고, 초대 링크로 들어온 비회원은 게스트 토큰으로 호출한다
+      const token = getAuthToken();
+      if (token) headers.Authorization = `Bearer ${token}`;
     }
 
     const res = await fetch(`${options?.baseUrl ?? BASE_URL}${url}`, {

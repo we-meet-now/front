@@ -2,8 +2,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useCreateChatRoomMutation } from '@/api/query/chat';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { PageLayout } from '@/ui/layout/page-layout';
+import { Toast } from '@/ui/toast/toast';
+import { isLogin } from '@/utils/isLogin';
 
 import { PlaceStep } from './steps/Place-Step';
 import { TimeStep } from './steps/TimeStep';
@@ -20,15 +23,34 @@ export const CreateMeetingPage = () => {
     setForm((prev) => ({ ...prev, ...partial }));
   };
 
-  const handleSubmit = () => {
-    console.log('최종 제출 데이터:', form);
-
-    // TODO: API 호출
-    const roomId = 1;
-    navigate(`/meeting-complete/${roomId}`);
-  };
-
   const navigate = useNavigate();
+  const createChatRoomMutation = useCreateChatRoomMutation();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleSubmit = () => {
+    if (createChatRoomMutation.isPending) return;
+
+    // 방 생성은 회원(방장)만 가능하다. 게스트 토큰으로 방이 만들어지지 않도록 회원 토큰을 확인한다
+    if (!isLogin()) {
+      navigate(`/login?redirect=${encodeURIComponent('/create-meeting')}`);
+      return;
+    }
+
+    createChatRoomMutation.mutate(
+      {
+        // 모임 이름 입력 단계가 없어 모임 종류를 방 이름으로 쓴다
+        chatRoomNm: form.meetingType ?? '새 모임',
+        // 참가자는 초대 링크로 들어오므로 생성 시점에는 비워 둔다
+        invitedUserIdList: [],
+      },
+      {
+        onSuccess: ({ data: { chatRoomId, enterCode } }) => {
+          navigate(`/meeting-complete/${chatRoomId}?code=${encodeURIComponent(enterCode)}`);
+        },
+        onError: (error) => setErrorMessage(error.message),
+      },
+    );
+  };
 
   return (
     <PageLayout
@@ -53,6 +75,15 @@ export const CreateMeetingPage = () => {
           onChange={updateForm}
           onPrev={funnel.goPrev}
           onSubmit={handleSubmit}
+          isSubmitting={createChatRoomMutation.isPending}
+        />
+      )}
+
+      {errorMessage && (
+        <Toast
+          title="모임을 만들지 못했어요"
+          description={errorMessage}
+          onClose={() => setErrorMessage(null)}
         />
       )}
     </PageLayout>

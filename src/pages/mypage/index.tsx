@@ -36,7 +36,7 @@ export const MyPage = () => {
           </div>
           <div className={styles.editBadge}>✏️</div>
         </div>
-        <div className={styles.userName}>{userInfo?.data.nickname ?? '-'}</div>
+        <div className={styles.userName}>{userInfo?.data.username ?? '-'}</div>
         <div className={styles.userPhone}>{userInfo?.data.phoneNumber ?? '-'}</div>
         <button className={styles.logoutButton}>로그아웃</button>
       </div>

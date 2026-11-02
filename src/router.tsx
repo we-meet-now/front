@@ -11,6 +11,7 @@ import { SettlementNewPage } from './pages/chat/settlement/new';
 import { CreateMeetingPage } from './pages/create-meeting';
 import { GalleryPage } from './pages/gallery';
 import { HomePage } from './pages/home';
+import { InvitePage } from './pages/invite';
 import { LoginPage } from './pages/login';
 import { MeetingCompletePage } from './pages/meeting-complete';
 import { MeetingLayout } from './pages/meeting-layout';
@@ -65,6 +66,8 @@ export const Router = () => {
         <Route path="create-meeting" element={<CreateMeetingPage />} />
 
         <Route path="meeting-complete/:roomId" element={<MeetingCompletePage />} />
+        {/* 초대 링크 진입: 회원은 바로 입장, 비회원은 로그인 또는 게스트 토큰으로 입장 */}
+        <Route path="invite/:roomId" element={<InvitePage />} />
 
         {/* 모임방 전용 라우팅 */}
         <Route path="meeting/:roomId" element={<MeetingLayout />}>

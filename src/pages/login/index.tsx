@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useLoginMutation } from '@/api/query/auth';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { Button } from '@/ui/button/button';
 import { PageLayout } from '@/ui/layout/page-layout';
 import { Spacer } from '@/ui/spacer/spacer';
-import { LOCAL_STORAGE } from '@/utils/isLogin';
+import { getSafeRedirect } from '@/utils/invite-link';
+import { LOCAL_STORAGE, clearGuestToken } from '@/utils/isLogin';
 
 import * as styles from './page.css';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const loginMutation = useLoginMutation();
 
   const [email, setEmail] = useState('');
@@ -27,7 +29,8 @@ export const LoginPage = () => {
         onSuccess: ({ data }) => {
           localStorage.setItem(LOCAL_STORAGE.ACCESS_TOKEN, data.accessToken);
           localStorage.setItem(LOCAL_STORAGE.REFRESH_TOKEN, data.refreshToken);
-          navigate('/create-meeting');
+          clearGuestToken();
+          navigate(getSafeRedirect(searchParams.get('redirect')) ?? '/create-meeting');
         },
       },
     );

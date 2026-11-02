@@ -1,20 +1,28 @@
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { Button } from '@/ui/button/button';
+import { buildInviteLink, getRoomPath } from '@/utils/invite-link';
 
 import * as styles from './page.css';
 
 export const MeetingCompletePage = () => {
   const navigate = useNavigate();
   const { roomId } = useParams();
+  const [searchParams] = useSearchParams();
+  const enterCode = searchParams.get('code');
 
+  // 방장도 초대받은 참여자와 같은 채팅방 경로로 들어가야 같은 방에서 대화한다
   const handleEnterRoom = () => {
-    navigate(`/meeting/${roomId}/chat`);
+    if (!roomId) return;
+    navigate(getRoomPath(roomId, enterCode));
   };
 
   const handleCopyLink = async () => {
-    const link = `${window.location.origin}/room/${roomId}/chat?user=321`;
-    await navigator.clipboard.writeText(link);
+    if (!roomId || !enterCode) {
+      alert('초대 코드가 없어 링크를 만들 수 없어요.');
+      return;
+    }
+    await navigator.clipboard.writeText(buildInviteLink(roomId, enterCode));
     alert('링크가 복사되었습니다!');
   };
 

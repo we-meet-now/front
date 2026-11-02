@@ -52,7 +52,7 @@ export const MyPageDetail = () => {
 
           <div className={styles.infoRow}>
             <span className={styles.infoLabel}>닉네임</span>
-            <span className={styles.infoValue}>{userInfo?.data.nickname ?? '-'}</span>
+            <span className={styles.infoValue}>{userInfo?.data.username ?? '-'}</span>
             <button className={styles.editButton}>수정</button>
           </div>
 

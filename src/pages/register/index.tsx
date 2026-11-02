@@ -62,7 +62,7 @@ export const RegisterPage = () => {
   const sendEmailMutation = useSendEmailMutation();
   const verifyEmailMutation = useVerifyEmailMutation();
 
-  const [nickname, setNickname] = useState('');
+  const [username, setUsername] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
@@ -78,7 +78,7 @@ export const RegisterPage = () => {
   const showPasswordMismatch = passwordConfirmTouched && passwordMismatch;
   const emailVerified = verifyStatus === 'success';
   const canSubmit =
-    !!nickname &&
+    !!username &&
     emailVerified &&
     password.length >= 6 &&
     !passwordMismatch &&
@@ -93,7 +93,7 @@ export const RegisterPage = () => {
         email,
         password,
         passwordCorrect: passwordConfirm,
-        nickname,
+        username,
         phoneNumber: phoneNumber.replace(/-/g, ''),
       },
       {
@@ -159,8 +159,8 @@ export const RegisterPage = () => {
             <input
               className={styles.input}
               placeholder="닉네임을 입력하세요"
-              value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
           </div>
 

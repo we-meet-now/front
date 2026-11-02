@@ -13,6 +13,7 @@ type Props = {
   onChange: (v: Partial<CreateMeetingForm>) => void;
   onPrev: () => void;
   onSubmit: () => void;
+  isSubmitting?: boolean;
 };
 
 const PLACE_OPTIONS = [
@@ -38,7 +39,7 @@ const PLACE_OPTIONS = [
 
 type PlaceMode = (typeof PLACE_OPTIONS)[number]['key'];
 
-export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
+export const PlaceStep = ({ value, onChange, onSubmit, isSubmitting }: Props) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [submittedKeyword, setSubmittedKeyword] = useState('');
 
@@ -160,8 +161,8 @@ export const PlaceStep = ({ value, onChange, onSubmit }: Props) => {
       )}
 
       <div className={styles.footer}>
-        <Button size="l" onClick={onSubmit} disabled={isNextDisabled}>
-          모임 생성
+        <Button size="l" onClick={onSubmit} disabled={isNextDisabled || isSubmitting}>
+          {isSubmitting ? '생성 중...' : '모임 생성'}
         </Button>
       </div>
     </div>

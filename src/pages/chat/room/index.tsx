@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
+import type { EnterRoomResponse } from '@/api/chat/room';
+import { useGuestUsernameQuery, useUserInfoQuery } from '@/api/query/auth';
+import { useEnterRoomQuery } from '@/api/query/chat';
 import { type StompMessage, useStompChat } from '@/hooks/useStompChat';
 import { type Message, chatStore } from '@/store/chat-store';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { GNB } from '@/ui/gnb/gnb';
 import { PageLayout } from '@/ui/layout/page-layout';
 import { cx } from '@/ui/utils';
+import { getStoredGuestUuid, isLogin } from '@/utils/isLogin';
 
 import * as styles from './page.css';
 
@@ -16,186 +20,6 @@ const TABS = [
   { key: 'calendar', label: '캘린더' },
   { key: 'poll', label: '투표', badge: 3 },
   { key: 'settlement', label: '정산' },
-];
-
-const DUMMY_MESSAGES: Message[] = [
-  // ── 날짜 구분선 ──
-  {
-    id: 100,
-    type: 'date',
-    text: '2026년 3월 16일 일요일',
-  },
-
-  // ── 시스템 메시지 ──
-  {
-    id: 1,
-    type: 'system',
-    text: '도희님이 참여했습니다',
-  },
-
-  // ── 상대방 메시지 ──
-  {
-    id: 2,
-    type: 'other',
-    sender: '민지',
-    avatarColor: '#e53935',
-    avatarText: '민',
-    text: '도희야 반가워! 오랜만이다 ㅎㅎ',
-    time: '오후 3:24',
-    showAvatar: true,
-    showName: true,
-  },
-  {
-    id: 3,
-    type: 'other',
-    sender: '민지',
-    avatarColor: '#e53935',
-    avatarText: '민',
-    text: '다들 언제 시간 돼?',
-    time: '오후 3:24',
-    showAvatar: false,
-    showName: false,
-  },
-
-  {
-    id: 4,
-    type: 'other',
-    sender: '수현',
-    avatarColor: '#fb8c00',
-    avatarText: '수',
-    text: 'ㅋㅋ 진짜 오랜만! 다들 잘 지냈어?',
-    time: '오후 3:25',
-    showAvatar: true,
-    showName: true,
-  },
-
-  {
-    id: 5,
-    type: 'mine',
-    sender: '도희',
-    avatarColor: '#3B82F6',
-    avatarText: '도',
-    text: '안녕 다들! 나도 반가워 😊',
-    time: '오후 3:27',
-    showAvatar: false,
-    showName: false,
-  },
-  {
-    id: 6,
-    type: 'mine',
-    sender: '도희',
-    avatarColor: '#3B82F6',
-    avatarText: '도',
-    text: '나는 이번 주말 다 괜찮아~',
-    time: '오후 3:27',
-    unread: 2,
-    showAvatar: false,
-    showName: false,
-  },
-
-  // ── 오늘 ──
-  {
-    id: 101,
-    type: 'date',
-    text: '오늘',
-  },
-
-  {
-    id: 7,
-    type: 'other',
-    sender: '지원',
-    avatarColor: '#7c3aed',
-    avatarText: '지',
-    text: '나도 주말 좋아! 토요일 점심 어때?',
-    time: '오전 10:03',
-    showAvatar: true,
-    showName: true,
-  },
-
-  {
-    id: 8,
-    type: 'other',
-    sender: '민지',
-    avatarColor: '#e53935',
-    avatarText: '민',
-    text: '좋아좋아 👍 장소는 어디로 할까?',
-    time: '오전 10:05',
-    showAvatar: true,
-    showName: true,
-  },
-
-  {
-    id: 9,
-    type: 'other',
-    sender: '수현',
-    avatarColor: '#fb8c00',
-    avatarText: '수',
-    text: '강남역 근처 어때? 거기 새로 생긴 맛집 있다던데!',
-    time: '오전 10:08',
-    showAvatar: true,
-    showName: true,
-  },
-  {
-    id: 10,
-    type: 'other',
-    sender: '수현',
-    avatarColor: '#fb8c00',
-    avatarText: '수',
-    text: '이름이 뭐더라... 잠깐만 찾아볼게 📱',
-    time: '오전 10:08',
-    showAvatar: false,
-    showName: false,
-  },
-
-  {
-    id: 11,
-    type: 'mine',
-    sender: '도희',
-    avatarColor: '#3B82F6',
-    avatarText: '도',
-    text: '오 좋아~ 강남이면 접근성도 좋고!',
-    time: '오전 10:12',
-    unread: 3,
-    showAvatar: false,
-    showName: false,
-  },
-
-  {
-    id: 12,
-    type: 'other',
-    sender: '예은',
-    avatarColor: '#ec4899',
-    avatarText: '예',
-    text: '나도 갈게!! 🎉 몇 시에 볼까?',
-    time: '오전 10:15',
-    showAvatar: true,
-    showName: true,
-  },
-
-  {
-    id: 13,
-    type: 'other',
-    sender: '지원',
-    avatarColor: '#7c3aed',
-    avatarText: '지',
-    text: '12시 반이 좋을듯! 점심 같이 먹자',
-    time: '오전 10:18',
-    showAvatar: true,
-    showName: true,
-  },
-
-  {
-    id: 14,
-    type: 'mine',
-    sender: '도희',
-    avatarColor: '#3B82F6',
-    avatarText: '도',
-    text: '그래 그래~ 그럼 토요일 12시 반 강남역에서 만나자!',
-    time: '오전 10:20',
-    unread: 1,
-    showAvatar: false,
-    showName: false,
-  },
 ];
 
 const MY_USERNAME = '도희';
@@ -211,18 +35,48 @@ const getAvatarColor = (name: string) =>
   AVATAR_COLOR_MAP[name] ??
   `hsl(${[...name].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360},60%,50%)`;
 
+/** 게스트는 userId가 null이라 uuId로, 회원은 userId로 보낸 사람을 구분한다 */
+const getSenderKey = (stomp: Pick<StompMessage, 'userId' | 'uuId'>) =>
+  stomp.uuId ?? String(stomp.userId);
+
+/** 화면에 보여줄 보낸 사람 이름. 서버가 username을 주지 않으면 식별자로 대신한다 */
+const getSenderName = (stomp: Pick<StompMessage, 'userId' | 'uuId' | 'username'>) =>
+  stomp.username || getSenderKey(stomp);
+
+/** 메시지의 getSenderKey와 비교할 내 식별자 */
+const getMyChatKey = (enterData: EnterRoomResponse) =>
+  isLogin() ? String(enterData.loginedUserId) : (getStoredGuestUuid() ?? enterData.uuId);
+
+type ChatIdentity = { userId: number | null; uuId: string | null; username: string | null };
+
+const getMyIdentity = (enterData: EnterRoomResponse, guestUsername?: string): ChatIdentity => ({
+  userId: enterData.loginedUserId ?? null,
+  uuId: isLogin() ? null : (getStoredGuestUuid() ?? enterData.uuId),
+  username: isLogin() ? null : (guestUsername ?? null),
+});
+
+/**
+ * 서버는 게스트 메시지를 돌려줄 때 uuId 없이 토큰으로 찾은 userId·username만 채운다.
+ * 게스트는 자기 서버 userId를 모르므로 username으로 구분한다 (username은 서버에서 중복 불가).
+ */
+const isMyMessage = (stomp: Pick<StompMessage, 'userId' | 'uuId' | 'username'>, me: ChatIdentity) =>
+  (me.uuId != null && stomp.uuId === me.uuId) ||
+  (me.userId != null && stomp.userId != null && Number(stomp.userId) === me.userId) ||
+  (me.username != null && stomp.username === me.username);
+
 const stompMsgToMessage = (
   stomp: StompMessage,
   nextId: number,
-  myUsername: string,
+  me: ChatIdentity,
+  sentAt: Date = new Date(),
 ): Message | null => {
-  const time = new Date().toLocaleTimeString('ko-KR', {
+  const time = sentAt.toLocaleTimeString('ko-KR', {
     hour: 'numeric',
     minute: '2-digit',
     hour12: true,
   });
 
-  const userId = String(stomp.userId);
+  const userId = getSenderName(stomp);
 
   if (stomp.chatType === 'ENTER' || stomp.chatType === 'LEAVE') {
     return {
@@ -236,7 +90,7 @@ const stompMsgToMessage = (
   }
 
   if (stomp.chatType === 'CHAT' && stomp.message) {
-    const isMine = userId === myUsername;
+    const isMine = isMyMessage(stomp, me);
     return {
       id: nextId,
       type: isMine ? 'mine' : 'other',
@@ -256,10 +110,28 @@ const stompMsgToMessage = (
 export const ChatRoomPage = () => {
   const navigate = useNavigate();
   const { roomId } = useParams();
-  const [searchParams] = useSearchParams();
-  const username = searchParams.get('user') ?? MY_USERNAME;
+  const chatRoomId = Number(roomId);
+  const enterRoomQuery = useEnterRoomQuery(chatRoomId);
+  const enterData = enterRoomQuery.data;
+  // 내 메시지 구분용 식별자 (회원: userId, 게스트: uuId)
+  const username = enterData ? getMyChatKey(enterData) : MY_USERNAME;
+  // STOMP 본문: 회원은 userId만, 게스트는 userId null + uuId
+  const myUserId = enterData && isLogin() ? enterData.loginedUserId : null;
+  const guestUuid = enterData && !isLogin() ? getMyChatKey(enterData) : undefined;
+  // 수신 effect 의존성으로 쓰므로 객체 대신 원시값으로 둔다
+  const myIdentityUserId = enterData?.loginedUserId ?? null;
+  const myIdentityUuId = guestUuid ?? null;
+  // 마이페이지를 거치지 않고 바로 입장해도 이름이 있도록 채팅방에서 직접 조회한다 (회원/게스트 중 하나만 호출됨)
+  const { data: userInfo } = useUserInfoQuery();
+  const guestUsernameQuery = useGuestUsernameQuery(enterRoomQuery.isSuccess);
+  const guestUsername = guestUsernameQuery.data;
+  const myIdentityUsername = (!isLogin() && guestUsername) || null;
+  const myDisplayName = (isLogin() ? userInfo?.data.username : guestUsername) ?? username;
+  // 게스트는 username 등록이 끝난 뒤 연결해야 입장 메시지에 이름이 실린다. 등록에 실패해도 채팅은 연결한다
+  const isGuestUsernameSettled =
+    !!isLogin() || guestUsernameQuery.isSuccess || guestUsernameQuery.isError;
   const [activeTab, setActiveTab] = useState('chat');
-  const [messages, setMessages] = useState<Message[]>(DUMMY_MESSAGES);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
   const nextIdRef = useRef(300);
@@ -269,14 +141,28 @@ export const ChatRoomPage = () => {
     isConnected,
     sendMessage,
   } = useStompChat({
-    roomId: roomId ?? '',
-    username,
+    roomId: chatRoomId,
+    userId: myUserId,
+    uuId: guestUuid,
+    enabled: enterRoomQuery.isSuccess && isGuestUsernameSettled,
   });
 
-  // store 초기화 & 구독
+  // 입장 응답의 지난 대화로 store를 채운다
   useEffect(() => {
-    chatStore.setMessages(DUMMY_MESSAGES);
-  }, []);
+    if (enterRoomQuery.isError) {
+      chatStore.setMessages([{ id: 0, type: 'system', text: '채팅방 입장에 실패했어요.' }]);
+      return;
+    }
+    if (!enterData) return;
+
+    const me = getMyIdentity(enterData, guestUsername);
+    chatStore.setMessages(
+      (enterData.chatList ?? [])
+        // 실시간 메시지 id(양수)와 겹치지 않도록 지난 대화는 음수 id를 쓴다
+        .map((chat, index) => stompMsgToMessage(chat, -(index + 1), me, new Date(chat.inpDate)))
+        .filter((msg): msg is Message => msg !== null),
+    );
+  }, [enterData, enterRoomQuery.isError, guestUsername]);
 
   useEffect(() => {
     return chatStore.subscribe(() => {
@@ -288,10 +174,11 @@ export const ChatRoomPage = () => {
   useEffect(() => {
     if (stompMessages.length === 0) return;
     const latest = stompMessages[stompMessages.length - 1];
-    if (latest.chatType === 'CHAT' && String(latest.userId) === username) return;
-    const msg = stompMsgToMessage(latest, nextIdRef.current++, username);
+    const me = { userId: myIdentityUserId, uuId: myIdentityUuId, username: myIdentityUsername };
+    if (latest.chatType === 'CHAT' && isMyMessage(latest, me)) return;
+    const msg = stompMsgToMessage(latest, nextIdRef.current++, me);
     if (msg) chatStore.addMessage(msg);
-  }, [stompMessages, username]);
+  }, [stompMessages, myIdentityUserId, myIdentityUuId, myIdentityUsername]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -303,9 +190,9 @@ export const ChatRoomPage = () => {
 
     chatStore.addMessage({
       type: 'mine',
-      sender: username,
-      avatarColor: getAvatarColor(MY_USERNAME),
-      avatarText: MY_USERNAME[0],
+      sender: myDisplayName,
+      avatarColor: getAvatarColor(myDisplayName),
+      avatarText: myDisplayName[0],
       text,
       time: new Date().toLocaleTimeString('ko-KR', {
         hour: 'numeric',
