@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useLoginMutation } from '@/api/query/auth';
 import { AppBar } from '@/ui/appbar/app-bar';
@@ -7,9 +7,12 @@ import { Button } from '@/ui/button/button';
 import { PageLayout } from '@/ui/layout/page-layout';
 import { Spacer } from '@/ui/spacer/spacer';
 import { getSafeRedirect } from '@/utils/invite-link';
-import { LOCAL_STORAGE, clearGuestToken } from '@/utils/isLogin';
+import { LOCAL_STORAGE, clearGuestToken, isLogin } from '@/utils/isLogin';
 
 import * as styles from './page.css';
+
+/** 로그인 후 기본 진입 화면. redirect 쿼리가 없을 때 이동한다 */
+const MAIN_PATH = '/';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
@@ -19,6 +22,7 @@ export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const redirectPath = getSafeRedirect(searchParams.get('redirect')) ?? MAIN_PATH;
   const canSubmit = !!email && !!password && !loginMutation.isPending;
 
   const handleLogin = () => {
@@ -30,11 +34,15 @@ export const LoginPage = () => {
           localStorage.setItem(LOCAL_STORAGE.ACCESS_TOKEN, data.accessToken);
           localStorage.setItem(LOCAL_STORAGE.REFRESH_TOKEN, data.refreshToken);
           clearGuestToken();
-          navigate(getSafeRedirect(searchParams.get('redirect')) ?? '/create-meeting');
+          // 뒤로가기로 로그인 폼에 다시 돌아오지 않도록 히스토리를 교체한다
+          navigate(redirectPath, { replace: true });
         },
       },
     );
   };
+
+  // 이미 로그인한 사용자는 로그인 폼을 보여주지 않고 바로 보낸다
+  if (isLogin()) return <Navigate replace to={redirectPath} />;
 
   return (
     <PageLayout

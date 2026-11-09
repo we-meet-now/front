@@ -6,6 +6,7 @@ import { Button } from '@/ui/button/button';
 import { PageLayout } from '@/ui/layout/page-layout';
 import { Popup } from '@/ui/popup/popup';
 import { cx } from '@/ui/utils';
+import { isLogin } from '@/utils/isLogin';
 
 import * as styles from './page.css';
 
@@ -373,14 +374,19 @@ export const OnBoardingPage = () => {
         </button>
         <span className={styles.guestCaption}>회원가입 없이 바로 써볼 수 있어요</span>
 
-        <div className={styles.loginDivider} />
+        {/* 로그인한 사용자에게는 로그인 유도 영역을 보여주지 않는다 */}
+        {!isLogin() && (
+          <>
+            <div className={styles.loginDivider} />
 
-        <div className={styles.loginRow}>
-          이미 계정이 있으신가요?
-          <button type="button" className={styles.loginLink} onClick={() => navigate('/login')}>
-            로그인
-          </button>
-        </div>
+            <div className={styles.loginRow}>
+              이미 계정이 있으신가요?
+              <button type="button" className={styles.loginLink} onClick={() => navigate('/login')}>
+                로그인
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
       {isJoinPopupOpen && (
