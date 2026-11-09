@@ -79,8 +79,7 @@ export const Router = () => {
           <Route path="gallery" element={<GalleryPage />} />
         </Route>
 
-        {/* 채팅 라우팅 */}
-        <Route path="chat" element={<ChatPage />} />
+        {/* 채팅방 라우팅 */}
         <Route path="room/:roomId/chat" element={<ChatRoomPage />} />
         <Route path="room/:roomId/ai" element={<AiManagerPage />} />
         <Route path="room/:roomId/calendar" element={<ChatCalendarPage />} />
