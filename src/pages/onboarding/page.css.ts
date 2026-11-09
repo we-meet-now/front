@@ -1,17 +1,44 @@
-import { style } from '@vanilla-extract/css';
+import { createVar, fallbackVar, globalStyle, style } from '@vanilla-extract/css';
 
 import { vars } from '@/ui/theme.css';
+
+/** 세로가 짧은 기기(iPhone SE 등)에서 상단 영역을 줄이는 기준 높이 */
+const SHORT_SCREEN = 'screen and (max-height: 740px)';
+
+/**
+ * 카드 가로 폭. 이미지가 1:1이라 카드 높이도 이 값에 비례하므로
+ * 화면 가로(좌우 여백 24px씩)와 세로(카드 외 영역 약 380px) 중 작은 쪽에 맞추고,
+ * 최대 327px(기본 디자인), 최소 200px로 제한한다.
+ */
+const cardWidth = createVar();
+const CARD_WIDTH_VH = 'min(327px, calc(100vw - 48px), max(200px, calc(100vh - 380px)))';
+const CARD_WIDTH_DVH = 'min(327px, calc(100vw - 48px), max(200px, calc(100dvh - 380px)))';
 
 export const onboarding = style({
   background: vars.color.grey100,
   display: 'flex',
   flexDirection: 'column',
   padding: '40px 20px 20px 20px',
+  vars: { [cardWidth]: CARD_WIDTH_VH },
+  '@supports': {
+    '(height: 100dvh)': { vars: { [cardWidth]: CARD_WIDTH_DVH } },
+  },
+  '@media': {
+    [SHORT_SCREEN]: { paddingTop: 20 },
+  },
 });
 
 export const logo = style({
   display: 'flex',
   justifyContent: 'center',
+});
+
+globalStyle(`${logo} svg`, {
+  width: 100,
+  height: 100,
+  '@media': {
+    [SHORT_SCREEN]: { width: 64, height: 64 },
+  },
 });
 
 export const title = style({
@@ -31,12 +58,18 @@ export const subtitle = style({
 export const cardBox = style({
   display: 'flex',
   flexDirection: 'row',
+  // 세로 flex 안에서 화면이 짧으면 캐러셀이 줄어들며 카드가 잘리므로 높이를 유지한다
+  flexShrink: 0,
   marginTop: 24,
   gap: 12,
   overflowX: 'auto',
   paddingBottom: 8,
-  paddingLeft: 'calc(50% - 163.5px)',
-  paddingRight: 'calc(50% - 163.5px)',
+  // 첫/마지막 카드도 가운데 정렬되도록 카드 폭의 절반만큼 여백을 둔다
+  paddingLeft: `calc(50% - ${fallbackVar(cardWidth, '327px')} / 2)`,
+  paddingRight: `calc(50% - ${fallbackVar(cardWidth, '327px')} / 2)`,
+  '@media': {
+    [SHORT_SCREEN]: { marginTop: 16 },
+  },
   scrollSnapType: 'x mandatory',
   cursor: 'grab',
   userSelect: 'none',
@@ -49,7 +82,7 @@ export const cardBox = style({
 
 export const card = style({
   background: vars.color.white,
-  width: 327,
+  width: fallbackVar(cardWidth, '327px'),
   flexShrink: 0,
   padding: 16,
   borderRadius: 12,
@@ -112,6 +145,9 @@ export const cardDesc = style({
 
 export const buttonContainer = style({
   marginTop: 24,
+  '@media': {
+    [SHORT_SCREEN]: { marginTop: 16 },
+  },
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
