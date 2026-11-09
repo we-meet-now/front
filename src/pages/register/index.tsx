@@ -102,6 +102,23 @@ export const RegisterPage = () => {
     );
   };
 
+  /** 이메일을 바꾸면 이전 이메일로 받은 인증 상태·가입 오류는 더 이상 유효하지 않으므로 초기화한다 */
+  const resetEmailVerification = () => {
+    setSendStatus('idle');
+    setVerifyStatus('idle');
+    setCode('');
+    sendEmailMutation.reset();
+    verifyEmailMutation.reset();
+    joinMutation.reset();
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    if (sendStatus !== 'idle' || verifyStatus !== 'idle' || joinMutation.isError) {
+      resetEmailVerification();
+    }
+  };
+
   const handleSendCode = async () => {
     if (!email || sendStatus === 'loading') return;
     setSendStatus('loading');
@@ -133,7 +150,7 @@ export const RegisterPage = () => {
     : sendStatus === 'sent'
       ? '재발송'
       : '인증번호 발송';
-  const sendButtonDisabled = isSending || emailVerified;
+  const sendButtonDisabled = isSending || !email;
 
   return (
     <PageLayout
@@ -220,18 +237,30 @@ export const RegisterPage = () => {
                 type="email"
                 placeholder="example@email.com"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => handleEmailChange(e.target.value)}
                 disabled={emailVerified}
               />
-              <button
-                className={
-                  sendButtonDisabled ? styles.verifyButtonDisabled : styles.verifyButtonActive
-                }
-                onClick={handleSendCode}
-                disabled={sendButtonDisabled}
-              >
-                {sendButtonLabel}
-              </button>
+              {emailVerified ? (
+                // 인증 후 가입이 실패(이미 가입된 이메일 등)해도 다른 이메일로 바꿀 수 있도록 잠금을 푼다
+                <button
+                  type="button"
+                  className={styles.verifyButtonActive}
+                  onClick={resetEmailVerification}
+                >
+                  이메일 변경
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className={
+                    sendButtonDisabled ? styles.verifyButtonDisabled : styles.verifyButtonActive
+                  }
+                  onClick={handleSendCode}
+                  disabled={sendButtonDisabled}
+                >
+                  {sendButtonLabel}
+                </button>
+              )}
             </div>
             {sendStatus === 'error' && (
               <span className={styles.errorText}>
