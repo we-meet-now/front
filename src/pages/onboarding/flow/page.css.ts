@@ -87,3 +87,16 @@ export const footer = style({
   alignItems: 'center',
   gap: 12,
 });
+
+export const navRow = style({
+  display: 'flex',
+  gap: 8,
+  width: 327,
+  maxWidth: '100%',
+});
+
+/** 이전/다음을 한 줄에 나눠 담기 위해 l 사이즈 버튼의 최소 폭(327px)을 해제한다 */
+export const navButton = style({
+  flex: 1,
+  minWidth: '0 !important',
+});
