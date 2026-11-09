@@ -7,7 +7,11 @@ import {
   type MiddlePointResponse,
   fetchMiddlePoint,
 } from '@/api/create-meeting/middle-point';
-import { type PlaceSearchResponse, fetchSearchPlaces } from '@/api/create-meeting/place';
+import {
+  type PlaceSearchResponse,
+  fetchSearchPlaces,
+  shouldRetryPlaceSearch,
+} from '@/api/create-meeting/place';
 
 export const useRecommendTypes = (date?: string, time?: string) => {
   return useQuery<RecommendResponse>({
@@ -29,8 +33,17 @@ export const usePlaceSearch = (
 ) => {
   return useQuery<PlaceSearchResponse>({
     queryKey: ['placeSearch', date, time, meetingType, loc],
-    queryFn: () => fetchSearchPlaces({ date, time, meetingType, loc: loc ?? '' }),
+    // 서버(PlaceRequest)는 네 필드가 모두 필수 문자열이다. undefined는 JSON에서 키가 빠져 422가 나므로
+    // 미정인 값은 빈 문자열로 보낸다 (meeting-types API와 같은 규칙)
+    queryFn: () =>
+      fetchSearchPlaces({
+        date: date ?? '',
+        time: time ?? '',
+        meetingType: meetingType ?? '',
+        loc: loc ?? '',
+      }),
     enabled: !!loc,
+    retry: shouldRetryPlaceSearch,
   });
 };
 

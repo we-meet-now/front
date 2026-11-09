@@ -1,4 +1,4 @@
-import { style } from '@vanilla-extract/css';
+import { keyframes, style } from '@vanilla-extract/css';
 
 import { vars } from '@/ui/theme.css';
 
@@ -78,20 +78,29 @@ export const description = style({
   color: vars.color.grey500,
 });
 
-export const aiBox = style({
-  width: '80%',
-  padding: '16px',
-  borderRadius: 12,
-  backgroundColor: vars.color.green50,
-  color: vars.color.green700,
-  fontSize: vars.fontSize.s,
+export const retryButton = style({
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  color: 'inherit',
+  fontSize: 'inherit',
   fontWeight: vars.fontWeight.bold,
+  textDecoration: 'underline',
+  textUnderlineOffset: 2,
+  cursor: 'pointer',
 });
 
-export const aiSub = style({
-  fontSize: vars.fontSize.xs,
-  marginTop: 4,
-  fontWeight: vars.fontWeight.regular,
+const shimmer = keyframes({
+  '0%': { backgroundPosition: '100% 0' },
+  '100%': { backgroundPosition: '-100% 0' },
+});
+
+export const skeletonCard = style({
+  height: 74,
+  borderRadius: 14,
+  background: `linear-gradient(90deg, ${vars.color.grey100} 25%, ${vars.color.grey200} 50%, ${vars.color.grey100} 75%)`,
+  backgroundSize: '200% 100%',
+  animation: `${shimmer} 1.2s ease-in-out infinite`,
 });
 
 export const cardList = style({
@@ -134,13 +143,26 @@ export const cardDesc = style({
 
 export const moreButton = style({
   width: '80%',
-  padding: '14px',
-  borderRadius: 12,
-  border: `1px dashed ${vars.color.grey400}`,
-  textAlign: 'center',
+  marginTop: -13,
+  padding: '10px',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: 4,
+  background: 'none',
+  border: 'none',
   fontSize: vars.fontSize.s,
+  fontWeight: vars.fontWeight.medium,
   color: vars.color.grey600,
   cursor: 'pointer',
+});
+
+export const moreIcon = style({
+  transition: 'transform 0.2s ease',
+});
+
+export const moreIconOpen = style({
+  transform: 'rotate(180deg)',
 });
 
 export const directBox = style({
@@ -160,10 +182,23 @@ export const directInput = style({
   padding: '0 12px',
   borderRadius: 10,
   border: `1px solid ${vars.color.grey400}`,
+  fontSize: vars.fontSize.m,
+  color: vars.color.grey900,
+  selectors: {
+    '&::placeholder': {
+      color: vars.color.grey400,
+    },
+  },
 });
 
 export const footer = style({
   width: '80%',
   display: 'flex',
   gap: 12,
+});
+
+/** l 사이즈 버튼의 최소 폭(327px)이 footer(화면의 80%)보다 커서 오른쪽으로 밀리므로 footer 폭에 맞춘다 */
+export const nextButton = style({
+  width: '100%',
+  minWidth: '0 !important',
 });

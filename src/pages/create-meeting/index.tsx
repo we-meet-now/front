@@ -54,7 +54,14 @@ export const CreateMeetingPage = () => {
 
   return (
     <PageLayout
-      header={<AppBar title="모임 만들기" showBackButton onBackClick={() => navigate(-1)} />}
+      header={
+        <AppBar
+          title="모임 만들기"
+          showBackButton
+          // 2단계부터는 페이지를 나가지 않고 바로 이전 단계로 돌아간다
+          onBackClick={() => (funnel.isFirst ? navigate(-1) : funnel.goPrev())}
+        />
+      }
     >
       {funnel.step === 'time' && (
         <TimeStep value={form} onChange={updateForm} onNext={funnel.goNext} />

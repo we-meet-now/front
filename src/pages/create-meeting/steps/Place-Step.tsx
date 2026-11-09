@@ -1,11 +1,13 @@
 import { useState } from 'react';
 
+import { describePlaceSearchError } from '@/api/create-meeting/place';
 import { usePlaceSearch } from '@/api/query/create-meeting';
 import { Button } from '@/ui/button/button';
 import { cx } from '@/ui/utils';
 
 import type { CreateMeetingForm } from '../types';
 
+import * as aiStyles from './ai-status.css';
 import * as styles from './place.css';
 
 type Props = {
@@ -39,11 +41,27 @@ const PLACE_OPTIONS = [
 
 type PlaceMode = (typeof PLACE_OPTIONS)[number]['key'];
 
-export const PlaceStep = ({ value, onChange, onSubmit, isSubmitting }: Props) => {
+const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
+
+/** "2026-12-01" → "12월 1일 (화)". new Date("YYYY-MM-DD")는 UTC로 해석돼 날짜가 밀릴 수 있어 로컬 기준으로 만든다 */
+const formatDate = (date: string) => {
+  const [y, m, d] = date.split('-').map(Number);
+  if (!y || !m || !d) return date;
+  const weekday = WEEKDAYS[new Date(y, m - 1, d).getDay()];
+  return `${m}월 ${d}일 (${weekday})`;
+};
+
+/** 1단계에서 날짜·시간 중 하나만 정할 수도 있어 빠진 쪽은 '미정'으로 보여준다 */
+const formatSchedule = ({ timeType, date, time }: CreateMeetingForm) => {
+  if (timeType === 'custom' || (!date && !time)) return '채팅방에서 투표로 정해요';
+  return [date ? formatDate(date) : '날짜 미정', time || '시간 미정'].join(' · ');
+};
+
+export const PlaceStep = ({ value, onChange, onPrev, onSubmit, isSubmitting }: Props) => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [submittedKeyword, setSubmittedKeyword] = useState('');
 
-  const { data, isLoading } = usePlaceSearch(
+  const { data, isLoading, isError, error, isFetching, refetch } = usePlaceSearch(
     value.date,
     value.time,
     value.meetingType,
@@ -51,6 +69,9 @@ export const PlaceStep = ({ value, onChange, onSubmit, isSubmitting }: Props) =>
   );
 
   const places = data ?? [];
+  const errorInfo = isError ? describePlaceSearchError(error) : null;
+  // 검색이 끝났는데 결과가 비어 있는 경우도 안내해야 사용자가 다음 행동을 알 수 있다
+  const isEmptyResult = !!submittedKeyword && !isFetching && !isError && data?.length === 0;
 
   const isNextDisabled = value.placeMode === 'vote' ? false : !value.place;
 
@@ -92,6 +113,27 @@ export const PlaceStep = ({ value, onChange, onSubmit, isSubmitting }: Props) =>
       <div className={styles.titleBox}>
         <div className={styles.title}>어디에서 만나나요? 📍</div>
         <div className={styles.description}>모임 장소를 선택해주세요</div>
+      </div>
+
+      {/* 앞 단계에서 고른 내용. 장소 추천도 이 값을 기준으로 한다 */}
+      <div className={styles.summaryBox}>
+        {/* 변경 버튼을 제목 줄에 두어 아래 값들이 영역 폭을 모두 쓰게 한다 */}
+        <div className={styles.summaryHeader}>
+          <span className={styles.summaryTitle}>선택한 내용</span>
+          <button type="button" className={styles.summaryEdit} onClick={onPrev}>
+            변경
+          </button>
+        </div>
+        <dl className={styles.summaryList}>
+          <div className={styles.summaryRow}>
+            <dt className={styles.summaryLabel}>모임 유형</dt>
+            <dd className={styles.summaryValue}>{value.meetingType}</dd>
+          </div>
+          <div className={styles.summaryRow}>
+            <dt className={styles.summaryLabel}>일정</dt>
+            <dd className={styles.summaryValue}>{formatSchedule(value)}</dd>
+          </div>
+        </dl>
       </div>
 
       <div className={styles.cardList}>
@@ -137,11 +179,46 @@ export const PlaceStep = ({ value, onChange, onSubmit, isSubmitting }: Props) =>
         </div>
       )}
 
-      {isLoading && value.placeMode === 'ai' && (
-        <div style={{ marginTop: 12 }}>🤖 AI가 추천 장소를 찾고 있어요...</div>
+      {/* 2단계와 같은 AI 추천 박스로 진행 중/완료 상태를 보여준다. 실패·빈 결과는 아래 안내 박스가 맡는다 */}
+      {value.placeMode === 'ai' && submittedKeyword && (isFetching || places.length > 0) && (
+        <div className={aiStyles.aiBox} aria-live="polite">
+          <div className={aiStyles.aiHeader}>
+            <span>🤖 모임 AI 매니저의 추천</span>
+            {isFetching ? (
+              <span className={cx(aiStyles.statusBadge, aiStyles.statusLoading)}>
+                <span className={aiStyles.spinner} aria-hidden />
+                추천 중
+              </span>
+            ) : (
+              <span className={cx(aiStyles.statusBadge, aiStyles.statusDone)}>✓ 추천 완료</span>
+            )}
+          </div>
+          <div className={aiStyles.aiSub}>
+            {isFetching
+              ? `${submittedKeyword} 근처에서 모임에 어울리는 장소를 찾고 있어요...`
+              : `${submittedKeyword} 근처에서 모임 유형과 일정에 맞는 ${places.length}곳을 골랐어요.`}
+          </div>
+        </div>
       )}
 
-      {places.length > 0 && (
+      {errorInfo && !isFetching && (
+        <div className={styles.feedbackBox} role="alert">
+          <div className={styles.feedbackTitle}>{errorInfo.title}</div>
+          <div className={styles.feedbackDesc}>{errorInfo.description}</div>
+          <button type="button" className={styles.retryButton} onClick={() => refetch()}>
+            다시 시도
+          </button>
+        </div>
+      )}
+
+      {isEmptyResult && (
+        <div className={styles.feedbackBox} role="status">
+          <div className={styles.feedbackTitle}>추천할 장소가 없어요</div>
+          <div className={styles.feedbackDesc}>근처 역이나 동네 이름으로 다시 검색해 주세요</div>
+        </div>
+      )}
+
+      {places.length > 0 && !isFetching && (
         <div className={styles.resultList}>
           {places.map((place) => (
             <div
@@ -150,18 +227,29 @@ export const PlaceStep = ({ value, onChange, onSubmit, isSubmitting }: Props) =>
               onClick={() => onChange({ place: place.name })}
             >
               <span className={styles.resultCardTitle}>
-                {value.placeMode === 'ai' && <span className={styles.aiBadge}>다양한 선택지</span>}
+                {/* 서버가 업종을 내려줄 때만 배지로 보여준다. 모든 카드에 같은 문구를 붙이면 정보가 되지 않는다 */}
+                {place.category && <span className={styles.aiBadge}>{place.category}</span>}
                 {place.name}
               </span>
               <span className={styles.resultCardAddress}>{place.address}</span>
-              <div className={styles.resultCardComment}>{place.comment}</div>
+              {place.comment && (
+                <div className={styles.resultCardComment}>
+                  <span className={styles.commentLabel}>추천 이유</span>
+                  {place.comment}
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
       <div className={styles.footer}>
-        <Button size="l" onClick={onSubmit} disabled={isNextDisabled || isSubmitting}>
+        <Button
+          size="l"
+          onClick={onSubmit}
+          disabled={isNextDisabled || isSubmitting}
+          className={styles.submitButton}
+        >
           {isSubmitting ? '생성 중...' : '모임 생성'}
         </Button>
       </div>

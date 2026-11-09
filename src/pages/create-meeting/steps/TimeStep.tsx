@@ -13,7 +13,8 @@ type Props = {
 
 export const TimeStep = ({ value, onChange, onNext }: Props) => {
   const timeType = value.timeType ?? 'date';
-  const isDateValid = Boolean(value.date && value.time);
+  // 날짜와 시간 중 하나만 정해져도 모임을 만들 수 있다
+  const isDateValid = Boolean(value.date || value.time);
 
   const isNextDisabled = timeType === 'date' ? !isDateValid : false; // custom이면 항상 가능
 

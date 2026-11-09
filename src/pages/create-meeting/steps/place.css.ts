@@ -196,3 +196,111 @@ export const selectedResult = style({
   borderColor: vars.color.blue500,
   backgroundColor: vars.color.blue50,
 });
+
+export const feedbackBox = style({
+  width: '80%',
+  padding: 16,
+  borderRadius: 12,
+  backgroundColor: vars.color.grey100,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: 4,
+  textAlign: 'center',
+});
+
+export const feedbackTitle = style({
+  fontSize: vars.fontSize.s,
+  fontWeight: vars.fontWeight.bold,
+  color: vars.color.grey900,
+});
+
+export const feedbackDesc = style({
+  fontSize: vars.fontSize.xs,
+  color: vars.color.grey600,
+});
+
+export const retryButton = style({
+  marginTop: 8,
+  padding: '6px 14px',
+  borderRadius: 999,
+  border: `1px solid ${vars.color.grey300}`,
+  backgroundColor: vars.color.white,
+  fontSize: vars.fontSize.xs,
+  fontWeight: vars.fontWeight.medium,
+  color: vars.color.grey700,
+  cursor: 'pointer',
+});
+
+/** l 사이즈 버튼의 최소 폭(327px)이 footer(화면의 80%)보다 커서 오른쪽으로 밀리므로 footer 폭에 맞춘다 */
+export const submitButton = style({
+  width: '100%',
+  minWidth: '0 !important',
+});
+
+export const summaryBox = style({
+  width: '80%',
+  padding: '12px 16px',
+  borderRadius: 12,
+  backgroundColor: vars.color.grey100,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8,
+});
+
+export const summaryHeader = style({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+});
+
+export const summaryTitle = style({
+  fontSize: vars.fontSize.xs,
+  fontWeight: vars.fontWeight.bold,
+  color: vars.color.grey600,
+});
+
+export const summaryList = style({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+});
+
+export const summaryRow = style({
+  display: 'flex',
+  gap: 12,
+  fontSize: vars.fontSize.s,
+});
+
+export const summaryLabel = style({
+  flexShrink: 0,
+  width: 56,
+  color: vars.color.grey500,
+});
+
+export const summaryValue = style({
+  minWidth: 0,
+  color: vars.color.grey900,
+  fontWeight: vars.fontWeight.medium,
+  // 좁은 화면에서도 일정이 잘리지 않도록 단어 단위로 줄바꿈한다
+  wordBreak: 'keep-all',
+});
+
+/** 제목 줄 높이를 늘리지 않도록 테두리 없는 텍스트 버튼으로 둔다 */
+export const summaryEdit = style({
+  padding: '2px 0',
+  background: 'none',
+  border: 'none',
+  fontSize: vars.fontSize.xs,
+  fontWeight: vars.fontWeight.medium,
+  color: vars.color.blue500,
+  textDecoration: 'underline',
+  textUnderlineOffset: 2,
+  cursor: 'pointer',
+});
+
+export const commentLabel = style({
+  marginRight: 6,
+  fontWeight: vars.fontWeight.bold,
+  color: vars.color.green700,
+});

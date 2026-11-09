@@ -1,10 +1,11 @@
-import { apiClient } from '../client';
+import { ApiError, apiClient } from '../client';
 import { AI_URL, API_MODE } from '../config';
 
+/** 서버 스키마상 모두 필수다. 미정인 값은 빈 문자열로 보낸다 */
 export type PlaceSearchRequest = {
-  date?: string;
-  time?: string;
-  meetingType?: string;
+  date: string;
+  time: string;
+  meetingType: string;
   loc: string;
 };
 
@@ -50,4 +51,32 @@ export const fetchSearchPlaces = async (body: PlaceSearchRequest): Promise<Place
     body,
     baseUrl: AI_URL,
   });
+};
+
+/** 입력값·요청 형식 문제(4xx)는 다시 보내도 같은 결과라 재시도하지 않는다 */
+export const shouldRetryPlaceSearch = (failureCount: number, error: unknown) => {
+  if (error instanceof ApiError && error.status >= 400 && error.status < 500) return false;
+  return failureCount < 2;
+};
+
+/** 화면에 그대로 노출할 수 있는 실패 안내 문구로 변환한다. */
+export const describePlaceSearchError = (error: unknown) => {
+  if (error instanceof ApiError) {
+    switch (error.status) {
+      case 400:
+      case 422:
+        return {
+          title: '검색 조건을 확인해 주세요',
+          description: '지역 이름을 다르게 입력해서 다시 검색해 주세요',
+        };
+      case 404:
+        return {
+          title: '추천할 장소를 찾지 못했어요',
+          description: '근처 역이나 동네 이름으로 다시 검색해 주세요',
+        };
+      case 503:
+        return { title: '지금은 추천할 수 없어요', description: '잠시 후 다시 시도해 주세요' };
+    }
+  }
+  return { title: '장소를 추천받지 못했어요', description: '잠시 후 다시 시도해 주세요' };
 };
