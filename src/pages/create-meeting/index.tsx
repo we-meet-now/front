@@ -1,6 +1,6 @@
 // src/pages/create-meeting/index.tsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 import { useCreateChatRoomMutation } from '@/api/query/chat';
 import { AppBar } from '@/ui/appbar/app-bar';
@@ -14,7 +14,19 @@ import { TypeStep } from './steps/TypeStep';
 import type { CreateMeetingForm, FunnelStep } from './types';
 import { useFunnel } from './useFunnel';
 
+const LOGIN_PATH = `/login?redirect=${encodeURIComponent('/create-meeting')}`;
+
+/**
+ * 방 생성은 회원(방장)만 가능하므로 입력을 시작하기 전에 로그인부터 확인한다.
+ * 루트·마이페이지·온보딩 등 어디서 들어오든 여기서 걸러지고, 로그인 후 다시 이 화면으로 돌아온다.
+ * 히스토리를 교체해 로그인 화면에서 뒤로가기 시 이전 화면(루트 등)으로 돌아가게 한다.
+ */
 export const CreateMeetingPage = () => {
+  if (!isLogin()) return <Navigate replace to={LOGIN_PATH} />;
+  return <CreateMeetingFunnel />;
+};
+
+const CreateMeetingFunnel = () => {
   const funnel = useFunnel<FunnelStep>(['time', 'type', 'place']);
 
   const [form, setForm] = useState<CreateMeetingForm>({});
@@ -30,9 +42,10 @@ export const CreateMeetingPage = () => {
   const handleSubmit = () => {
     if (createChatRoomMutation.isPending) return;
 
-    // 방 생성은 회원(방장)만 가능하다. 게스트 토큰으로 방이 만들어지지 않도록 회원 토큰을 확인한다
+    // 입력 중 다른 탭에서 로그아웃하는 등 토큰이 사라진 경우를 대비해 생성 직전에도 확인한다.
+    // 게스트 토큰으로 방이 만들어지지 않도록 회원 토큰만 인정한다
     if (!isLogin()) {
-      navigate(`/login?redirect=${encodeURIComponent('/create-meeting')}`);
+      navigate(LOGIN_PATH);
       return;
     }
 
