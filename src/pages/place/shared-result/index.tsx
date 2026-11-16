@@ -4,6 +4,8 @@ import { type PlaceSearchType } from '@/api/create-meeting/place';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { PageLayout } from '@/ui/layout/page-layout';
 
+import { loadGuestProfile } from '../guest-session';
+
 import * as styles from '../page.css';
 
 const PIN_POSITIONS = [
@@ -17,7 +19,7 @@ export const GuestSharedResultPage = () => {
 
   const rawPlaces = sessionStorage.getItem('guest_selected_places');
   const places: PlaceSearchType[] = rawPlaces ? JSON.parse(rawPlaces) : [];
-  const nickname = sessionStorage.getItem('guest_nickname') ?? '익명이';
+  const nickname = loadGuestProfile().nickname ?? '익명이';
   const midpoint = sessionStorage.getItem('guest_midpoint') ?? '강남역';
 
   return (

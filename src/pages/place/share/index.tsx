@@ -9,6 +9,8 @@ import { PageLayout } from '@/ui/layout/page-layout';
 import { Toast } from '@/ui/toast/toast';
 import { cx } from '@/ui/utils';
 
+import { loadGuestProfile, saveGuestProfile } from '../guest-session';
+
 import * as styles from '../page.css';
 
 const NICK_COUNT = 4;
@@ -23,7 +25,10 @@ export const GuestSharePage = () => {
   const [isSearchOpen, setSearchOpen] = useState(false);
   const [showLocationError, setShowLocationError] = useState(false);
   // null이면 아직 사용자가 고르거나 입력하지 않은 상태 → 추천 목록 첫 번째를 쓴다
-  const [pickedNickname, setPickedNickname] = useState<string | null>(null);
+  // 현황 화면에서 돌아온 경우 이전에 입력한 닉네임을 이어서 보여준다
+  const [pickedNickname, setPickedNickname] = useState<string | null>(
+    () => loadGuestProfile().nickname,
+  );
 
   const { data: randomNicks } = useRandomNicknames(NICK_COUNT);
   const nickPresets = randomNicks?.length ? randomNicks : FALLBACK_NICKS;
@@ -33,8 +38,11 @@ export const GuestSharePage = () => {
 
   const handleNext = () => {
     if (!departure) return;
-    sessionStorage.setItem('guest_nickname', nickname);
-    sessionStorage.setItem('guest_departure', departure.address);
+    // 입력창을 비워 둔 채 진행하면 추천 닉네임을 쓴다
+    saveGuestProfile({
+      nickname: nickname.trim() || nickPresets[0],
+      departure: departure.address,
+    });
     setStep('share');
   };
 
