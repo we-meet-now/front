@@ -10,7 +10,7 @@ import { useMiddlePoint } from '@/api/query/create-meeting';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { PageLayout } from '@/ui/layout/page-layout';
 
-import { saveMidpoint, saveStartInfos } from '../guest-session';
+import { loadGuestProfile, saveMidpoint, saveStartInfos } from '../guest-session';
 import { formatStationName, toBoxPosition } from '../midpoint-calc';
 
 import * as styles from '../page.css';
@@ -23,19 +23,29 @@ const NO_LOCATION = '위치 미입력';
 /** 중간위치 화면은 목적지 종류를 아직 고르기 전이라 기본값인 지하철역으로 찾는다. */
 const MEETING_TYPE = '지하철' as const;
 
+/** 이전 화면에서 닉네임을 저장하지 못했을 때(직접 진입 등) 쓰는 이름 */
+const FALLBACK_NICKNAME = '익명이';
+
 type Member = {
   name: string;
   region: string;
   color: string;
+  isMe?: boolean;
 };
 
-const INITIAL_MEMBERS: Member[] = [
-  {
-    name: sessionStorage.getItem('guest_nickname') ?? '익명이 (나)',
-    region: sessionStorage.getItem('guest_departure') ?? NO_LOCATION,
+/**
+ * 공유 화면에서 입력한 내 정보를 참여자 첫 줄로 만든다.
+ * 모듈 최상단에서 읽으면 앱 시작 시점(입력 전) 값으로 굳어 버리므로 화면 진입 시 읽는다.
+ */
+const createMe = (): Member => {
+  const { nickname, departure } = loadGuestProfile();
+  return {
+    name: nickname ?? FALLBACK_NICKNAME,
+    region: departure ?? NO_LOCATION,
     color: AVATAR_COLORS[0],
-  },
-];
+    isMe: true,
+  };
+};
 
 const EXTRA_MEMBERS: Member[] = [
   { name: '토끼', region: '서울시 마포구', color: AVATAR_COLORS[1] },
@@ -61,8 +71,14 @@ const buildRequest = (members: Member[]): MiddlePointRequest | null => {
 
 export const GuestStatusPage = () => {
   const navigate = useNavigate();
-  const [members, setMembers] = useState<Member[]>(INITIAL_MEMBERS);
+  const [members, setMembers] = useState<Member[]>(() => [createMe()]);
   const [extraIdx, setExtraIdx] = useState(0);
+
+  // 닉네임이 겹치면 목록 key와 소요시간 매칭이 꼬이므로 내 닉네임과 같은 시뮬레이션 인원은 뺀다
+  const extraMembers = useMemo(
+    () => EXTRA_MEMBERS.filter((extra) => extra.name !== members[0].name),
+    [members],
+  );
 
   const request = useMemo(() => buildRequest(members), [members]);
   const { data, error, isPending, isError } = useMiddlePoint(request);
@@ -82,8 +98,8 @@ export const GuestStatusPage = () => {
   }, [request]);
 
   const handleAddSimulation = () => {
-    if (extraIdx >= EXTRA_MEMBERS.length) return;
-    setMembers((prev) => [...prev, EXTRA_MEMBERS[extraIdx]]);
+    if (extraIdx >= extraMembers.length) return;
+    setMembers((prev) => [...prev, extraMembers[extraIdx]]);
     setExtraIdx((i) => i + 1);
   };
 
@@ -170,12 +186,6 @@ export const GuestStatusPage = () => {
         {/* 지도 목업 */}
         <div className={styles.mockMap}>{renderMapContent()}</div>
 
-        {data?.warnings?.map((warning) => (
-          <div key={warning} className={styles.noticeBoxGrey} style={{ marginTop: 10 }}>
-            {warning}
-          </div>
-        ))}
-
         <div className={styles.sectionTitle}>입력한 사람</div>
         {members.map((m) => (
           <div key={m.name} className={styles.memberRow}>
@@ -183,7 +193,10 @@ export const GuestStatusPage = () => {
               {m.name[0]}
             </div>
             <div className={styles.memberInfo}>
-              <div className={styles.memberName}>{m.name}</div>
+              <div className={styles.memberName}>
+                {m.name}
+                {m.isMe && ' (나)'}
+              </div>
             </div>
             <span className={styles.memberSub}>
               {m.region}
@@ -192,7 +205,7 @@ export const GuestStatusPage = () => {
           </div>
         ))}
 
-        {extraIdx < EXTRA_MEMBERS.length && (
+        {extraIdx < extraMembers.length && (
           <button
             className={styles.outlineButton}
             style={{ marginTop: 14 }}

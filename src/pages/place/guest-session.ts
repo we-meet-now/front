@@ -10,6 +10,8 @@ export const GUEST_KEYS = {
   startInfos: 'guest_start_infos',
   midpoint: 'guest_midpoint',
   selectedPlaces: 'guest_selected_places',
+  nickname: 'guest_nickname',
+  departure: 'guest_departure',
 } as const;
 
 export type DeparturePoint = {
@@ -56,3 +58,27 @@ export const loadSelectedPlaces = () => readArray<PlaceSearchType>(GUEST_KEYS.se
 
 export const saveSelectedPlaces = (places: PlaceSearchType[]) =>
   sessionStorage.setItem(GUEST_KEYS.selectedPlaces, JSON.stringify(places));
+
+/** 링크 공유 플로우에서 내가 입력한 닉네임과 출발지(시·구까지만). 상세주소는 저장하지 않는다. */
+export type GuestProfile = {
+  nickname: string | null;
+  departure: string | null;
+};
+
+const readText = (key: string) => sessionStorage.getItem(key)?.trim() || null;
+
+export const loadGuestProfile = (): GuestProfile => ({
+  nickname: readText(GUEST_KEYS.nickname),
+  departure: readText(GUEST_KEYS.departure),
+});
+
+export const saveGuestProfile = ({
+  nickname,
+  departure,
+}: {
+  nickname: string;
+  departure: string;
+}) => {
+  sessionStorage.setItem(GUEST_KEYS.nickname, nickname.trim());
+  sessionStorage.setItem(GUEST_KEYS.departure, departure.trim());
+};

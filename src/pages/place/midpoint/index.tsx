@@ -172,12 +172,6 @@ export const GuestMidpointPage = () => {
           </div>
         )}
 
-        {data?.warnings?.map((warning) => (
-          <div key={warning} className={styles.noticeBoxGrey} style={{ marginTop: 8 }}>
-            {warning}
-          </div>
-        ))}
-
         <button
           className={styles.outlineButton}
           style={{ marginTop: 14 }}
