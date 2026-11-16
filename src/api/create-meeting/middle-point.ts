@@ -50,6 +50,10 @@ export type MiddlePointResponse = {
   /** max_time 오름차순 후보 목록 */
   candidates: StationScore[];
   user_coords: UserCoordInfo[];
+  /**
+   * 서버 진단용 메시지(예: 경로 조회 실패로 직선거리 계산). 화면에 노출하지 않는다.
+   * 추정값 여부는 estimated_mask로 칩에 '(추정)'을 붙여 안내한다.
+   */
   warnings?: string[];
 };
 

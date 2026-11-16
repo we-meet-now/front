@@ -237,12 +237,6 @@ export const GuestResultPage = () => {
           ))}
         </div>
 
-        {data?.warnings?.map((warning) => (
-          <div key={warning} className={styles.noticeBoxGrey} style={{ marginTop: 10 }}>
-            {warning}
-          </div>
-        ))}
-
         <button
           className={styles.outlineButton}
           style={{ marginTop: 12 }}
