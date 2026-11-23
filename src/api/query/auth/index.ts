@@ -2,11 +2,13 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { type EmailApiResponse, sendEmailCode, verifyEmailCode } from '@/api/auth/email';
 import {
+  type CheckEmailDuplicateResponse,
   type GuestTokenResponse,
   type JoinRequest,
   type JoinResponse,
   type LoginRequest,
   type LoginResponse,
+  checkEmailDuplicate,
   getGuestToken,
   getRandomNickname,
   getUserInfo,
@@ -104,5 +106,11 @@ export const useSendEmailMutation = () => {
 export const useVerifyEmailMutation = () => {
   return useMutation<EmailApiResponse, Error, { email: string; code: string }>({
     mutationFn: ({ email, code }) => verifyEmailCode(email, code),
+  });
+};
+
+export const useCheckEmailDuplicateMutation = () => {
+  return useMutation<CheckEmailDuplicateResponse, Error, string>({
+    mutationFn: checkEmailDuplicate,
   });
 };

@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useJoinMutation, useSendEmailMutation, useVerifyEmailMutation } from '@/api/query/auth';
+import {
+  useCheckEmailDuplicateMutation,
+  useJoinMutation,
+  useSendEmailMutation,
+  useVerifyEmailMutation,
+} from '@/api/query/auth';
 import { AppBar } from '@/ui/appbar/app-bar';
 import { Button } from '@/ui/button/button';
 import { PageLayout } from '@/ui/layout/page-layout';
@@ -19,7 +24,7 @@ import serviceTerms from './terms/service.md?raw';
 
 import * as styles from './page.css';
 
-type SendStatus = 'idle' | 'loading' | 'sent' | 'error';
+type SendStatus = 'idle' | 'loading' | 'sent' | 'duplicate' | 'error';
 type VerifyStatus = 'idle' | 'loading' | 'success' | 'error';
 
 // 약관 본문은 ./terms/*.md 에 작성
@@ -59,6 +64,7 @@ const TERMS_ITEMS: TermsItem[] = [
 export const RegisterPage = () => {
   const navigate = useNavigate();
   const joinMutation = useJoinMutation();
+  const checkEmailDuplicateMutation = useCheckEmailDuplicateMutation();
   const sendEmailMutation = useSendEmailMutation();
   const verifyEmailMutation = useVerifyEmailMutation();
 
@@ -107,6 +113,7 @@ export const RegisterPage = () => {
     setSendStatus('idle');
     setVerifyStatus('idle');
     setCode('');
+    checkEmailDuplicateMutation.reset();
     sendEmailMutation.reset();
     verifyEmailMutation.reset();
     joinMutation.reset();
@@ -124,7 +131,15 @@ export const RegisterPage = () => {
     setSendStatus('loading');
     setVerifyStatus('idle');
     setCode('');
+    checkEmailDuplicateMutation.reset();
+    sendEmailMutation.reset();
     try {
+      // 이미 가입된 이메일은 인증·약관 동의까지 마친 뒤 가입 단계에서야 실패하므로 발송 전에 막는다
+      const { data } = await checkEmailDuplicateMutation.mutateAsync(email);
+      if (data.duplicate) {
+        setSendStatus('duplicate');
+        return;
+      }
       await sendEmailMutation.mutateAsync(email);
       setSendStatus('sent');
     } catch {
@@ -262,9 +277,14 @@ export const RegisterPage = () => {
                 </button>
               )}
             </div>
+            {sendStatus === 'duplicate' && (
+              <span className={styles.errorText}>
+                이미 가입된 이메일입니다. 로그인하거나 다른 이메일을 입력해 주세요.
+              </span>
+            )}
             {sendStatus === 'error' && (
               <span className={styles.errorText}>
-                {sendEmailMutation.error?.message ??
+                {(checkEmailDuplicateMutation.error ?? sendEmailMutation.error)?.message ??
                   '인증번호 발송에 실패했어요. 다시 시도해 주세요.'}
               </span>
             )}

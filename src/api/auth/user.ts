@@ -23,6 +23,23 @@ export const joinUser = (body: Omit<JoinRequest, 'role'>): Promise<JoinResponse>
     body: { ...body, role: 'ROLE_USER' },
   });
 
+export type CheckEmailDuplicateResponse = {
+  statusCode: string;
+  data: {
+    email: string;
+    duplicate: boolean;
+  };
+  message: string;
+};
+
+/** 가입 이력이 있는 이메일인지 확인한다. 인증번호 발송 전에 호출해 가입 단계까지 가서야 실패하는 일을 막는다 */
+export const checkEmailDuplicate = (email: string): Promise<CheckEmailDuplicateResponse> =>
+  apiClient('/users/check-email-duplicate', {
+    method: 'POST',
+    baseUrl: AUTH_URL,
+    body: { email },
+  });
+
 export type LoginRequest = {
   email: string;
   password: string;
