@@ -1,5 +1,6 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
+import PrivateRoute from './components/PrivateRoute';
 import { CalendarPage } from './pages/calendar';
 import { ChatPage } from './pages/chat';
 import { AiManagerPage } from './pages/chat/ai';
@@ -13,6 +14,7 @@ import { GalleryPage } from './pages/gallery';
 import { HomePage } from './pages/home';
 import { InvitePage } from './pages/invite';
 import { LoginPage } from './pages/login';
+import { MainLayout } from './pages/main-layout';
 import { MeetingCompletePage } from './pages/meeting-complete';
 import { MeetingLayout } from './pages/meeting-layout';
 import { MyPage } from './pages/mypage';
@@ -36,12 +38,16 @@ import { GuestSharedResultPage } from './pages/place/shared-result';
 import { GuestStatusPage } from './pages/place/status';
 // import { StartPage } from './pages/onboarding/start';
 import { RegisterPage } from './pages/register';
+import { isLogin } from './utils/isLogin';
+
+/** 로그인한 사용자는 소개 화면 대신 바로 메인(홈)으로 보낸다 */
+const RootRoute = () => (isLogin() ? <Navigate replace to="/home" /> : <OnBoardingPage />);
 
 export const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<OnBoardingPage />} />
+        <Route path="/" element={<RootRoute />} />
         {/* 공통 페이지 */}
         <Route path="onboarding">
           <Route index element={<OnBoardingPage />} />
@@ -69,6 +75,17 @@ export const Router = () => {
         {/* 초대 링크 진입: 회원은 바로 입장, 비회원은 로그인 또는 게스트 토큰으로 입장 */}
         <Route path="invite/:roomId" element={<InvitePage />} />
 
+        {/* 로그인 후 메인 탭: 특정 모임에 속하지 않는다 */}
+        <Route element={<PrivateRoute />}>
+          <Route element={<MainLayout />}>
+            <Route path="home" element={<HomePage />} />
+            <Route path="notification" element={<NotificationPage />} />
+            <Route path="chat" element={<ChatPage />} />
+            <Route path="calendar" element={<CalendarPage />} />
+            <Route path="gallery" element={<GalleryPage />} />
+          </Route>
+        </Route>
+
         {/* 모임방 전용 라우팅 */}
         <Route path="meeting/:roomId" element={<MeetingLayout />}>
           <Route index element={<HomePage />} />
@@ -87,13 +104,15 @@ export const Router = () => {
         <Route path="room/:roomId/settlement" element={<SettlementPage />} />
         <Route path="room/:roomId/settlement/new" element={<SettlementNewPage />} />
 
-        {/* 마이페이지 */}
-        <Route path="mypage" element={<MyPage />} />
-        <Route path="mypage/detail" element={<MyPageDetail />} />
-        <Route path="mypage/map" element={<MapSettingPage />} />
-        <Route path="mypage/friend" element={<FriendSettingPage />} />
-        <Route path="mypage/notification-setting" element={<NotificationSettingPage />} />
-        <Route path="mypage/calendar-setting" element={<CalendarSettingPage />} />
+        {/* 마이페이지: 회원 전용 */}
+        <Route element={<PrivateRoute />}>
+          <Route path="mypage" element={<MyPage />} />
+          <Route path="mypage/detail" element={<MyPageDetail />} />
+          <Route path="mypage/map" element={<MapSettingPage />} />
+          <Route path="mypage/friend" element={<FriendSettingPage />} />
+          <Route path="mypage/notification-setting" element={<NotificationSettingPage />} />
+          <Route path="mypage/calendar-setting" element={<CalendarSettingPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

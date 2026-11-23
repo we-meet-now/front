@@ -363,7 +363,7 @@ export const OnBoardingPage = () => {
       </div>
 
       <div className={styles.buttonContainer}>
-        <Button size="l" color="blue" onClick={() => navigate('/create-meeting')}>
+        <Button size="l" color="blue" onClick={() => navigate('/chat')}>
           모임 만들기
         </Button>
         <Button size="l" color="white" onClick={() => setJoinPopupOpen(true)}>
@@ -401,7 +401,7 @@ export const OnBoardingPage = () => {
               <button
                 type="button"
                 className={styles.joinFooterLink}
-                onClick={() => navigate('/create-meeting')}
+                onClick={() => navigate('/chat')}
               >
                 모임 만들기
               </button>

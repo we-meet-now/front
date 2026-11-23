@@ -3,10 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import type { EnterRoomResponse } from '@/api/chat/room';
 import { useGuestUsernameQuery, useUserInfoQuery } from '@/api/query/auth';
-import { useEnterRoomQuery } from '@/api/query/chat';
+import { useEnterRoomQuery, useLeaveChatRoomMutation, useMyChatRoomsQuery } from '@/api/query/chat';
 import { type StompMessage, useStompChat } from '@/hooks/useStompChat';
 import { type Message, chatStore } from '@/store/chat-store';
+import { ActionSheet } from '@/ui/action-sheet/action-sheet';
 import { AppBar } from '@/ui/appbar/app-bar';
+import { ConfirmPopup } from '@/ui/confirm-popup/confirm-popup';
 import { GNB } from '@/ui/gnb/gnb';
 import { PageLayout } from '@/ui/layout/page-layout';
 import { cx } from '@/ui/utils';
@@ -113,6 +115,11 @@ export const ChatRoomPage = () => {
   const chatRoomId = Number(roomId);
   const enterRoomQuery = useEnterRoomQuery(chatRoomId);
   const enterData = enterRoomQuery.data;
+  // 방 이름은 내 모임 목록에서 찾는다. 게스트는 목록 API를 쓸 수 없어 기본 이름을 보여준다
+  const { data: myRooms } = useMyChatRoomsQuery();
+  const roomName =
+    myRooms?.find(({ chatRoom }) => chatRoom.chatRoomId === chatRoomId)?.chatRoom.chatRoomNm ??
+    '채팅방';
   // 내 메시지 구분용 식별자 (회원: userId, 게스트: uuId)
   const username = enterData ? getMyChatKey(enterData) : MY_USERNAME;
   // STOMP 본문: 회원은 userId만, 게스트는 userId null + uuId
@@ -131,6 +138,9 @@ export const ChatRoomPage = () => {
   const isGuestUsernameSettled =
     !!isLogin() || guestUsernameQuery.isSuccess || guestUsernameQuery.isError;
   const [activeTab, setActiveTab] = useState('chat');
+  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isLeaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
+  const leaveMutation = useLeaveChatRoomMutation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const chatEndRef = useRef<HTMLDivElement>(null);
@@ -217,6 +227,20 @@ export const ChatRoomPage = () => {
     }
   };
 
+  const openLeaveConfirm = () => {
+    leaveMutation.reset();
+    setMenuOpen(false);
+    setLeaveConfirmOpen(true);
+  };
+
+  const handleLeave = () => {
+    if (leaveMutation.isPending) return;
+    leaveMutation.mutate(chatRoomId, {
+      // 나간 방으로 뒤로가기 하지 않도록 히스토리를 교체한다. 게스트는 돌아갈 목록이 없어 첫 화면으로 보낸다
+      onSuccess: () => navigate(isLogin() ? '/chat' : '/', { replace: true }),
+    });
+  };
+
   const handleTabClick = (key: string) => {
     if (key === 'chat') {
       setActiveTab(key);
@@ -230,14 +254,22 @@ export const ChatRoomPage = () => {
       header={
         <>
           <AppBar
-            title="대학 동기 모임"
+            title={roomName}
             subTitle={isConnected ? '6명 참여 중 · 연결됨' : '6명 참여 중 · 오프라인'}
             showBackButton
-            onBackClick={() => navigate(-1)}
+            // 회원은 채팅 목록으로 돌아간다. 탭 이동·모임 생성 단계가 히스토리에 쌓여 있어 -1로는 엉뚱한 화면이 나온다
+            onBackClick={() => (isLogin() ? navigate('/chat') : navigate(-1))}
             rightSlot={
               <div className={styles.headerIcons}>
                 <button className={styles.headerIconButton}>🔍</button>
-                <button className={styles.headerIconButton}>☰</button>
+                <button
+                  type="button"
+                  className={styles.headerIconButton}
+                  aria-label="채팅방 메뉴"
+                  onClick={() => setMenuOpen(true)}
+                >
+                  ☰
+                </button>
               </div>
             }
           />
@@ -325,6 +357,32 @@ export const ChatRoomPage = () => {
         })}
         <div ref={chatEndRef} />
       </div>
+
+      {isMenuOpen && (
+        <ActionSheet
+          items={[
+            {
+              icon: '🚪',
+              label: '채팅방 나가기',
+              desc: '내 채팅 목록에서 사라져요',
+              onClick: openLeaveConfirm,
+            },
+          ]}
+          onClose={() => setMenuOpen(false)}
+        />
+      )}
+
+      {isLeaveConfirmOpen && (
+        <ConfirmPopup
+          title="채팅방을 나가시겠어요?"
+          description="다시 들어오려면 초대 링크가 필요해요."
+          confirmLabel="나가기"
+          isPending={leaveMutation.isPending}
+          errorMessage={leaveMutation.isError ? leaveMutation.error.message : null}
+          onConfirm={handleLeave}
+          onClose={() => setLeaveConfirmOpen(false)}
+        />
+      )}
     </PageLayout>
   );
 };

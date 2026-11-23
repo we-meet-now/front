@@ -24,6 +24,64 @@ export const createChatRoom = (body: CreateChatRoomRequest): Promise<CreateChatR
     auth: true,
   });
 
+export type ChatRoom = {
+  chatRoomId: number;
+  chatRoomNm: string;
+  /** 모임 생성 시 받지 않는 값이라 비어 있을 수 있다 */
+  placeId: number | null;
+  meetType: string | null;
+  meetTime: string | null;
+  enterCode: string;
+  inpDate: string;
+  mdfyDate: string;
+  inpUserId: string;
+  mdfyUserId: string;
+};
+
+export type MyChatRoomItem = {
+  chatRoom: ChatRoom;
+  isNotReadCount: number;
+};
+
+/** 다른 채팅 API와 같이 { statusCode, data, message }로 감싸서 내려온다 */
+export type MyChatRoomsResponse = {
+  statusCode: string;
+  data: {
+    loginedUserId: number;
+    /** 참여 중인 방이 없을 때 빈 배열 대신 null이 올 수 있어 화면에서 함께 처리한다 */
+    chatRoomList: MyChatRoomItem[] | null;
+  } | null;
+  message: string;
+};
+
+/** 회원 토큰 기준으로 서버가 본인이 참여 중인 방만 내려준다 */
+export const getMyChatRooms = (): Promise<MyChatRoomsResponse> =>
+  apiClient('/chat-rooms', {
+    baseUrl: CHAT_URL,
+    auth: true,
+  });
+
+export type LeaveChatRoomResponse = {
+  statusCode: string;
+  data: unknown;
+  message: string;
+};
+
+/**
+ * 채팅방 퇴장. 서버 명세가 GET이고 경로에 `roomId=`가 문자 그대로 들어간다 (`leave-room/roomId=5`).
+ * 실패를 HTTP 200 + statusCode로 내려줄 수도 있어 성공 코드(2xxx)가 아니면 오류로 본다.
+ */
+export const leaveChatRoom = async (roomId: number): Promise<LeaveChatRoomResponse> => {
+  const res = await apiClient<LeaveChatRoomResponse>(
+    `/chat-rooms/leave-room/roomId=${encodeURIComponent(roomId)}`,
+    { baseUrl: CHAT_URL, auth: true },
+  );
+  if (res.statusCode && !res.statusCode.startsWith('2')) {
+    throw new Error(res.message || '채팅방을 나가지 못했어요.');
+  }
+  return res;
+};
+
 export type EnterRoomRequest = {
   roomId: number;
 };

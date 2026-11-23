@@ -11,8 +11,8 @@ import { LOCAL_STORAGE, clearGuestToken, isLogin } from '@/utils/isLogin';
 
 import * as styles from './page.css';
 
-/** 로그인 후 기본 진입 화면. redirect 쿼리가 없을 때 이동한다 */
-const MAIN_PATH = '/';
+/** 로그인 후 기본 진입 화면(홈 지도). redirect 쿼리가 없을 때 이동한다 */
+const MAIN_PATH = '/home';
 
 export const LoginPage = () => {
   const navigate = useNavigate();

@@ -60,7 +60,7 @@ export const FlowPage = () => {
 
   const goNext = () => {
     if (isLast) {
-      navigate('/create-meeting');
+      navigate('/chat');
     } else {
       const state: FlowLocationState = { fromFlowStep: step };
       setSearchParams({ step: String(step + 2) }, { state });
@@ -81,7 +81,7 @@ export const FlowPage = () => {
   };
 
   const skip = () => {
-    navigate('/create-meeting');
+    navigate('/chat');
   };
 
   return (

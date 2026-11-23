@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { type MapSearchResult, type MapSearchScope, searchMapLocations } from '@/api/map/search';
 import BellIcon from '@/assets/icons/bell.svg?react';
@@ -23,7 +23,6 @@ const SEARCH_RESULT_LEVEL = 3;
 
 export const HomePage = () => {
   const navigate = useNavigate();
-  const { roomId } = useParams();
   const mapRef = useRef<HTMLDivElement>(null);
   const kakaoRef = useRef<Kakao | null>(null);
   const mapInstanceRef = useRef<KakaoMap | null>(null);
@@ -207,10 +206,7 @@ export const HomePage = () => {
       </div>
 
       {/* ── 알람 버튼 (플로팅) ── */}
-      <button
-        className={styles.alarmButton}
-        onClick={() => navigate(`/meeting/${roomId}/notification`)}
-      >
+      <button className={styles.alarmButton} onClick={() => navigate('/notification')}>
         <BellIcon className={styles.bellIcon} />
         {UNREAD_COUNT > 0 && <span className={styles.alarmBadge}>{UNREAD_COUNT}</span>}
       </button>

@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import type { MyChatRoomItem } from '@/api/chat/room';
+import { useLeaveChatRoomMutation, useMyChatRoomsQuery } from '@/api/query/chat';
+import { ActionSheet } from '@/ui/action-sheet/action-sheet';
+import { ConfirmPopup } from '@/ui/confirm-popup/confirm-popup';
+import { Toast } from '@/ui/toast/toast';
 import { cx } from '@/ui/utils';
+import { getRoomPath } from '@/utils/invite-link';
+import { formatCreatedDate, formatUnreadCount, getRoomAvatarColor } from '@/utils/room';
 
 import * as styles from './page.css';
 
@@ -10,46 +17,97 @@ const CHAT_TABS = [
   { key: 'chat', label: '채팅' },
 ];
 
-type ChatRoom = {
-  id: string;
-  name: string;
-  lastMessage: string;
-  timeAgo: string;
-  avatars: { text: string; color: string }[];
-};
-
-const DUMMY_ROOMS: ChatRoom[] = [
-  {
-    id: '1',
-    name: '대학 동기 모임',
-    lastMessage: '도희야 반가워! 오랜만이다 ㅎㅎ',
-    timeAgo: '1달 전',
-    avatars: [
-      { text: '민', color: '#e53935' },
-      { text: '수', color: '#fb8c00' },
-      { text: '지', color: '#7c3aed' },
-    ],
-  },
-];
-
-const AVATAR_POSITIONS: Record<number, { top: number; left: number }[]> = {
-  2: [
-    { top: 0, left: 4 },
-    { top: 20, left: 20 },
-  ],
-  3: [
-    { top: 0, left: 12 },
-    { top: 22, left: 0 },
-    { top: 22, left: 24 },
-  ],
-};
-
 export const ChatPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('chat');
+  const { data: rooms, isPending, isError } = useMyChatRoomsQuery();
+  const leaveMutation = useLeaveChatRoomMutation();
+  // ⋮ 메뉴를 연 방 → 나가기 확인을 받는 방 순서로 넘어간다
+  const [menuRoom, setMenuRoom] = useState<MyChatRoomItem | null>(null);
+  const [leavingRoom, setLeavingRoom] = useState<MyChatRoomItem | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const handleRoomClick = (id: string) => {
-    navigate(`/room/${id}/chat?user=123`);
+  const goCreateMeeting = () => navigate('/create-meeting');
+
+  const handleRoomClick = ({ chatRoom }: MyChatRoomItem) => {
+    navigate(getRoomPath(String(chatRoom.chatRoomId), chatRoom.enterCode));
+  };
+
+  const openLeaveConfirm = () => {
+    leaveMutation.reset();
+    setLeavingRoom(menuRoom);
+    setMenuRoom(null);
+  };
+
+  const handleLeave = () => {
+    if (!leavingRoom || leaveMutation.isPending) return;
+    leaveMutation.mutate(leavingRoom.chatRoom.chatRoomId, {
+      onSuccess: () => {
+        setLeavingRoom(null);
+        setToastMessage('채팅방을 나갔어요');
+      },
+    });
+  };
+
+  const renderChatList = () => {
+    if (isPending) return <div className={styles.emptyState}>불러오는 중이에요...</div>;
+    if (isError) return <div className={styles.emptyState}>채팅 목록을 불러오지 못했어요.</div>;
+    if (rooms.length === 0) {
+      return (
+        <div className={styles.emptyState}>
+          아직 참여 중인 모임이 없어요.
+          <br />
+          아래 버튼으로 첫 모임을 만들어 보세요!
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.chatList}>
+        {rooms.map((item) => {
+          const { chatRoom, isNotReadCount } = item;
+          const unread = formatUnreadCount(isNotReadCount);
+          const detail =
+            [chatRoom.meetType, chatRoom.meetTime].filter(Boolean).join(' · ') ||
+            formatCreatedDate(chatRoom.inpDate);
+
+          return (
+            <div
+              key={chatRoom.chatRoomId}
+              className={styles.chatItem}
+              onClick={() => handleRoomClick(item)}
+            >
+              <div
+                className={styles.roomAvatar}
+                style={{ backgroundColor: getRoomAvatarColor(chatRoom.chatRoomNm) }}
+              >
+                {chatRoom.chatRoomNm.charAt(0) || '모'}
+              </div>
+
+              <div className={styles.chatInfo}>
+                <div className={styles.chatName}>{chatRoom.chatRoomNm}</div>
+                {detail && <div className={styles.chatPreview}>{detail}</div>}
+              </div>
+
+              {unread && <span className={styles.unreadBadge}>{unread}</span>}
+
+              <button
+                type="button"
+                className={styles.moreButton}
+                aria-label={`${chatRoom.chatRoomNm} 메뉴`}
+                onClick={(e) => {
+                  // 줄 전체 클릭(방 입장)으로 번지지 않게 막는다
+                  e.stopPropagation();
+                  setMenuRoom(item);
+                }}
+              >
+                ⋮
+              </button>
+            </div>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -70,46 +128,45 @@ export const ChatPage = () => {
       {activeTab === 'friends' && <div className={styles.emptyState}>향후 오픈 예정이에요.</div>}
 
       {activeTab === 'chat' && (
-        <div className={styles.chatList}>
-          {DUMMY_ROOMS.map((room) => {
-            const positions = AVATAR_POSITIONS[room.avatars.length] ?? AVATAR_POSITIONS[3]!;
-
-            return (
-              <div
-                key={room.id}
-                className={styles.chatItem}
-                onClick={() => handleRoomClick(room.id)}
-              >
-                {/* 아바타 그룹 */}
-                <div className={styles.avatarGroup}>
-                  {room.avatars.map((av, i) => (
-                    <div
-                      key={i}
-                      className={styles.avatarCircle}
-                      style={{
-                        backgroundColor: av.color,
-                        top: positions[i]?.top,
-                        left: positions[i]?.left,
-                      }}
-                    >
-                      {av.text}
-                    </div>
-                  ))}
-                </div>
-
-                {/* 채팅방 정보 */}
-                <div className={styles.chatInfo}>
-                  <div className={styles.chatName}>{room.name}</div>
-                  <div className={styles.chatPreview}>{room.lastMessage}</div>
-                </div>
-
-                {/* 시간 */}
-                <span className={styles.chatTime}>{room.timeAgo}</span>
-              </div>
-            );
-          })}
-        </div>
+        <>
+          {renderChatList()}
+          {/* 한 계정이 여러 모임을 만들 수 있어 목록 위에 항상 떠 있는 만들기 버튼을 둔다 */}
+          <button type="button" className={styles.createFab} onClick={goCreateMeeting}>
+            <span className={styles.createFabIcon} aria-hidden>
+              ＋
+            </span>
+            모임 만들기
+          </button>
+        </>
       )}
+
+      {menuRoom && (
+        <ActionSheet
+          items={[
+            {
+              icon: '🚪',
+              label: '채팅방 나가기',
+              desc: '내 채팅 목록에서 사라져요',
+              onClick: openLeaveConfirm,
+            },
+          ]}
+          onClose={() => setMenuRoom(null)}
+        />
+      )}
+
+      {leavingRoom && (
+        <ConfirmPopup
+          title="채팅방을 나가시겠어요?"
+          description={`'${leavingRoom.chatRoom.chatRoomNm}' 방이 목록에서 사라지고, 다시 들어오려면 초대 링크가 필요해요.`}
+          confirmLabel="나가기"
+          isPending={leaveMutation.isPending}
+          errorMessage={leaveMutation.isError ? leaveMutation.error.message : null}
+          onConfirm={handleLeave}
+          onClose={() => setLeavingRoom(null)}
+        />
+      )}
+
+      {toastMessage && <Toast title={toastMessage} onClose={() => setToastMessage(null)} />}
     </>
   );
 };
